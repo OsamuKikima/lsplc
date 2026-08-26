@@ -1,0 +1,1320 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LSP ファシリテーターズ・コミュニティ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#FFFDF7;
+    --ink:#232B3A;
+    --ink-soft:#5B6472;
+    --brick:#E8483C;
+    --brick-dark:#C63A2F;
+    --yellow:#FFC72C;
+    --yellow-dark:#E8AE0A;
+    --blue:#2E9CE0;
+    --blue-dark:#1F7CB8;
+    --green:#4CAF6D;
+    --green-dark:#3B9257;
+    --amber:#F2924A;
+    --amber-dark:#DC7A30;
+    --line:#EEE7D6;
+    --card:#FFFFFF;
+    --shadow: 0 6px 0 rgba(35,43,58,0.08);
+    --radius: 18px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--cream);
+    color:var(--ink);
+    font-family:'Noto Sans JP', sans-serif;
+    line-height:1.7;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.display{
+    font-family:'Zen Maru Gothic', sans-serif;
+    font-weight:900;
+    color:var(--ink);
+    margin:0;
+  }
+  a{color:inherit;}
+  button{font-family:inherit;cursor:pointer;}
+  img{max-width:100%;}
+  .connect-row{
+    display:inline-flex;
+    align-items:center;
+    line-height:0;
+  }
+  .connect-row svg{display:block;}
+
+  /* Header */
+  header{
+    position:sticky; top:0; z-index:50;
+    background:rgba(255,253,247,0.92);
+    backdrop-filter: blur(6px);
+    border-bottom:2px solid var(--line);
+  }
+  .header-inner{
+    max-width:1180px;margin:0 auto;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:14px 24px;
+    gap:16px;
+  }
+  .logo{display:flex;align-items:center;gap:10px;}
+  .logo-mark{display:flex;align-items:center;}
+  .logo-text{font-size:17px;line-height:1.25;}
+  .logo-text small{display:block;font-family:'Noto Sans JP';font-weight:500;font-size:11px;color:var(--ink-soft);}
+  nav{display:flex;gap:4px;align-items:center;}
+  .nav-link{
+    padding:9px 14px;border-radius:999px;font-weight:700;font-size:14px;
+    background:none;border:none;color:var(--ink-soft);
+    transition:.15s;
+  }
+  .nav-link:hover{background:#FFF3D6;color:var(--ink);}
+  .member-pill{
+    display:flex;align-items:center;gap:8px;
+    padding:7px 8px 7px 14px;border-radius:999px;
+    background:var(--ink);color:#fff;font-weight:700;font-size:13px;
+    border:none;
+  }
+  .member-pill .avatar{
+    width:26px;height:26px;border-radius:50%;background:var(--yellow);
+    display:flex;align-items:center;justify-content:center;color:var(--ink);font-size:12px;font-weight:900;
+  }
+  .btn-primary{
+    background:var(--brick);color:#fff;border:none;
+    padding:10px 20px;border-radius:999px;font-weight:700;font-size:14px;
+    box-shadow:0 4px 0 var(--brick-dark);
+    transition:.12s;
+  }
+  .btn-primary:hover{transform:translateY(1px);box-shadow:0 3px 0 var(--brick-dark);}
+  .btn-primary:active{transform:translateY(4px);box-shadow:0 0 0 var(--brick-dark);}
+  .hamburger{display:none;background:none;border:none;padding:8px;}
+  .hamburger span{display:block;width:22px;height:3px;background:var(--ink);margin:4px 0;border-radius:2px;}
+
+  /* Hero */
+  .hero{
+    max-width:1180px;margin:0 auto;
+    padding:56px 24px 40px;
+    display:grid;grid-template-columns:1.2fr 1fr;gap:40px;align-items:center;
+  }
+  .hero-eyebrow{
+    display:inline-flex;align-items:center;gap:8px;
+    background:#FFF3D6;color:var(--amber-dark);font-weight:700;font-size:13px;
+    padding:6px 14px;border-radius:999px;margin-bottom:18px;
+  }
+  .hero h1{font-size:clamp(30px,4.2vw,46px);line-height:1.3;}
+  .hero h1 .hi{color:var(--brick);}
+  .hero p.lead{margin-top:16px;color:var(--ink-soft);font-size:16px;max-width:46ch;}
+  .hero-cta{margin-top:26px;display:flex;gap:12px;flex-wrap:wrap;}
+  .btn-ghost{
+    background:#fff;border:2px solid var(--ink);color:var(--ink);
+    padding:10px 20px;border-radius:999px;font-weight:700;font-size:14px;
+  }
+  .hero-art{
+    position:relative;
+    background:linear-gradient(135deg,#FFEAC2,#BFE6FF);
+    border-radius:28px;padding:26px;
+    box-shadow:var(--shadow);
+  }
+  .hero-art .connect-row{display:flex;justify-content:center;margin-bottom:18px;}
+  .hero-art .stack{
+    display:grid;gap:10px;
+  }
+  .info-chip{
+    background:#fff;border-radius:14px;padding:14px 16px;
+    display:flex;align-items:center;gap:12px;
+    box-shadow:0 3px 0 rgba(0,0,0,0.06);
+  }
+  .info-chip .dot{width:10px;height:10px;border-radius:50%;flex:none;}
+  .info-chip span{font-size:13px;font-weight:700;color:var(--ink-soft);}
+
+  section{max-width:1180px;margin:0 auto;padding:36px 24px;}
+  .section-head{display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin-bottom:22px;flex-wrap:wrap;}
+  .section-head h2{font-size:26px;}
+  .section-head .count{color:var(--ink-soft);font-size:14px;font-weight:500;}
+
+  /* Announcements */
+  .ann-scroll{display:flex;gap:16px;overflow-x:auto;padding-bottom:8px;scroll-snap-type:x mandatory;}
+  .ann-card{
+    flex:none;width:300px;scroll-snap-align:start;
+    background:var(--card);border-radius:var(--radius);padding:20px;
+    border-top:6px solid var(--blue);box-shadow:var(--shadow);
+  }
+  .ann-card.type-info{border-top-color:var(--blue);}
+  .ann-card.type-alert{border-top-color:var(--brick);}
+  .ann-card.type-event{border-top-color:var(--green);}
+  .ann-date{font-size:12px;color:var(--ink-soft);font-weight:700;}
+  .ann-card h3{font-size:16px;margin-top:6px;}
+  .ann-card p{font-size:13.5px;color:var(--ink-soft);margin-top:8px;}
+  .ann-badge{
+    display:inline-block;font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;
+    margin-bottom:8px;
+  }
+  .ann-card.type-info .ann-badge{background:#E4F3FC;color:var(--blue-dark);}
+  .ann-card.type-alert .ann-badge{background:#FBE4E2;color:var(--brick-dark);}
+  .ann-card.type-event .ann-badge{background:#E4F5EA;color:var(--green-dark);}
+
+  /* Toolbar */
+  .toolbar{
+    background:var(--card);border-radius:var(--radius);
+    padding:18px 20px;box-shadow:var(--shadow);margin-bottom:26px;
+  }
+  .toolbar-row{display:flex;gap:12px;align-items:center;flex-wrap:wrap;}
+  .search-box{
+    flex:1;min-width:220px;display:flex;align-items:center;gap:10px;
+    background:var(--cream);border:2px solid var(--line);border-radius:999px;padding:10px 16px;
+  }
+  .search-box input{border:none;background:none;outline:none;font-size:14px;width:100%;font-family:inherit;color:var(--ink);}
+  .view-toggle{display:flex;background:var(--cream);border-radius:999px;padding:4px;border:2px solid var(--line);}
+  .view-toggle button{
+    border:none;background:none;padding:8px 16px;border-radius:999px;font-weight:700;font-size:13px;color:var(--ink-soft);
+  }
+  .view-toggle button.active{background:var(--ink);color:#fff;}
+  .filter-toggle-btn{
+    border:2px solid var(--line);background:#fff;border-radius:999px;padding:9px 16px;font-weight:700;font-size:13px;color:var(--ink);
+  }
+  .filter-panel{margin-top:16px;padding-top:16px;border-top:2px dashed var(--line);display:none;}
+  .filter-panel.open{display:block;}
+  .filter-group{margin-bottom:14px;}
+  .filter-group h4{font-size:12px;color:var(--ink-soft);font-weight:700;margin:0 0 8px;letter-spacing:.02em;}
+  .tag-pills{display:flex;flex-wrap:wrap;gap:8px;}
+  .tag-pill{
+    border:2px solid var(--line);background:#fff;padding:6px 14px;border-radius:999px;
+    font-size:12.5px;font-weight:700;color:var(--ink-soft);display:flex;align-items:center;gap:6px;
+  }
+  .tag-pill .dot{width:8px;height:8px;border-radius:50%;}
+  .tag-pill.online{--tagc:var(--blue);}
+  .tag-pill.venue{--tagc:var(--green);}
+  .tag-pill.theme{--tagc:var(--amber);}
+  .tag-pill .dot{background:var(--tagc,var(--ink-soft));}
+  .tag-pill.active{background:var(--tagc,var(--ink)); border-color:var(--tagc,var(--ink)); color:#fff;}
+  .tag-pill.active .dot{background:#fff;}
+  .clear-filters{border:none;background:none;color:var(--brick);font-weight:700;font-size:12.5px;text-decoration:underline;}
+
+  /* Session cards */
+  .session-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+  .session-card{
+    background:var(--card);border-radius:var(--radius);overflow:hidden;
+    box-shadow:var(--shadow);display:flex;flex-direction:column;
+  }
+  .session-top{padding:16px 18px 0;}
+  .session-top .connect-row{margin-bottom:10px;}
+  .session-body{padding:4px 18px 18px;flex:1;display:flex;flex-direction:column;}
+  .session-date-badge{
+    display:inline-flex;flex-direction:column;align-items:center;justify-content:center;
+    width:52px;height:52px;border-radius:12px;background:var(--cream);border:2px solid var(--line);
+    font-family:'Zen Maru Gothic';margin-bottom:12px;flex:none;
+  }
+  .session-date-badge .m{font-size:10px;font-weight:700;color:var(--brick);}
+  .session-date-badge .d{font-size:20px;font-weight:900;line-height:1;}
+  .session-card h3{font-size:17px;margin-bottom:6px;}
+  .session-meta{font-size:13px;color:var(--ink-soft);display:flex;flex-direction:column;gap:4px;margin-bottom:10px;}
+  .session-meta span{display:flex;align-items:center;gap:6px;}
+  .session-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;}
+  .mini-tag{font-size:11px;font-weight:700;padding:4px 10px;border-radius:999px;}
+  .mini-tag.online{background:#E4F3FC;color:var(--blue-dark);}
+  .mini-tag.venue{background:#E4F5EA;color:var(--green-dark);}
+  .mini-tag.theme{background:#FCE9DC;color:var(--amber-dark);}
+  .capacity-info{margin-bottom:14px;}
+  .capacity-info-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;flex-wrap:wrap;}
+  .capacity-count{font-size:11.5px;color:var(--ink-soft);font-weight:700;}
+  .capacity-badge{font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;white-space:nowrap;}
+  .capacity-badge.confirmed{background:#E4F5EA;color:var(--green-dark);}
+  .capacity-badge.pending{background:#FCE9DC;color:var(--amber-dark);}
+  .capacity-badge.full{background:#FBE4E2;color:var(--brick-dark);}
+  .capacity-bar{position:relative;height:8px;border-radius:999px;background:var(--cream);border:1px solid var(--line);overflow:visible;}
+  .capacity-bar-fill{height:100%;border-radius:999px;background:var(--amber);transition:width .3s;}
+  .capacity-bar-fill.confirmed{background:var(--green);}
+  .capacity-bar-fill.full{background:var(--brick);}
+  .capacity-bar-min{
+    position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--ink);opacity:.4;
+  }
+  .session-footer{margin-top:auto;display:flex;align-items:center;justify-content:space-between;gap:10px;}
+  .fee{font-weight:900;font-family:'Zen Maru Gothic';font-size:15px;}
+  .fee.free{color:var(--green-dark);}
+  .reg-badge{font-size:11px;font-weight:700;color:var(--brick-dark);background:#FBE4E2;padding:4px 10px;border-radius:999px;}
+  .btn-detail{
+    background:var(--ink);color:#fff;border:none;padding:9px 16px;border-radius:999px;font-weight:700;font-size:13px;
+    white-space:nowrap;
+  }
+  .btn-detail:hover{background:var(--brick);}
+  .empty-state{
+    text-align:center;padding:60px 20px;color:var(--ink-soft);
+  }
+  .empty-state .connect-row{display:flex;justify-content:center;margin-bottom:16px;}
+
+  /* Calendar */
+  .calendar-wrap{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px;}
+  .cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+  .cal-head h3{font-size:18px;}
+  .cal-nav{display:flex;gap:6px;}
+  .cal-nav button{border:2px solid var(--line);background:#fff;width:34px;height:34px;border-radius:50%;font-weight:900;font-size:15px;color:var(--ink);}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;}
+  .cal-dow{text-align:center;font-size:12px;font-weight:700;color:var(--ink-soft);padding-bottom:6px;}
+  .cal-cell{
+    min-height:78px;border-radius:12px;background:var(--cream);border:2px solid var(--line);
+    padding:6px;position:relative;cursor:default;
+  }
+  .cal-cell.empty{background:transparent;border-color:transparent;}
+  .cal-cell .num{font-size:12px;font-weight:700;color:var(--ink-soft);}
+  .cal-cell.today .num{color:var(--brick);}
+  .cal-dots{display:flex;flex-wrap:wrap;gap:3px;margin-top:6px;}
+  .cal-dots .d{width:7px;height:7px;border-radius:50%;}
+  .cal-cell.has-events{cursor:pointer;border-color:var(--yellow);background:#FFFAEA;}
+  .cal-cell.selected{outline:3px solid var(--brick);outline-offset:-3px;}
+  .cal-day-list{margin-top:18px;border-top:2px dashed var(--line);padding-top:16px;}
+  .cal-day-list h4{font-size:14px;margin-bottom:12px;}
+
+  /* Members section */
+  .members-cta{
+    background:linear-gradient(135deg,#FFF3D6,#FFE39B);
+    border-radius:24px;padding:40px 32px;
+    display:grid;grid-template-columns:1.1fr 0.9fr;gap:30px;align-items:center;
+  }
+  .members-cta h2{font-size:24px;}
+  .members-cta p{color:var(--ink-soft);margin-top:10px;font-size:14.5px;}
+  .members-form{background:#fff;border-radius:18px;padding:22px;box-shadow:var(--shadow);}
+  .field{margin-bottom:14px;}
+  .field label{display:block;font-size:12.5px;font-weight:700;color:var(--ink-soft);margin-bottom:6px;}
+  .field input,.field select,.field textarea{
+    width:100%;border:2px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px;font-family:inherit;
+    background:var(--cream);color:var(--ink);
+  }
+  .field input:focus,.field select:focus,.field textarea:focus{outline:2px solid var(--blue);border-color:var(--blue);}
+  .checkbox-field{
+    display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--ink-soft);
+    margin-bottom:16px;cursor:pointer;line-height:1.5;
+  }
+  .checkbox-field input{width:auto;margin-top:3px;flex:none;accent-color:var(--blue);}
+
+  footer{
+    background:var(--ink);color:#EDEFF3;padding:40px 24px 30px;margin-top:20px;
+  }
+  .footer-inner{max-width:1180px;margin:0 auto;}
+  footer .logo-text small{color:#9BA3B4;}
+  footer .connect-row{margin-bottom:16px;}
+  .footer-note{font-size:12px;color:#9BA3B4;margin-top:18px;line-height:1.8;}
+
+  /* Modal */
+  .modal-overlay{
+    position:fixed;inset:0;background:rgba(35,43,58,0.55);z-index:100;
+    display:none;align-items:center;justify-content:center;padding:20px;
+  }
+  .modal-overlay.open{display:flex;}
+  .modal{
+    background:#fff;border-radius:22px;max-width:480px;width:100%;max-height:88vh;overflow-y:auto;
+    padding:26px;position:relative;box-shadow:0 20px 0 rgba(35,43,58,0.08);
+  }
+  .modal-close{position:absolute;top:16px;right:16px;border:none;background:var(--cream);width:32px;height:32px;border-radius:50%;font-size:16px;font-weight:900;color:var(--ink-soft);}
+  .modal h3{font-size:19px;margin-bottom:4px;}
+  .modal .modal-sub{font-size:13px;color:var(--ink-soft);margin-bottom:18px;}
+  .modal-summary{background:var(--cream);border-radius:14px;padding:14px 16px;margin-bottom:18px;font-size:13.5px;}
+  .modal-summary div{display:flex;justify-content:space-between;padding:4px 0;color:var(--ink-soft);}
+  .modal-summary div b{color:var(--ink);font-weight:700;}
+  .success-box{text-align:center;padding:10px 0;}
+  .success-box .connect-row{display:flex;justify-content:center;margin-bottom:14px;}
+  .success-box h3{margin-bottom:8px;}
+  .success-box p{color:var(--ink-soft);font-size:13.5px;margin-bottom:20px;}
+  .gcal-btn{
+    display:inline-flex;align-items:center;gap:8px;background:#fff;border:2px solid var(--ink);
+    padding:11px 20px;border-radius:999px;font-weight:700;font-size:14px;color:var(--ink);text-decoration:none;
+  }
+  .need-member{background:#FBE4E2;border-radius:14px;padding:16px;font-size:13.5px;color:var(--brick-dark);margin-bottom:16px;}
+  .toast{
+    position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+    background:var(--ink);color:#fff;padding:13px 24px;border-radius:999px;font-weight:700;font-size:14px;
+    z-index:200;box-shadow:0 8px 20px rgba(0,0,0,0.2);
+    opacity:0;pointer-events:none;transition:.25s;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(-6px);}
+
+  @media (max-width: 900px){
+    .hero{grid-template-columns:1fr;padding-top:32px;}
+    nav{
+      position:fixed;top:64px;left:0;right:0;bottom:0;background:var(--cream);
+      flex-direction:column;align-items:stretch;padding:20px;gap:8px;
+      transform:translateX(100%);transition:.25s;z-index:60;
+    }
+    nav.open{transform:translateX(0);}
+    .nav-link{text-align:left;font-size:16px;padding:14px 16px;}
+    .hamburger{display:block;}
+    .session-grid{grid-template-columns:1fr;}
+    .members-cta{grid-template-columns:1fr;padding:26px 20px;}
+    .cal-cell{min-height:56px;}
+    .cal-dow{font-size:10px;}
+  }
+  @media (max-width:520px){
+    .header-inner{padding:12px 16px;}
+    .hero{padding:26px 16px 30px;}
+    section{padding:28px 16px;}
+    .ann-card{width:250px;}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{transition:none !important; scroll-behavior:auto !important;}
+  }
+  :focus-visible{outline:3px solid var(--blue);outline-offset:2px;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="logo">
+      <svg class="logo-mark" width="34" height="22" viewBox="0 0 34 22" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M4 16 Q11 4 17 11 T30 6" stroke="#D8D2C0" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <circle cx="4" cy="16" r="4" fill="var(--brick)"/>
+        <circle cx="13" cy="8" r="4" fill="var(--amber)"/>
+        <circle cx="21" cy="13" r="4" fill="var(--blue)"/>
+        <circle cx="30" cy="6" r="4" fill="var(--green)"/>
+      </svg>
+      <div class="logo-text">LSPファシリテーターズ<small>限定コミュニティサイト</small></div>
+    </div>
+    <button class="hamburger" id="hamburgerBtn" aria-label="メニューを開く"><span></span><span></span><span></span></button>
+    <nav id="mainNav">
+      <button class="nav-link" data-scroll="#announcements">お知らせ</button>
+      <button class="nav-link" data-scroll="#sessions">勉強会一覧</button>
+      <button class="nav-link" data-scroll="#members">会員登録</button>
+      <button class="member-pill" id="memberPillBtn">
+        <span class="avatar" id="memberAvatar">?</span>
+        <span id="memberPillText">会員登録・ログイン</span>
+      </button>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div>
+    <div class="hero-eyebrow">🤝 Certified Facilitators Only</div>
+    <h1>仲間とつながり、<br><span class="hi">学びを重ねていく。</span></h1>
+    <p class="lead">LEGO® SERIOUS PLAY®メソッドを学んだファシリテーターのための限定コミュニティ。勉強会の予定確認から事前登録まで、ここでまとめて完結します。</p>
+    <div class="hero-cta">
+      <button class="btn-primary" data-scroll="#sessions">勉強会をさがす</button>
+      <button class="btn-ghost" data-scroll="#members">会員登録する</button>
+    </div>
+  </div>
+  <div class="hero-art">
+    <div class="connect-row">
+      <svg width="220" height="60" viewBox="0 0 220 60" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M8 44 Q40 8 72 34 T140 20 T212 40" stroke="rgba(35,43,58,0.18)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <circle cx="8" cy="44" r="7" fill="var(--brick)"/>
+        <circle cx="72" cy="34" r="7" fill="var(--amber)"/>
+        <circle cx="140" cy="20" r="7" fill="var(--blue)"/>
+        <circle cx="212" cy="40" r="7" fill="var(--green)"/>
+      </svg>
+    </div>
+    <div class="stack">
+      <div class="info-chip"><div class="dot" style="background:var(--blue)"></div><span>オンライン開催もあります</span></div>
+      <div class="info-chip"><div class="dot" style="background:var(--green)"></div><span>全国9エリアで対面開催</span></div>
+      <div class="info-chip"><div class="dot" style="background:var(--amber)"></div><span>読書会・事例共有・実践練習</span></div>
+      <div class="info-chip"><div class="dot" style="background:var(--brick)"></div><span>申し込み後Googleカレンダーへ追加OK</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="announcements">
+  <div class="section-head">
+    <h2>お知らせ</h2>
+    <span class="count">コミュニティ運営より</span>
+  </div>
+  <div class="ann-scroll" id="annScroll"></div>
+</section>
+
+<section id="sessions">
+  <div class="section-head">
+    <h2>勉強会一覧</h2>
+    <span class="count" id="sessionCount"></span>
+  </div>
+
+  <div class="toolbar">
+    <div class="toolbar-row">
+      <div class="search-box">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="#5B6472" stroke-width="2"/><path d="M21 21l-4.3-4.3" stroke="#5B6472" stroke-width="2" stroke-linecap="round"/></svg>
+        <input type="text" id="searchInput" placeholder="勉強会名・タグで検索(例:読書会、関西)">
+      </div>
+      <button class="filter-toggle-btn" id="filterToggleBtn">タグで絞り込み ▾</button>
+      <div class="view-toggle">
+        <button class="active" id="listViewBtn">リスト</button>
+        <button id="calViewBtn">カレンダー</button>
+      </div>
+    </div>
+    <div class="filter-panel" id="filterPanel">
+      <div class="filter-group">
+        <h4>開催形式</h4>
+        <div class="tag-pills" id="formatTags"></div>
+      </div>
+      <div class="filter-group">
+        <h4>テーマ</h4>
+        <div class="tag-pills" id="themeTags"></div>
+      </div>
+      <button class="clear-filters" id="clearFiltersBtn">絞り込みをリセット</button>
+    </div>
+  </div>
+
+  <div id="listView">
+    <div class="session-grid" id="sessionGrid"></div>
+  </div>
+
+  <div id="calView" style="display:none;">
+    <div class="calendar-wrap">
+      <div class="cal-head">
+        <h3 id="calMonthLabel"></h3>
+        <div class="cal-nav">
+          <button id="calPrevBtn" aria-label="前の月">‹</button>
+          <button id="calNextBtn" aria-label="次の月">›</button>
+        </div>
+      </div>
+      <div class="cal-grid" id="calGrid"></div>
+      <div class="cal-day-list" id="calDayList" style="display:none;"></div>
+    </div>
+  </div>
+</section>
+
+<section id="members">
+  <div class="members-cta">
+    <div>
+      <div class="hero-eyebrow">🎟️ Membership</div>
+      <h2>会員登録すれば、誰でも勉強会に申し込めます</h2>
+      <p>お名前とメールアドレスを登録するだけ。トレーニング情報は任意です。登録後はすぐに勉強会への参加申し込みができるようになります。</p>
+    </div>
+    <div class="members-form">
+      <div class="field">
+        <label for="regName">お名前</label>
+        <input type="text" id="regName" placeholder="山田 花子">
+      </div>
+      <div class="field">
+        <label for="regEmail">メールアドレス</label>
+        <input type="email" id="regEmail" placeholder="you@example.com">
+      </div>
+      <div class="field">
+        <label for="regTrainingDate">トレーニング時期(任意)</label>
+        <input type="text" id="regTrainingDate" placeholder="例:2023年4月">
+      </div>
+      <div class="field">
+        <label for="regTrainer">トレーナー(任意)</label>
+        <input type="text" id="regTrainer" placeholder="例:山田 太郎トレーナー">
+      </div>
+      <label class="checkbox-field">
+        <input type="checkbox" id="regNotify" checked>
+        <span>新しい勉強会が公開されたときにメール通知を受け取る</span>
+      </label>
+      <button class="btn-primary" style="width:100%;" id="registerBtn">会員登録する</button>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-inner">
+    <div class="connect-row">
+      <svg width="140" height="34" viewBox="0 0 140 34" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M6 26 Q28 4 46 20 T88 10 T134 22" stroke="rgba(255,255,255,0.25)" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <circle cx="6" cy="26" r="5" fill="var(--brick)"/>
+        <circle cx="46" cy="20" r="5" fill="var(--amber)"/>
+        <circle cx="88" cy="10" r="5" fill="var(--blue)"/>
+        <circle cx="134" cy="22" r="5" fill="var(--green)"/>
+      </svg>
+    </div>
+    <div class="logo-text">LSPファシリテーターズ<small>限定コミュニティサイト</small></div>
+    <p class="footer-note">
+      本サイトはLEGO® SERIOUS PLAY®メソッドを学んだファシリテーターの学び合いを目的とした非公式のコミュニティサイトです。LEGO、LEGO SERIOUS PLAYはThe LEGO Groupの商標であり、本サイトはLEGO Groupと提携するものではありません。<br>
+      掲載データはデモ用のサンプルです。実運用時は会員データベースおよびGoogleカレンダーAPI連携のサーバー実装が別途必要です。
+    </p>
+  </div>
+</footer>
+
+<!-- 詳細・申し込みモーダル -->
+<div class="modal-overlay" id="detailModalOverlay">
+  <div class="modal">
+    <button class="modal-close" id="detailModalClose">✕</button>
+    <div id="detailModalBody"></div>
+  </div>
+</div>
+
+<!-- 会員登録モーダル(ナビからの導線用) -->
+<div class="modal-overlay" id="memberModalOverlay">
+  <div class="modal">
+    <button class="modal-close" id="memberModalClose">✕</button>
+    <h3>会員登録</h3>
+    <p class="modal-sub">登録すると勉強会への申し込みができるようになります。</p>
+    <div class="field">
+      <label for="mmName">お名前</label>
+      <input type="text" id="mmName" placeholder="山田 花子">
+    </div>
+    <div class="field">
+      <label for="mmEmail">メールアドレス</label>
+      <input type="email" id="mmEmail" placeholder="you@example.com">
+    </div>
+    <div class="field">
+      <label for="mmTrainingDate">トレーニング時期(任意)</label>
+      <input type="text" id="mmTrainingDate" placeholder="例:2023年4月">
+    </div>
+    <div class="field">
+      <label for="mmTrainer">トレーナー(任意)</label>
+      <input type="text" id="mmTrainer" placeholder="例:山田 太郎トレーナー">
+    </div>
+    <label class="checkbox-field">
+      <input type="checkbox" id="mmNotify" checked>
+      <span>新しい勉強会が公開されたときにメール通知を受け取る</span>
+    </label>
+    <button class="btn-primary" style="width:100%;" id="mmRegisterBtn">登録して続ける</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------- バックエンドAPI(Google Apps Script) ---------- */
+  const API_BASE_URL = "https://script.google.com/macros/s/AKfycbyBCQyOW8kKA5n568uBAlw-K3plg_E7Ch0YBjn1nm3nyA1NfVLD1Ex68Ci8ZzLxmmXgZw/exec";
+
+  /* text/plain で送ることでCORSのプリフライトを避ける(Apps Script側は本文をJSONとして解析) */
+  async function apiPost(action, payload){
+    const res = await fetch(API_BASE_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({ action, ...payload })
+    });
+    return res.json();
+  }
+  async function apiGet(action, params){
+    const qs = new URLSearchParams({ action, ...(params||{}) }).toString();
+    const res = await fetch(`${API_BASE_URL}?${qs}`);
+    return res.json();
+  }
+  /* スプレッドシートの列名(SessionID, Title...)を、サイト内部で使う形に変換 */
+  function normalizeSessionFromApi(raw){
+    const toBool = v => v === true || v === "TRUE" || v === "true" || v === 1;
+    const toNumOrNull = v => (v === "" || v === null || v === undefined) ? null : Number(v);
+    return {
+      id: String(raw.SessionID),
+      title: raw.Title,
+      date: formatDateValue_(raw.Date),
+      startTime: raw.StartTime,
+      endTime: raw.EndTime,
+      location: raw.Location,
+      tags: String(raw.Tags || "").split(",").map(t=>t.trim()).filter(Boolean),
+      fee: Number(raw.Fee) || 0,
+      requiresRegistration: toBool(raw.RequiresRegistration),
+      capacity: toNumOrNull(raw.Capacity),
+      minCapacity: toNumOrNull(raw.MinCapacity),
+      appliedCount: Number(raw.AppliedCount) || 0,
+      deadline: raw.Deadline ? formatDateValue_(raw.Deadline) : null,
+      organizer: raw.Organizer || "",
+      description: raw.Description || ""
+    };
+  }
+  /* Apps Scriptから返る日付(ISO文字列 or Dateオブジェクト文字列)を YYYY-MM-DD に揃える */
+  function formatDateValue_(v){
+    if(!v) return v;
+    const d = new Date(v);
+    if(isNaN(d.getTime())) return v;
+    return d.toISOString().slice(0,10);
+  }
+  async function loadSessionsFromApi(){
+    try{
+      const res = await apiGet("listSessions");
+      if(res.ok && Array.isArray(res.sessions) && res.sessions.length > 0){
+        sessions = res.sessions.map(normalizeSessionFromApi);
+        return true;
+      }
+    }catch(err){
+      console.warn("勉強会データの取得に失敗したため、サンプルデータを表示します。", err);
+    }
+    return false;
+  }
+
+  /* ---------- タグ定義 ---------- */
+  const FORMAT_TAGS = ["オンライン","対面(関東)","対面(北海道)","対面(関西)","対面(東海)","対面(北陸)","対面(四国)","対面(中国)","対面(九州)","対面(沖縄)"];
+  const THEME_TAGS = ["読書会","事例共有","実践練習","懇親会","定期開催(メンバー募集)"];
+  function tagClass(tag){
+    if(tag === "オンライン") return "online";
+    if(FORMAT_TAGS.includes(tag)) return "venue";
+    return "theme";
+  }
+
+  /* ---------- サンプルデータ ---------- */
+  /* APIから取得できない場合のフォールバック用サンプルデータ */
+  let sessions = [
+    {
+      id:"s1", title:"LSP基礎の学び直し 読書会 vol.4",
+      date:"2026-09-05", startTime:"19:30", endTime:"21:00",
+      location:"オンライン(Zoom)",
+      tags:["オンライン","読書会","定期開催(メンバー募集)"],
+      fee:0, requiresRegistration:true, capacity:20, minCapacity:5, appliedCount:8,
+      deadline:"2026-08-20", organizer:"オンライン読書会チーム",
+      description:"『Building a Better Business Using the LEGO Serious Play Method』の第4章を輪読します。事前に該当章を読んでご参加ください。"
+    },
+    {
+      id:"s2", title:"関東エリア対面勉強会:事例共有会",
+      date:"2026-09-13", startTime:"13:00", endTime:"16:00",
+      location:"東京都渋谷区 コミュニティスペースA",
+      tags:["対面(関東)","事例共有"],
+      fee:1500, requiresRegistration:true, capacity:15, minCapacity:6, appliedCount:10,
+      deadline:"2026-09-08", organizer:"関東支部運営チーム",
+      description:"実際のファシリテーション現場での成功例・失敗例を共有します。自身の事例を1つご準備ください。"
+    },
+    {
+      id:"s3", title:"実践練習会:即興ファシリテーション特訓",
+      date:"2026-09-20", startTime:"10:00", endTime:"13:00",
+      location:"大阪府大阪市 関西支部会場",
+      tags:["対面(関西)","実践練習"],
+      fee:2000, requiresRegistration:true, capacity:12, minCapacity:5, appliedCount:4,
+      deadline:"2026-09-15", organizer:"関西支部運営チーム",
+      description:"ペア/グループでの模擬ファシリテーションを通して、とっさの問いかけ力を鍛えます。動きやすい服装でお越しください。"
+    },
+    {
+      id:"s4", title:"月例オンライン懇親会",
+      date:"2026-09-26", startTime:"20:00", endTime:"21:30",
+      location:"オンライン(Zoom)",
+      tags:["オンライン","懇親会"],
+      fee:0, requiresRegistration:false, capacity:null, minCapacity:null, appliedCount:0,
+      deadline:null, organizer:"コミュニティ運営事務局",
+      description:"気軽な近況報告と交流の場です。事前登録不要、途中参加・途中退室も自由です。"
+    },
+    {
+      id:"s5", title:"北海道支部 秋の対面勉強会",
+      date:"2026-10-04", startTime:"10:30", endTime:"15:00",
+      location:"札幌市 北海道支部会場",
+      tags:["対面(北海道)","実践練習","事例共有"],
+      fee:3000, requiresRegistration:true, capacity:16, minCapacity:6, appliedCount:9,
+      deadline:"2026-09-27", organizer:"北海道支部運営チーム",
+      description:"実践練習と事例共有を組み合わせた1日集中プログラム。ランチタイムに交流会も予定しています。"
+    },
+    {
+      id:"s6", title:"九州支部 読書会×事例共有ナイト",
+      date:"2026-10-11", startTime:"18:30", endTime:"20:30",
+      location:"福岡市 九州支部会場",
+      tags:["対面(九州)","読書会","事例共有"],
+      fee:1000, requiresRegistration:true, capacity:14, minCapacity:5, appliedCount:3,
+      deadline:"2026-10-05", organizer:"九州支部運営チーム",
+      description:"課題図書の読書会に加え、参加者持ち回りで事例を共有します。"
+    },
+    {
+      id:"s7", title:"東海エリア 実践練習ワークショップ",
+      date:"2026-10-18", startTime:"13:30", endTime:"17:00",
+      location:"名古屋市 東海支部会場",
+      tags:["対面(東海)","実践練習"],
+      fee:2500, requiresRegistration:true, capacity:12, minCapacity:4, appliedCount:2,
+      deadline:"2026-10-13", organizer:"東海支部運営チーム",
+      description:"複雑な問いの立て方をテーマに、実践形式で練習します。"
+    },
+    {
+      id:"s8", title:"オンライン事例共有ラウンドテーブル",
+      date:"2026-10-24", startTime:"19:00", endTime:"20:30",
+      location:"オンライン(Zoom)",
+      tags:["オンライン","事例共有"],
+      fee:0, requiresRegistration:true, capacity:30, minCapacity:8, appliedCount:22,
+      deadline:"2026-10-19", organizer:"コミュニティ運営事務局",
+      description:"全国のファシリテーターが集まり、直近の実施事例をラウンドテーブル形式で共有します。"
+    },
+    {
+      id:"s9", title:"北陸支部 発足記念 対面勉強会",
+      date:"2026-11-01", startTime:"11:00", endTime:"14:00",
+      location:"金沢市 北陸支部会場(準備中)",
+      tags:["対面(北陸)","読書会","懇親会"],
+      fee:1500, requiresRegistration:true, capacity:10, minCapacity:4, appliedCount:1,
+      deadline:"2026-10-25", organizer:"北陸支部運営チーム",
+      description:"北陸支部発足記念の第一回勉強会です。読書会のあとに懇親会も予定しています。"
+    },
+    {
+      id:"s10", title:"四国・中国合同 実践練習会",
+      date:"2026-11-08", startTime:"10:00", endTime:"13:00",
+      location:"高松市 四国支部会場",
+      tags:["対面(四国)","対面(中国)","実践練習"],
+      fee:2000, requiresRegistration:true, capacity:14, minCapacity:6, appliedCount:5,
+      deadline:"2026-11-02", organizer:"四国支部・中国支部運営チーム",
+      description:"四国支部・中国支部の合同開催。エリアを越えたつながりづくりも目的のひとつです。"
+    },
+    {
+      id:"s11", title:"沖縄支部 オープン勉強会",
+      date:"2026-11-15", startTime:"14:00", endTime:"17:00",
+      location:"那覇市 沖縄支部会場",
+      tags:["対面(沖縄)","事例共有","懇親会"],
+      fee:1000, requiresRegistration:true, capacity:12, minCapacity:4, appliedCount:6,
+      deadline:"2026-11-09", organizer:"沖縄支部運営チーム",
+      description:"事例共有のあと、そのまま懇親会へ。沖縄ならではのゆったりとした時間で交流しましょう。"
+    },
+    {
+      id:"s12", title:"関西支部 月例読書会",
+      date:"2026-11-21", startTime:"19:00", endTime:"20:30",
+      location:"オンライン(Zoom)",
+      tags:["オンライン","対面(関西)","読書会","定期開催(メンバー募集)"],
+      fee:0, requiresRegistration:false, capacity:null, minCapacity:null, appliedCount:0,
+      deadline:null, organizer:"関西支部運営チーム",
+      description:"関西支部主催ですが、オンライン参加もできるハイブリッド開催です。"
+    }
+  ];
+
+  const announcements = [
+    {type:"alert", date:"2026.08.20", title:"9月開催分の事前登録を開始しました", body:"9月の勉強会は定員に達し次第、締め切らせていただきます。お早めにお申し込みください。"},
+    {type:"info", date:"2026.08.15", title:"会員規約を一部改定しました", body:"個人情報の取り扱いに関する項目を更新しています。詳細はマイページよりご確認ください。"},
+    {type:"event", date:"2026.08.10", title:"北陸支部が新たに発足しました", body:"11月1日に発足記念の勉強会を開催予定です。北陸エリアの方はぜひご参加ください。"},
+    {type:"info", date:"2026.08.01", title:"Googleカレンダー連携機能を追加しました", body:"申し込み完了後、ワンクリックでご自身のGoogleカレンダーに予定を追加できるようになりました。"}
+  ];
+
+  /* ---------- 状態 ---------- */
+  const state = {
+    query:"",
+    activeTags: new Set(),
+    view: "list",
+    calYear: 2026,
+    calMonth: 9, // 1-12
+    selectedDay: null,
+    isMember: false,
+    trainingDate: "",
+    trainer: "",
+    memberName: "",
+    memberEmail: "",
+    filterOpen:false
+  };
+
+  /* ---------- ユーティリティ ---------- */
+  function fmtDateShort(iso){
+    const d = new Date(iso+"T00:00:00");
+    const months = ["1月","2月","3月","4月","5月","6月","7月","8月","9月","10月","11月","12月"];
+    const dows = ["日","月","火","水","木","金","土"];
+    return {month: months[d.getMonth()], day: d.getDate(), dow: dows[d.getDay()]};
+  }
+  function fmtDateLong(iso){
+    const d = new Date(iso+"T00:00:00");
+    const dows = ["日","月","火","水","木","金","土"];
+    return `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日(${dows[d.getDay()]})`;
+  }
+  function toast(msg){
+    const el = document.getElementById("toast");
+    el.textContent = msg;
+    el.classList.add("show");
+    clearTimeout(toast._t);
+    toast._t = setTimeout(()=>el.classList.remove("show"), 2600);
+  }
+
+  /* ---------- お知らせ描画 ---------- */
+  function renderAnnouncements(){
+    const wrap = document.getElementById("annScroll");
+    const labels = {info:"お知らせ", alert:"重要", event:"新支部"};
+    wrap.innerHTML = announcements.map(a => `
+      <div class="ann-card type-${a.type}">
+        <span class="ann-badge">${labels[a.type]}</span>
+        <div class="ann-date">${a.date}</div>
+        <h3>${a.title}</h3>
+        <p>${a.body}</p>
+      </div>
+    `).join("");
+  }
+
+  /* ---------- タグフィルターUI描画 ---------- */
+  function renderTagFilters(){
+    const formatWrap = document.getElementById("formatTags");
+    const themeWrap = document.getElementById("themeTags");
+    formatWrap.innerHTML = FORMAT_TAGS.map(t => pillHtml(t)).join("");
+    themeWrap.innerHTML = THEME_TAGS.map(t => pillHtml(t)).join("");
+    document.querySelectorAll(".tag-pill").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        const tag = btn.dataset.tag;
+        if(state.activeTags.has(tag)) state.activeTags.delete(tag);
+        else state.activeTags.add(tag);
+        renderTagFilters();
+        renderSessions();
+        renderCalendar();
+      });
+    });
+  }
+  function pillHtml(tag){
+    const cls = tagClass(tag);
+    const active = state.activeTags.has(tag) ? "active" : "";
+    return `<button class="tag-pill ${cls} ${active}" data-tag="${tag}"><span class="dot"></span>${tag}</button>`;
+  }
+
+  /* ---------- フィルタリング ---------- */
+  function getFilteredSessions(){
+    const q = state.query.trim().toLowerCase();
+    return sessions.filter(s=>{
+      if(state.activeTags.size>0){
+        const hasAll = [...state.activeTags].every(t=>s.tags.includes(t));
+        if(!hasAll) return false;
+      }
+      if(q){
+        const hay = (s.title + " " + s.tags.join(" ") + " " + s.location).toLowerCase();
+        if(!hay.includes(q)) return false;
+      }
+      return true;
+    }).sort((a,b)=> a.date.localeCompare(b.date));
+  }
+
+  /* ---------- セッション一覧描画 ---------- */
+  function renderSessions(){
+    const list = getFilteredSessions();
+    document.getElementById("sessionCount").textContent = `全${sessions.length}件中 ${list.length}件を表示`;
+    const grid = document.getElementById("sessionGrid");
+    if(list.length === 0){
+      grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;">
+        <div class="connect-row">${connectDotsSvg(["var(--brick)","var(--amber)","var(--blue)"],7)}</div>
+        <p>条件に一致する勉強会が見つかりませんでした。<br>キーワードやタグの絞り込みを変えてみてください。</p>
+      </div>`;
+      return;
+    }
+    grid.innerHTML = list.map(sessionCardHtml).join("");
+    grid.querySelectorAll("[data-open-detail]").forEach(btn=>{
+      btn.addEventListener("click", ()=> openDetailModal(btn.dataset.openDetail));
+    });
+  }
+  function sessionCardHtml(s){
+    const d = fmtDateShort(s.date);
+    const feeLabel = s.fee === 0 ? "無料" : `¥${s.fee.toLocaleString()}`;
+    return `
+    <div class="session-card">
+      <div class="session-top">
+        <div class="connect-row">${connectDotsSvg(cardAccentColors(s))}</div>
+      </div>
+      <div class="session-body">
+        <div class="session-date-badge"><div class="m">${d.month}</div><div class="d">${d.day}</div></div>
+        <h3>${s.title}</h3>
+        <div class="session-meta">
+          <span>🕐 ${s.startTime} - ${s.endTime}</span>
+          <span>📍 ${s.location}</span>
+          ${s.deadline ? `<span>🗓 申込締切:${fmtDateShort(s.deadline).month}${fmtDateShort(s.deadline).day}日</span>` : ""}
+        </div>
+        <div class="session-tags">
+          ${s.tags.map(t=>`<span class="mini-tag ${tagClass(t)}">${t}</span>`).join("")}
+        </div>
+        ${capacityInfoHtml(s)}
+        <div class="session-footer">
+          <div>
+            <div class="fee ${s.fee===0?'free':''}">${feeLabel}</div>
+            ${s.requiresRegistration ? '<div class="reg-badge">事前登録制</div>' : ''}
+          </div>
+          <button class="btn-detail" data-open-detail="${s.id}">詳細・申し込む</button>
+        </div>
+      </div>
+    </div>`;
+  }
+  function isDeadlinePassed(s){
+    if(!s.deadline) return false;
+    const now = new Date();
+    const dl = new Date(s.deadline + "T23:59:59");
+    return now > dl;
+  }
+  function capacityStatus(s){
+    if(isDeadlinePassed(s)){
+      return {label:"募集締切", cls:"full"};
+    }
+    if(s.capacity == null) return null;
+    const applied = s.appliedCount || 0;
+    if(applied >= s.capacity){
+      return {label:"満席", cls:"full"};
+    }
+    if(s.minCapacity != null){
+      if(applied >= s.minCapacity){
+        return {label:"開催決定", cls:"confirmed"};
+      }
+      return {label:`開催決定まであと${s.minCapacity - applied}名`, cls:"pending"};
+    }
+    return {label:"申込み受付中", cls:"pending"};
+  }
+  function capacityInfoHtml(s){
+    if(s.capacity == null) return "";
+    const applied = s.appliedCount || 0;
+    const status = capacityStatus(s);
+    const pct = Math.min(100, Math.round((applied / s.capacity) * 100));
+    const minPct = s.minCapacity != null ? Math.min(100, Math.round((s.minCapacity / s.capacity) * 100)) : null;
+    return `
+      <div class="capacity-info">
+        <div class="capacity-info-row">
+          <span class="capacity-count">申込み ${applied}名 / 定員${s.capacity}名${s.minCapacity != null ? `(最低遂行 ${s.minCapacity}名)` : ""}</span>
+          <span class="capacity-badge ${status.cls}">${status.label}</span>
+        </div>
+        <div class="capacity-bar">
+          ${minPct != null ? `<div class="capacity-bar-min" style="left:${minPct}%"></div>` : ""}
+          <div class="capacity-bar-fill ${status.cls}" style="width:${pct}%"></div>
+        </div>
+      </div>`;
+  }
+  function cardAccentColors(s){
+    const colors = [];
+    if(s.tags.includes("オンライン")) colors.push("var(--blue)");
+    if(s.tags.some(t=>t.startsWith("対面"))) colors.push("var(--green)");
+    if(s.tags.some(t=>THEME_TAGS.includes(t))) colors.push("var(--amber)");
+    if(colors.length === 0) colors.push("var(--brick)");
+    while(colors.length < 3) colors.push(colors[colors.length % colors.length]);
+    return colors.slice(0,3);
+  }
+  /* つながり・共創をイメージした、線で結ばれたドットのSVGを生成 */
+  function connectDotsSvg(colors, r){
+    r = r || 6;
+    const gap = 24;
+    const w = gap*(colors.length-1) + r*2 + 4;
+    const h = r*2 + 16;
+    const pts = colors.map((c,i)=>({x:r+2+i*gap, y: (i%2===0) ? h-r-2 : r+2}));
+    let d = `M ${pts[0].x} ${pts[0].y}`;
+    for(let i=1;i<pts.length;i++){
+      const mx = (pts[i-1].x+pts[i].x)/2;
+      d += ` Q ${mx} ${pts[i-1].y} ${pts[i].x} ${pts[i].y}`;
+    }
+    const circles = pts.map((p,i)=>`<circle cx="${p.x}" cy="${p.y}" r="${r}" fill="${colors[i]}"/>`).join("");
+    return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="${d}" stroke="rgba(35,43,58,0.15)" stroke-width="2" fill="none" stroke-linecap="round"/>
+      ${circles}
+    </svg>`;
+  }
+
+  /* ---------- カレンダー ---------- */
+  function renderCalendar(){
+    const y = state.calYear, m = state.calMonth;
+    const monthLabel = `${y}年${m}月`;
+    document.getElementById("calMonthLabel").textContent = monthLabel;
+
+    const firstDow = new Date(y, m-1, 1).getDay();
+    const daysInMonth = new Date(y, m, 0).getDate();
+    const list = getFilteredSessions();
+    const byDay = {};
+    list.forEach(s=>{
+      const sd = new Date(s.date+"T00:00:00");
+      if(sd.getFullYear()===y && sd.getMonth()+1===m){
+        (byDay[sd.getDate()] = byDay[sd.getDate()] || []).push(s);
+      }
+    });
+
+    const dows = ["日","月","火","水","木","金","土"];
+    let html = dows.map(d=>`<div class="cal-dow">${d}</div>`).join("");
+    for(let i=0;i<firstDow;i++) html += `<div class="cal-cell empty"></div>`;
+    const todayStr = new Date().toISOString().slice(0,10);
+    for(let day=1; day<=daysInMonth; day++){
+      const iso = `${y}-${String(m).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
+      const evs = byDay[day] || [];
+      const isToday = iso === todayStr;
+      const hasEvents = evs.length>0;
+      const isSelected = state.selectedDay === iso;
+      html += `<div class="cal-cell ${isToday?'today':''} ${hasEvents?'has-events':''} ${isSelected?'selected':''}" data-day="${iso}">
+        <div class="num">${day}</div>
+        <div class="cal-dots">${evs.slice(0,4).map(e=>`<div class="d" style="background:${dotColor(e)}"></div>`).join("")}</div>
+      </div>`;
+    }
+    const grid = document.getElementById("calGrid");
+    grid.innerHTML = html;
+    grid.querySelectorAll(".cal-cell.has-events").forEach(cell=>{
+      cell.addEventListener("click", ()=>{
+        state.selectedDay = (state.selectedDay === cell.dataset.day) ? null : cell.dataset.day;
+        renderCalendar();
+      });
+    });
+
+    const dayListEl = document.getElementById("calDayList");
+    if(state.selectedDay && byDay[Number(state.selectedDay.slice(-2))]){
+      const evs = byDay[Number(state.selectedDay.slice(-2))];
+      dayListEl.style.display = "block";
+      dayListEl.innerHTML = `<h4>${fmtDateLong(state.selectedDay)}の勉強会</h4>
+        <div class="session-grid" style="grid-template-columns:1fr;">${evs.map(sessionCardHtml).join("")}</div>`;
+      dayListEl.querySelectorAll("[data-open-detail]").forEach(btn=>{
+        btn.addEventListener("click", ()=> openDetailModal(btn.dataset.openDetail));
+      });
+    } else {
+      dayListEl.style.display = "none";
+      dayListEl.innerHTML = "";
+    }
+  }
+  function dotColor(s){
+    if(s.tags.includes("オンライン")) return "var(--blue)";
+    if(s.tags.some(t=>t.startsWith("対面"))) return "var(--green)";
+    return "var(--amber)";
+  }
+
+  /* ---------- 詳細・申し込みモーダル ---------- */
+  function openDetailModal(id){
+    const s = sessions.find(x=>x.id===id);
+    if(!s) return;
+    const body = document.getElementById("detailModalBody");
+    const feeLabel = s.fee===0 ? "無料" : `¥${s.fee.toLocaleString()}`;
+
+    if(!state.isMember){
+      body.innerHTML = `
+        <h3>${s.title}</h3>
+        <p class="modal-sub">${fmtDateLong(s.date)}・${s.startTime}-${s.endTime}</p>
+        <div class="modal-summary">
+          <div><span>開催場所</span><b>${s.location}</b></div>
+          <div><span>参加費</span><b>${feeLabel}</b></div>
+        </div>
+        <div class="need-member">申し込みには会員登録が必要です。会員登録は無料で、どなたでも登録いただけます。</div>
+        <button class="btn-primary" style="width:100%;" id="goRegisterFromDetail">会員登録して申し込みへ進む</button>
+      `;
+      document.getElementById("goRegisterFromDetail").addEventListener("click", ()=>{
+        closeModal("detailModalOverlay");
+        openMemberModal(id);
+      });
+    } else if(!s.requiresRegistration){
+      body.innerHTML = `
+        <h3>${s.title}</h3>
+        <p class="modal-sub">${fmtDateLong(s.date)}・${s.startTime}-${s.endTime}</p>
+        <div class="modal-summary">
+          <div><span>開催場所</span><b>${s.location}</b></div>
+          <div><span>参加費</span><b>${feeLabel}</b></div>
+        </div>
+        <p style="font-size:13.5px;color:var(--ink-soft);margin-bottom:16px;">${s.description}</p>
+        <div class="need-member" style="background:#E4F5EA;color:var(--green-dark);">この勉強会は事前登録不要です。当日は直接会場・オンラインURLへどうぞ。カレンダーへの追加だけしておくと安心です。</div>
+        <a class="gcal-btn" style="width:100%;justify-content:center;" href="${googleCalUrl(s)}" target="_blank" rel="noopener">📅 Googleカレンダーに追加</a>
+      `;
+    } else {
+      const remaining = s.capacity != null ? Math.max(0, s.capacity - (s.appliedCount||0)) : null;
+      const isFull = remaining !== null && remaining <= 0;
+      body.innerHTML = `
+        <h3>${s.title}</h3>
+        <p class="modal-sub">${fmtDateLong(s.date)}・${s.startTime}-${s.endTime}</p>
+        <div class="modal-summary">
+          <div><span>開催場所</span><b>${s.location}</b></div>
+          <div><span>参加費</span><b>${feeLabel}</b></div>
+          ${s.capacity != null ? `<div><span>定員</span><b>${s.capacity}名</b></div>` : ""}
+          ${s.minCapacity != null ? `<div><span>最低遂行人数</span><b>${s.minCapacity}名</b></div>` : ""}
+          ${s.capacity != null ? `<div><span>現在の申込み</span><b>${s.appliedCount||0}名</b></div>` : ""}
+        </div>
+        ${capacityInfoHtml(s)}
+        <p style="font-size:13.5px;color:var(--ink-soft);margin-bottom:18px;">${s.description}</p>
+        ${isFull ? `
+          <div class="need-member">この勉強会は定員に達したため、お申し込みを締め切りました。</div>
+        ` : `
+          <div class="field"><label for="appName">お名前</label><input type="text" id="appName" value="${state.memberName}"></div>
+          <div class="field"><label for="appCount">参加人数</label><input type="number" id="appCount" value="1" min="1" max="${remaining != null ? Math.min(5, remaining) : 5}"></div>
+          <div class="field"><label for="appNote">備考(任意)</label><textarea id="appNote" rows="2" placeholder="ご質問やご要望があればご記入ください"></textarea></div>
+          <button class="btn-primary" style="width:100%;" id="submitApplyBtn">この内容で申し込む</button>
+        `}
+      `;
+      if(!isFull){
+        document.getElementById("submitApplyBtn").addEventListener("click", async ()=>{
+          const name = document.getElementById("appName").value.trim();
+          if(!name){ toast("お名前を入力してください"); return; }
+          let count = parseInt(document.getElementById("appCount").value, 10) || 1;
+          if(remaining != null && count > remaining) count = remaining;
+          const note = document.getElementById("appNote").value.trim();
+          const btn = document.getElementById("submitApplyBtn");
+          btn.disabled = true; btn.textContent = "送信しています...";
+          try{
+            const res = await apiPost("apply", {
+              sessionId: s.id, name, email: state.memberEmail, count, note
+            });
+            if(!res.ok){
+              toast(res.error || "申込みに失敗しました");
+              btn.disabled = false; btn.textContent = "この内容で申し込む";
+              return;
+            }
+            s.appliedCount = res.appliedCount != null ? res.appliedCount : (s.appliedCount||0) + count;
+            showApplySuccess(s);
+            renderSessions();
+            renderCalendar();
+          }catch(err){
+            console.error(err);
+            toast("通信エラーのため申込みに失敗しました");
+            btn.disabled = false; btn.textContent = "この内容で申し込む";
+          }
+        });
+      }
+    }
+    document.getElementById("detailModalOverlay").classList.add("open");
+  }
+  function showApplySuccess(s){
+    const body = document.getElementById("detailModalBody");
+    body.innerHTML = `
+      <div class="success-box">
+        <div class="connect-row">${connectDotsSvg(["var(--brick)","var(--amber)","var(--blue)","var(--green)"],7)}</div>
+        <h3>申し込みが完了しました!</h3>
+        <p>「${s.title}」への参加登録を受け付けました。主催チームにも通知が届いています。まもなくご登録のメールアドレス宛にGoogleカレンダーの招待が届きますので、承諾すると予定が自動で追加されます。</p>
+        <a class="gcal-btn" href="${googleCalUrl(s)}" target="_blank" rel="noopener">📅 招待が届かない場合はこちらから追加</a>
+      </div>
+    `;
+    toast("申し込みが完了しました");
+  }
+  function googleCalUrl(s){
+    const startUtc = jstToUtcCompact(s.date, s.startTime);
+    const endUtc = jstToUtcCompact(s.date, s.endTime);
+    const params = new URLSearchParams({
+      action:"TEMPLATE",
+      text: s.title,
+      dates: `${startUtc}/${endUtc}`,
+      details: s.description + "(LSPファシリテーターズ・コミュニティ)",
+      location: s.location
+    });
+    return `https://calendar.google.com/calendar/render?${params.toString()}`;
+  }
+  function jstToUtcCompact(dateIso, time){
+    const [h,min] = time.split(":").map(Number);
+    const d = new Date(`${dateIso}T${String(h).padStart(2,"0")}:${String(min).padStart(2,"0")}:00+09:00`);
+    return d.toISOString().replace(/[-:]/g,"").split(".")[0]+"Z";
+  }
+  function closeModal(idOrEl){
+    const el = typeof idOrEl==="string" ? document.getElementById(idOrEl) : idOrEl;
+    el.classList.remove("open");
+  }
+
+  /* ---------- 会員登録 ---------- */
+  let pendingOpenSessionId = null;
+  function openMemberModal(afterSessionId){
+    pendingOpenSessionId = afterSessionId || null;
+    document.getElementById("memberModalOverlay").classList.add("open");
+  }
+  async function completeRegistration(name, email, trainingDate, trainer, notifyNewSessions){
+    if(!name || !email){ toast("お名前とメールアドレスを入力してください"); return false; }
+    try{
+      const res = await apiPost("register", {
+        name, email,
+        trainingDate: trainingDate || "",
+        trainer: trainer || "",
+        notifyNewSessions: !!notifyNewSessions
+      });
+      if(!res.ok){
+        toast(res.error || "会員登録に失敗しました。しばらくしてから再度お試しください");
+        return false;
+      }
+    }catch(err){
+      console.error(err);
+      toast("通信エラーのため会員登録に失敗しました");
+      return false;
+    }
+    state.isMember = true;
+    state.memberName = name;
+    state.memberEmail = email;
+    state.trainingDate = trainingDate || "";
+    state.trainer = trainer || "";
+    document.getElementById("memberPillText").textContent = `${name} さん`;
+    document.getElementById("memberAvatar").textContent = name.charAt(0);
+    toast("会員登録が完了しました。ようこそ!");
+    return true;
+  }
+
+  /* ---------- イベント初期化 ---------- */
+  async function init(){
+    renderAnnouncements();
+    renderTagFilters();
+    renderSessions();
+    renderCalendar();
+
+    // バックエンド(スプレッドシート)から最新の勉強会データを取得できたら差し替えて再描画
+    const loaded = await loadSessionsFromApi();
+    if(loaded){
+      renderSessions();
+      renderCalendar();
+    }
+
+    // 検索
+    document.getElementById("searchInput").addEventListener("input", (e)=>{
+      state.query = e.target.value;
+      renderSessions();
+      renderCalendar();
+    });
+
+    // フィルターパネル開閉
+    document.getElementById("filterToggleBtn").addEventListener("click", ()=>{
+      state.filterOpen = !state.filterOpen;
+      document.getElementById("filterPanel").classList.toggle("open", state.filterOpen);
+    });
+    document.getElementById("clearFiltersBtn").addEventListener("click", ()=>{
+      state.activeTags.clear();
+      renderTagFilters();
+      renderSessions();
+      renderCalendar();
+    });
+
+    // ビュー切り替え
+    document.getElementById("listViewBtn").addEventListener("click", ()=>{
+      state.view = "list";
+      document.getElementById("listViewBtn").classList.add("active");
+      document.getElementById("calViewBtn").classList.remove("active");
+      document.getElementById("listView").style.display = "block";
+      document.getElementById("calView").style.display = "none";
+    });
+    document.getElementById("calViewBtn").addEventListener("click", ()=>{
+      state.view = "calendar";
+      document.getElementById("calViewBtn").classList.add("active");
+      document.getElementById("listViewBtn").classList.remove("active");
+      document.getElementById("listView").style.display = "none";
+      document.getElementById("calView").style.display = "block";
+      renderCalendar();
+    });
+    document.getElementById("calPrevBtn").addEventListener("click", ()=>{
+      state.calMonth--; if(state.calMonth<1){state.calMonth=12; state.calYear--;}
+      state.selectedDay = null;
+      renderCalendar();
+    });
+    document.getElementById("calNextBtn").addEventListener("click", ()=>{
+      state.calMonth++; if(state.calMonth>12){state.calMonth=1; state.calYear++;}
+      state.selectedDay = null;
+      renderCalendar();
+    });
+
+    // ナビ・スクロール
+    document.querySelectorAll("[data-scroll]").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        document.querySelector(btn.dataset.scroll).scrollIntoView({behavior:"smooth"});
+        document.getElementById("mainNav").classList.remove("open");
+      });
+    });
+    document.getElementById("hamburgerBtn").addEventListener("click", ()=>{
+      document.getElementById("mainNav").classList.toggle("open");
+    });
+
+    // 会員登録(セクション内フォーム)
+    document.getElementById("registerBtn").addEventListener("click", async ()=>{
+      const name = document.getElementById("regName").value.trim();
+      const email = document.getElementById("regEmail").value.trim();
+      const trainingDate = document.getElementById("regTrainingDate").value.trim();
+      const trainer = document.getElementById("regTrainer").value.trim();
+      const notify = document.getElementById("regNotify").checked;
+      const btn = document.getElementById("registerBtn");
+      btn.disabled = true; btn.textContent = "登録しています...";
+      const ok = await completeRegistration(name, email, trainingDate, trainer, notify);
+      btn.disabled = false; btn.textContent = "会員登録する";
+      if(ok){
+        document.getElementById("regName").value = "";
+        document.getElementById("regEmail").value = "";
+        document.getElementById("regTrainingDate").value = "";
+        document.getElementById("regTrainer").value = "";
+      }
+    });
+
+    // 会員登録モーダル
+    document.getElementById("memberPillBtn").addEventListener("click", ()=>{
+      if(state.isMember){
+        toast(`${state.memberName} さんとしてログイン中です`);
+        return;
+      }
+      openMemberModal(null);
+    });
+    document.getElementById("mmRegisterBtn").addEventListener("click", async ()=>{
+      const name = document.getElementById("mmName").value.trim();
+      const email = document.getElementById("mmEmail").value.trim();
+      const trainingDate = document.getElementById("mmTrainingDate").value.trim();
+      const trainer = document.getElementById("mmTrainer").value.trim();
+      const notify = document.getElementById("mmNotify").checked;
+      const btn = document.getElementById("mmRegisterBtn");
+      btn.disabled = true; btn.textContent = "登録しています...";
+      const ok = await completeRegistration(name, email, trainingDate, trainer, notify);
+      btn.disabled = false; btn.textContent = "登録して続ける";
+      if(ok){
+        closeModal("memberModalOverlay");
+        if(pendingOpenSessionId){
+          openDetailModal(pendingOpenSessionId);
+          pendingOpenSessionId = null;
+        }
+      }
+    });
+    document.getElementById("memberModalClose").addEventListener("click", ()=>closeModal("memberModalOverlay"));
+    document.getElementById("memberModalOverlay").addEventListener("click", (e)=>{
+      if(e.target.id==="memberModalOverlay") closeModal("memberModalOverlay");
+    });
+
+    // 詳細モーダル
+    document.getElementById("detailModalClose").addEventListener("click", ()=>closeModal("detailModalOverlay"));
+    document.getElementById("detailModalOverlay").addEventListener("click", (e)=>{
+      if(e.target.id==="detailModalOverlay") closeModal("detailModalOverlay");
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", init);
+})();
+</script>
+</body>
+</html>
