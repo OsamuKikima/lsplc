@@ -304,6 +304,7 @@
     background:var(--cream);color:var(--ink);
   }
   .field input:focus,.field select:focus,.field textarea:focus{outline:2px solid var(--blue);border-color:var(--blue);}
+  .field input[readonly]{background:#EFEDE6;color:var(--ink-soft);cursor:not-allowed;}
   .checkbox-field{
     display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--ink-soft);
     margin-bottom:16px;cursor:pointer;line-height:1.5;
@@ -386,8 +387,9 @@
     padding:26px;position:relative;box-shadow:0 20px 0 rgba(35,43,58,0.08);
   }
   .modal-close{position:absolute;top:16px;right:16px;border:none;background:var(--cream);width:32px;height:32px;border-radius:50%;font-size:16px;font-weight:900;color:var(--ink-soft);}
-  .detail-image{margin:-26px -26px 18px;border-radius:22px 22px 0 0;overflow:hidden;aspect-ratio:16/9;background:var(--cream);}
+  .detail-image{margin:-26px -26px 14px;border-radius:22px 22px 0 0;overflow:hidden;aspect-ratio:16/9;background:var(--cream);}
   .detail-image img{width:100%;height:100%;object-fit:cover;display:block;}
+  .detail-image-view-btn{width:100%;margin-bottom:18px;}
   .modal h3{font-size:19px;margin-bottom:4px;}
   .modal .modal-sub{font-size:13px;color:var(--ink-soft);margin-bottom:18px;}
   .modal-summary{background:var(--cream);border-radius:14px;padding:14px 16px;margin-bottom:18px;font-size:13.5px;}
@@ -417,6 +419,23 @@
     opacity:0;pointer-events:none;transition:.25s;
   }
   .toast.show{opacity:1;transform:translateX(-50%) translateY(-6px);}
+
+  .lightbox-overlay{
+    position:fixed;inset:0;background:rgba(10,12,16,0.92);z-index:300;
+    display:none;align-items:center;justify-content:center;padding:24px;
+    cursor:zoom-out;
+  }
+  .lightbox-overlay.open{display:flex;}
+  .lightbox-overlay img{
+    max-width:100%;max-height:100%;object-fit:contain;border-radius:8px;
+    box-shadow:0 20px 60px rgba(0,0,0,0.5);cursor:default;
+  }
+  .lightbox-close{
+    position:fixed;top:20px;right:20px;background:rgba(255,255,255,0.15);color:#fff;
+    border:none;width:40px;height:40px;border-radius:50%;font-size:18px;font-weight:900;
+    cursor:pointer;
+  }
+  .lightbox-close:hover{background:rgba(255,255,255,0.28);}
 
   @media (max-width: 900px){
     .hero{grid-template-columns:1fr;padding-top:32px;}
@@ -831,6 +850,12 @@
       </div>
     </div>
   </div>
+</div>
+
+<!-- 画像の拡大表示(ライトボックス) -->
+<div class="lightbox-overlay" id="imageLightboxOverlay">
+  <button class="lightbox-close" id="imageLightboxClose" aria-label="閉じる">✕</button>
+  <img id="imageLightboxImg" src="" alt="">
 </div>
 
 <div class="toast" id="toast"></div>
@@ -1854,8 +1879,8 @@
         ` : isFull ? `
           <div class="need-member">この勉強会は定員に達したため、お申し込みを締め切りました。</div>
         ` : `
-          <div class="field"><label for="appName">お名前</label><input type="text" id="appName" value="${state.memberName}"></div>
-          <div class="field"><label for="appCount">参加人数</label><input type="number" id="appCount" value="1" min="1" max="${remaining != null ? Math.min(5, remaining) : 5}"></div>
+          <p class="field-hint" style="margin-top:0;">お申し込みはご本人1名分のみです。ご友人・ご家族の代理申込みはできません。</p>
+          <div class="field"><label for="appName">お名前</label><input type="text" id="appName" value="${state.memberName}" readonly></div>
           <div class="field"><label for="appNote">備考(任意)</label><textarea id="appNote" rows="2" placeholder="ご質問やご要望があればご記入ください"></textarea></div>
           ${s.date ? `
           <label class="checkbox-field">
@@ -1872,8 +1897,7 @@
         document.getElementById("submitApplyBtn").addEventListener("click", async ()=>{
           const name = document.getElementById("appName").value.trim();
           if(!name){ toast("お名前を入力してください"); return; }
-          let count = parseInt(document.getElementById("appCount").value, 10) || 1;
-          if(remaining != null && count > remaining) count = remaining;
+          const count = 1; // 申込みは会員本人1名のみ
           const note = document.getElementById("appNote").value.trim();
           const calendarCheckbox = document.getElementById("appWantsCalendar");
           const wantsCalendarInvite = calendarCheckbox ? calendarCheckbox.checked : false;
@@ -1902,6 +1926,25 @@
       }
     }
     document.getElementById("detailModalOverlay").classList.add("open");
+    const imageEl = body.querySelector("[data-open-lightbox]");
+    if(imageEl){
+      imageEl.addEventListener("click", ()=>{
+        openImageLightbox_(imageEl.dataset.openLightbox, imageEl.dataset.lightboxAlt || "");
+      });
+    }
+  }
+  /* ---------- 画像の拡大表示(ライトボックス) ---------- */
+  function openImageLightbox_(url, alt){
+    const overlay = document.getElementById("imageLightboxOverlay");
+    const img = document.getElementById("imageLightboxImg");
+    img.src = url;
+    img.alt = alt || "";
+    overlay.classList.add("open");
+  }
+  function closeImageLightbox_(){
+    const overlay = document.getElementById("imageLightboxOverlay");
+    overlay.classList.remove("open");
+    document.getElementById("imageLightboxImg").src = "";
   }
   /* ---------- 簡易掲示板 ---------- */
   function boardSectionHtml(){
@@ -1989,7 +2032,10 @@
   }
   function detailImageHtml(s){
     if(!s.imageUrl) return "";
-    return `<div class="detail-image"><img src="${s.imageUrl}" alt="${s.title}のイメージ画像" onerror="this.closest('.detail-image').style.display='none'"></div>`;
+    return `<div class="detail-image">
+      <img src="${s.imageUrl}" alt="${escapeHtml_(s.title)}のイメージ画像" onerror="this.closest('.detail-image').style.display='none'; this.closest('div').parentElement.querySelector('.detail-image-view-btn').style.display='none';">
+    </div>
+    <button type="button" class="btn-ghost detail-image-view-btn" data-open-lightbox="${s.imageUrl}" data-lightbox-alt="${escapeHtml_(s.title)}のイメージ画像">📎 添付画像を見る</button>`;
   }
   function escapeHtml_(text){
     if(!text) return "";
@@ -2318,6 +2364,15 @@
     document.getElementById("detailModalClose").addEventListener("click", ()=>closeModal("detailModalOverlay"));
     document.getElementById("detailModalOverlay").addEventListener("click", (e)=>{
       if(e.target.id==="detailModalOverlay") closeModal("detailModalOverlay");
+    });
+
+    // 画像の拡大表示(ライトボックス)
+    document.getElementById("imageLightboxClose").addEventListener("click", closeImageLightbox_);
+    document.getElementById("imageLightboxOverlay").addEventListener("click", (e)=>{
+      if(e.target.id === "imageLightboxOverlay") closeImageLightbox_();
+    });
+    document.addEventListener("keydown", (e)=>{
+      if(e.key === "Escape") closeImageLightbox_();
     });
 
     // 主催者ダッシュボード
