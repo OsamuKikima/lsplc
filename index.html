@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LSP ファシリテーターズ・コミュニティ</title>
+<title>LSPラーニング・ガーデン</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
 <style>
@@ -215,6 +215,11 @@
   }
   .session-date-badge .m{font-size:10px;font-weight:700;color:var(--brick);}
   .session-date-badge .d{font-size:20px;font-weight:900;line-height:1;}
+  .session-card.is-cancelled{opacity:.72;}
+  .cancelled-badge{
+    display:inline-block;background:var(--brick);color:#fff;font-size:11px;font-weight:700;
+    padding:4px 12px;border-radius:999px;margin-bottom:10px;
+  }
   .session-card h3{font-size:17px;margin-bottom:6px;}
   .session-meta{font-size:13px;color:var(--ink-soft);display:flex;flex-direction:column;gap:4px;margin-bottom:10px;}
   .session-meta span{display:flex;align-items:center;gap:6px;}
@@ -295,19 +300,9 @@
   }
   .checkbox-field input{width:auto;margin-top:3px;flex:none;accent-color:var(--blue);}
   .required-mark{color:var(--brick);font-size:11px;font-weight:700;margin-left:6px;}
-  .member-type-choice{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-  .radio-card{
-    position:relative;display:flex;flex-direction:column;gap:4px;
-    border:2px solid var(--line);border-radius:12px;padding:12px;cursor:pointer;
-    background:var(--cream);transition:.15s;
-  }
-  .radio-card input{position:absolute;top:10px;right:10px;margin:0;accent-color:var(--blue);}
-  .radio-card-title{font-size:12.5px;font-weight:700;color:var(--ink);padding-right:20px;line-height:1.4;}
-  .radio-card-desc{font-size:11px;color:var(--ink-soft);}
-  .radio-card:has(input:checked){border-color:var(--blue);background:#EAF5FC;}
-  @media (max-width:480px){
-    .member-type-choice{grid-template-columns:1fr;}
-  }
+  .auth-tabs{display:flex;gap:6px;background:var(--cream);border:2px solid var(--line);border-radius:999px;padding:4px;margin-bottom:20px;}
+  .auth-tab{flex:1;border:none;background:none;padding:9px 12px;border-radius:999px;font-weight:700;font-size:13.5px;color:var(--ink-soft);}
+  .auth-tab.active{background:var(--ink);color:#fff;}
   .field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
   @media (max-width:480px){.field-row{grid-template-columns:1fr;}}
   .organizer-toolbar{margin-bottom:20px;}
@@ -332,6 +327,7 @@
   }
   .ticket-link:hover{background:var(--amber-dark);}
   .field-hint{font-size:11.5px;color:var(--ink-soft);margin-top:6px;}
+  .field-hint-inline{font-size:11px;color:var(--blue-dark);font-weight:700;margin-left:6px;}
   input[type="file"]{
     width:100%;border:2px dashed var(--line);border-radius:10px;padding:10px 12px;font-size:13px;
     background:var(--cream);color:var(--ink-soft);font-family:inherit;
@@ -380,6 +376,14 @@
     padding:11px 20px;border-radius:999px;font-weight:700;font-size:14px;color:var(--ink);text-decoration:none;
   }
   .need-member{background:#FBE4E2;border-radius:14px;padding:16px;font-size:13.5px;color:var(--brick-dark);margin-bottom:16px;}
+  .board-section{margin-top:22px;padding-top:18px;border-top:2px dashed var(--line);}
+  .board-section h4{font-size:15px;margin-bottom:6px;}
+  .board-messages{display:flex;flex-direction:column;gap:10px;max-height:220px;overflow-y:auto;margin-bottom:4px;}
+  .board-message{background:var(--cream);border-radius:12px;padding:10px 14px;}
+  .board-message-head{font-size:12.5px;margin-bottom:4px;display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;}
+  .board-message-head b{color:var(--ink);}
+  .board-messenger{color:var(--ink-soft);font-size:11px;}
+  .board-message p{font-size:13.5px;color:var(--ink);white-space:pre-wrap;margin:0;}
   .toast{
     position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
     background:var(--ink);color:#fff;padding:13px 24px;border-radius:999px;font-weight:700;font-size:14px;
@@ -428,7 +432,7 @@
         <circle cx="21" cy="13" r="4" fill="var(--blue)"/>
         <circle cx="30" cy="6" r="4" fill="var(--green)"/>
       </svg>
-      <div class="logo-text">LSPファシリテーターズ<small>限定コミュニティサイト</small></div>
+      <div class="logo-text">LSPラーニング・ガーデン<small>LSPファシリテーターのための学び場</small></div>
     </div>
     <button class="hamburger" id="hamburgerBtn" aria-label="メニューを開く"><span></span><span></span><span></span></button>
     <nav id="mainNav">
@@ -526,6 +530,7 @@
         </div>
       </div>
       <div class="cal-grid" id="calGrid"></div>
+      <p class="field-hint" style="margin-top:12px;">※日付を固定しない「定期開催」の勉強会はカレンダーには表示されません。リスト表示でご確認ください。</p>
       <div class="cal-day-list" id="calDayList" style="display:none;"></div>
     </div>
   </div>
@@ -535,46 +540,63 @@
   <div class="members-cta">
     <div>
       <div class="hero-eyebrow">🎟️ Membership</div>
-      <h2>会員登録すれば、誰でも勉強会に申し込めます</h2>
-      <p>お名前とメールアドレスを登録するだけ。登録後はすぐに勉強会への参加申し込みができるようになります。</p>
+      <h2 id="membersHeading">会員登録すれば、誰でも勉強会に申し込めます</h2>
+      <p id="membersLead">お名前とメールアドレスを登録するだけ。登録後はすぐに勉強会への参加申し込みができるようになります。2回目以降はメールアドレスとパスワードでログインできます。</p>
     </div>
     <div class="members-form">
-      <div class="field">
-        <label for="regName">お名前</label>
-        <input type="text" id="regName" placeholder="山田 花子">
+      <div class="auth-tabs">
+        <button type="button" class="auth-tab active" id="tabRegister" data-auth-tab="register">新規登録</button>
+        <button type="button" class="auth-tab" id="tabLogin" data-auth-tab="login">ログイン</button>
       </div>
-      <div class="field">
-        <label for="regEmail">メールアドレス</label>
-        <input type="email" id="regEmail" placeholder="you@example.com">
-      </div>
-      <div class="field">
-        <label>会員種別</label>
-        <div class="member-type-choice">
-          <label class="radio-card">
-            <input type="radio" name="regMemberType" value="general" checked>
-            <span class="radio-card-title">一般</span>
-            <span class="radio-card-desc">勉強会への参加のみ</span>
-          </label>
-          <label class="radio-card">
-            <input type="radio" name="regMemberType" value="certified">
-            <span class="radio-card-title">LEGO® SERIOUS PLAY®メソッド<br>トレーニング修了認定ファシリテーター</span>
-            <span class="radio-card-desc">自分で勉強会を主催できます</span>
-          </label>
+
+      <div id="registerFormBlock">
+        <div class="field">
+          <label for="regName">お名前</label>
+          <input type="text" id="regName" placeholder="山田 花子">
         </div>
+        <div class="field">
+          <label for="regEmail">メールアドレス</label>
+          <input type="email" id="regEmail" placeholder="you@example.com">
+        </div>
+        <div class="field">
+          <label for="regPassword">パスワード(6文字以上)</label>
+          <input type="password" id="regPassword" placeholder="••••••••" autocomplete="new-password">
+        </div>
+        <div class="field">
+          <label for="regPasswordConfirm">パスワード(確認)</label>
+          <input type="password" id="regPasswordConfirm" placeholder="••••••••" autocomplete="new-password">
+        </div>
+        <div class="field" id="regTrainingDateField">
+          <label for="regTrainingDate">トレーニング時期<span class="required-mark">*必須</span></label>
+          <input type="text" id="regTrainingDate" placeholder="例:2023年4月">
+        </div>
+        <div class="field" id="regTrainerField">
+          <label for="regTrainer">トレーナー名<span class="required-mark">*必須</span></label>
+          <input type="text" id="regTrainer" placeholder="">
+        </div>
+        <div class="field">
+          <label for="regMessenger">Messenger登録名(任意)</label>
+          <input type="text" id="regMessenger" placeholder="例:hanako.yamada">
+          <p class="field-hint">今後の連絡を取りやすくするためのものです。未入力でも登録できます。</p>
+        </div>
+        <label class="checkbox-field">
+          <input type="checkbox" id="regNotify" checked>
+          <span>新しい勉強会が公開されたときにメール通知を受け取る</span>
+        </label>
+        <button class="btn-primary" style="width:100%;" id="registerBtn">会員登録する</button>
       </div>
-      <div class="field" id="regTrainingDateField">
-        <label for="regTrainingDate">トレーニング時期<span class="required-mark" id="regTrainingDateReq" style="display:none;">*必須</span></label>
-        <input type="text" id="regTrainingDate" placeholder="例:2023年4月">
+
+      <div id="loginFormBlock" style="display:none;">
+        <div class="field">
+          <label for="loginEmail">メールアドレス</label>
+          <input type="email" id="loginEmail" placeholder="you@example.com">
+        </div>
+        <div class="field">
+          <label for="loginPassword">パスワード</label>
+          <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password">
+        </div>
+        <button class="btn-primary" style="width:100%;" id="loginBtn">ログインする</button>
       </div>
-      <div class="field" id="regTrainerField">
-        <label for="regTrainer">トレーナー<span class="required-mark" id="regTrainerReq" style="display:none;">*必須</span></label>
-        <input type="text" id="regTrainer" placeholder="例:山田 太郎トレーナー">
-      </div>
-      <label class="checkbox-field">
-        <input type="checkbox" id="regNotify" checked>
-        <span>新しい勉強会が公開されたときにメール通知を受け取る</span>
-      </label>
-      <button class="btn-primary" style="width:100%;" id="registerBtn">会員登録する</button>
     </div>
   </div>
 </section>
@@ -598,7 +620,10 @@
     <p class="modal-sub">入力後、「保存する」を押すとすぐにサイトに反映されます。</p>
     <div class="field"><label for="seTitle">タイトル</label><input type="text" id="seTitle" placeholder="例:読書会 vol.5"></div>
     <div class="field-row">
-      <div class="field"><label for="seDate">開催日</label><input type="date" id="seDate"></div>
+      <div class="field">
+        <label for="seDate">開催日<span class="field-hint-inline" id="seDateHint"></span></label>
+        <input type="date" id="seDate">
+      </div>
       <div class="field"><label for="seDeadline">申込締切(任意)</label><input type="date" id="seDeadline"></div>
     </div>
     <div class="field-row">
@@ -637,6 +662,7 @@
       <p class="field-hint">一覧のサムネイルと、詳細ページの上部に表示されます(5MBまで)</p>
     </div>
     <div class="field"><label for="seDescription">詳細説明</label><textarea id="seDescription" rows="5" placeholder="勉強会の内容、持ち物、当日の流れなどを詳しく記入してください。ここに書いた内容が詳細ページに表示されます。"></textarea></div>
+    <button type="button" class="btn-ghost" id="sessionEditorCancelEventBtn" style="display:none;width:100%;margin-bottom:10px;">イベント中止にする</button>
     <div style="display:flex; gap:10px;">
       <button class="btn-primary" style="flex:1;" id="sessionEditorSaveBtn">保存する</button>
       <button class="btn-ghost" id="sessionEditorDeleteBtn" style="display:none;color:var(--brick);border-color:var(--brick);">削除する</button>
@@ -655,7 +681,7 @@
         <circle cx="134" cy="22" r="5" fill="var(--green)"/>
       </svg>
     </div>
-    <div class="logo-text">LSPファシリテーターズ<small>限定コミュニティサイト</small></div>
+    <div class="logo-text">LSPラーニング・ガーデン<small>LSPファシリテーターのための学び場</small></div>
     <p class="footer-note">
       本サイトはLEGO® SERIOUS PLAY®メソッドを学んだファシリテーターの学び合いを目的とした非公式のコミュニティサイトです。LEGO、LEGO SERIOUS PLAYはThe LEGO Groupの商標であり、本サイトはLEGO Groupと提携するものではありません。<br>
       掲載データはデモ用のサンプルです。実運用時は会員データベースおよびGoogleカレンダーAPI連携のサーバー実装が別途必要です。
@@ -675,44 +701,61 @@
 <div class="modal-overlay" id="memberModalOverlay">
   <div class="modal">
     <button class="modal-close" id="memberModalClose">✕</button>
-    <h3>会員登録</h3>
-    <p class="modal-sub">登録すると勉強会への申し込みができるようになります。</p>
-    <div class="field">
-      <label for="mmName">お名前</label>
-      <input type="text" id="mmName" placeholder="山田 花子">
+    <h3>会員登録・ログイン</h3>
+    <p class="modal-sub">登録・ログインすると勉強会への申し込みができるようになります。</p>
+    <div class="auth-tabs">
+      <button type="button" class="auth-tab active" id="mmTabRegister" data-auth-tab="register">新規登録</button>
+      <button type="button" class="auth-tab" id="mmTabLogin" data-auth-tab="login">ログイン</button>
     </div>
-    <div class="field">
-      <label for="mmEmail">メールアドレス</label>
-      <input type="email" id="mmEmail" placeholder="you@example.com">
-    </div>
-    <div class="field">
-      <label>会員種別</label>
-      <div class="member-type-choice">
-        <label class="radio-card">
-          <input type="radio" name="mmMemberType" value="general" checked>
-          <span class="radio-card-title">一般</span>
-          <span class="radio-card-desc">勉強会への参加のみ</span>
-        </label>
-        <label class="radio-card">
-          <input type="radio" name="mmMemberType" value="certified">
-          <span class="radio-card-title">LEGO® SERIOUS PLAY®メソッド<br>トレーニング修了認定ファシリテーター</span>
-          <span class="radio-card-desc">自分で勉強会を主催できます</span>
-        </label>
+
+    <div id="mmRegisterFormBlock">
+      <div class="field">
+        <label for="mmName">お名前</label>
+        <input type="text" id="mmName" placeholder="山田 花子">
       </div>
+      <div class="field">
+        <label for="mmEmail">メールアドレス</label>
+        <input type="email" id="mmEmail" placeholder="you@example.com">
+      </div>
+      <div class="field">
+        <label for="mmPassword">パスワード(6文字以上)</label>
+        <input type="password" id="mmPassword" placeholder="••••••••" autocomplete="new-password">
+      </div>
+      <div class="field">
+        <label for="mmPasswordConfirm">パスワード(確認)</label>
+        <input type="password" id="mmPasswordConfirm" placeholder="••••••••" autocomplete="new-password">
+      </div>
+      <div class="field" id="mmTrainingDateField">
+        <label for="mmTrainingDate">トレーニング時期<span class="required-mark">*必須</span></label>
+        <input type="text" id="mmTrainingDate" placeholder="例:2023年4月">
+      </div>
+      <div class="field" id="mmTrainerField">
+        <label for="mmTrainer">トレーナー名<span class="required-mark">*必須</span></label>
+        <input type="text" id="mmTrainer" placeholder="">
+      </div>
+      <div class="field">
+        <label for="mmMessenger">Messenger登録名(任意)</label>
+        <input type="text" id="mmMessenger" placeholder="例:hanako.yamada">
+        <p class="field-hint">今後の連絡を取りやすくするためのものです。未入力でも登録できます。</p>
+      </div>
+      <label class="checkbox-field">
+        <input type="checkbox" id="mmNotify" checked>
+        <span>新しい勉強会が公開されたときにメール通知を受け取る</span>
+      </label>
+      <button class="btn-primary" style="width:100%;" id="mmRegisterBtn">登録して続ける</button>
     </div>
-    <div class="field" id="mmTrainingDateField">
-      <label for="mmTrainingDate">トレーニング時期<span class="required-mark" id="mmTrainingDateReq" style="display:none;">*必須</span></label>
-      <input type="text" id="mmTrainingDate" placeholder="例:2023年4月">
+
+    <div id="mmLoginFormBlock" style="display:none;">
+      <div class="field">
+        <label for="mmLoginEmail">メールアドレス</label>
+        <input type="email" id="mmLoginEmail" placeholder="you@example.com">
+      </div>
+      <div class="field">
+        <label for="mmLoginPassword">パスワード</label>
+        <input type="password" id="mmLoginPassword" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <button class="btn-primary" style="width:100%;" id="mmLoginBtn">ログインする</button>
     </div>
-    <div class="field" id="mmTrainerField">
-      <label for="mmTrainer">トレーナー<span class="required-mark" id="mmTrainerReq" style="display:none;">*必須</span></label>
-      <input type="text" id="mmTrainer" placeholder="例:山田 太郎トレーナー">
-    </div>
-    <label class="checkbox-field">
-      <input type="checkbox" id="mmNotify" checked>
-      <span>新しい勉強会が公開されたときにメール通知を受け取る</span>
-    </label>
-    <button class="btn-primary" style="width:100%;" id="mmRegisterBtn">登録して続ける</button>
   </div>
 </div>
 
@@ -761,7 +804,8 @@
       organizerEmail: raw.OrganizerEmail || "",
       description: raw.Description || "",
       ticketUrl: raw.TicketUrl || "",
-      imageUrl: raw.ImageUrl || ""
+      imageUrl: raw.ImageUrl || "",
+      status: raw.Status === "cancelled" ? "cancelled" : "active"
     };
   }
   /* Apps Scriptから返る日付(ISO文字列 or Dateオブジェクト文字列)を YYYY-MM-DD に揃える */
@@ -808,12 +852,12 @@
     }
     wrap.innerHTML = state.mySessions
       .slice()
-      .sort((a,b)=> a.date.localeCompare(b.date))
+      .sort((a,b)=> (a.date||"").localeCompare(b.date||""))
       .map(s => `
         <div class="my-session-card">
           <div class="msc-main">
-            <h4>${s.title}</h4>
-            <div class="msc-meta">${fmtDateLong(s.date)} ・ ${s.startTime}-${s.endTime} ・ 申込み${s.appliedCount||0}名${s.capacity!=null ? `/定員${s.capacity}名` : ""}</div>
+            <h4>${s.status === "cancelled" ? '<span class="cancelled-badge" style="margin-right:8px;">中止</span>' : ""}${s.title}</h4>
+            <div class="msc-meta">${s.date ? fmtDateLong(s.date) : "定期開催(日程未定)"} ・ ${s.startTime}-${s.endTime} ・ 申込み${s.appliedCount||0}名${s.capacity!=null ? `/定員${s.capacity}名` : ""}</div>
           </div>
           <div class="msc-actions">
             <button class="edit" data-edit-session="${s.id}">編集</button>
@@ -842,12 +886,14 @@
   }
   let editingSessionId = null;
   let currentEditorImageUrl = "";
+  let currentEditorStatus = "active";
   function openSessionEditor_(session){
     editingSessionId = session ? session.id : null;
     currentEditorImageUrl = session ? (session.imageUrl || "") : "";
+    currentEditorStatus = session ? (session.status || "active") : "active";
     document.getElementById("sessionEditorTitle").textContent = session ? "勉強会を編集" : "新しい勉強会を作成";
     document.getElementById("seTitle").value = session ? session.title : "";
-    document.getElementById("seDate").value = session ? session.date : "";
+    document.getElementById("seDate").value = session ? (session.date || "") : "";
     document.getElementById("seDeadline").value = session && session.deadline ? session.deadline : "";
     document.getElementById("seStart").value = session ? session.startTime : "";
     document.getElementById("seEnd").value = session ? session.endTime : "";
@@ -863,7 +909,14 @@
     toggleTicketUrlField_();
     updateImagePreviewUI_();
     document.getElementById("sessionEditorDeleteBtn").style.display = session ? "" : "none";
+    updateCancelButtonUI_();
     document.getElementById("sessionEditorOverlay").classList.add("open");
+  }
+  function updateCancelButtonUI_(){
+    const btn = document.getElementById("sessionEditorCancelEventBtn");
+    if(!editingSessionId){ btn.style.display = "none"; return; }
+    btn.style.display = "";
+    btn.textContent = currentEditorStatus === "cancelled" ? "中止を解除する" : "イベント中止にする";
   }
   function updateImagePreviewUI_(){
     const wrap = document.getElementById("seImagePreviewWrap");
@@ -893,11 +946,20 @@
       return `<button type="button" class="tag-pill ${cls} ${active}" data-se-tag="${tag}"><span class="dot"></span>${tag}</button>`;
     }).join("");
     wrap.querySelectorAll("[data-se-tag]").forEach(btn=>{
-      btn.addEventListener("click", ()=> btn.classList.toggle("active"));
+      btn.addEventListener("click", ()=>{
+        btn.classList.toggle("active");
+        updateDateHint_();
+      });
     });
+    updateDateHint_();
   }
   function getSelectedEditorTags_(){
     return Array.from(document.querySelectorAll("#seTagPills .tag-pill.active")).map(b=>b.dataset.seTag);
+  }
+  /* 「定期開催(メンバー募集)」タグが選ばれている間は、開催日が任意であることを表示する */
+  function updateDateHint_(){
+    const isRecurring = getSelectedEditorTags_().includes(RECURRING_TAG);
+    document.getElementById("seDateHint").textContent = isRecurring ? "(定期開催のため任意)" : "";
   }
   function toggleTicketUrlField_(){
     const fee = Number(document.getElementById("seFee").value) || 0;
@@ -965,8 +1027,9 @@
         imageUrl: currentEditorImageUrl,
         description: document.getElementById("seDescription").value.trim()
       };
-      if(!payload.title || !payload.date || !payload.startTime || !payload.endTime || !payload.location){
-        toast("タイトル・開催日・時刻・場所は必須です");
+      const isRecurring = payload.tags.includes(RECURRING_TAG);
+      if(!payload.title || (!payload.date && !isRecurring) || !payload.startTime || !payload.endTime || !payload.location){
+        toast(isRecurring ? "タイトル・時刻・場所は必須です" : "タイトル・開催日・時刻・場所は必須です");
         return;
       }
       saveBtn.disabled = true; saveBtn.textContent = "保存しています...";
@@ -996,11 +1059,37 @@
       renderSessions();
       renderCalendar();
     });
+
+    const cancelEventBtn = document.getElementById("sessionEditorCancelEventBtn");
+    if(cancelEventBtn) cancelEventBtn.addEventListener("click", async ()=>{
+      if(!editingSessionId) return;
+      const willCancel = currentEditorStatus !== "cancelled";
+      const confirmMsg = willCancel
+        ? "このイベントを中止にします。参加者から見えなくはなりませんが、「中止」と表示され、新たな申込みができなくなります。よろしいですか?"
+        : "中止を解除して、通常の受付状態に戻します。よろしいですか?";
+      if(!confirm(confirmMsg)) return;
+      cancelEventBtn.disabled = true;
+      const res = await apiPost("setSessionStatus", {
+        email: state.memberEmail,
+        sessionId: editingSessionId,
+        status: willCancel ? "cancelled" : "active"
+      });
+      cancelEventBtn.disabled = false;
+      if(!res.ok){ toast(res.error || "更新に失敗しました"); return; }
+      currentEditorStatus = willCancel ? "cancelled" : "active";
+      updateCancelButtonUI_();
+      toast(willCancel ? "イベントを中止にしました" : "中止を解除しました");
+      await loadMySessions_();
+      await loadSessionsFromApi();
+      renderSessions();
+      renderCalendar();
+    });
   }
 
   /* ---------- タグ定義 ---------- */
   const FORMAT_TAGS = ["オンライン","対面(関東)","対面(北海道)","対面(関西)","対面(東海)","対面(北陸)","対面(四国)","対面(中国)","対面(九州)","対面(沖縄)"];
   const THEME_TAGS = ["読書会","事例共有","実践練習","懇親会","定期開催(メンバー募集)"];
+  const RECURRING_TAG = "定期開催(メンバー募集)";
   function tagClass(tag){
     if(tag === "オンライン") return "online";
     if(FORMAT_TAGS.includes(tag)) return "venue";
@@ -1138,9 +1227,9 @@
     isMember: false,
     trainingDate: "",
     trainer: "",
+    messengerName: "",
     memberName: "",
     memberEmail: "",
-    memberType: "general",
     mySessions: [],
     filterOpen:false
   };
@@ -1203,9 +1292,18 @@
   }
 
   /* ---------- フィルタリング ---------- */
+  /* 実施日から1ヶ月以上経過したイベントは、一覧の表示上「終了」として除外する
+     (データそのものは削除されないので、主催者ダッシュボードでは引き続き確認できます) */
+  function isEnded_(s){
+    if(!s.date) return false; // 定期開催(日付なし)は自動終了しない
+    const end = new Date(s.date + "T00:00:00");
+    end.setMonth(end.getMonth() + 1);
+    return new Date() > end;
+  }
   function getFilteredSessions(){
     const q = state.query.trim().toLowerCase();
     return sessions.filter(s=>{
+      if(isEnded_(s)) return false;
       if(state.activeTags.size>0){
         const hasAll = [...state.activeTags].every(t=>s.tags.includes(t));
         if(!hasAll) return false;
@@ -1215,7 +1313,7 @@
         if(!hay.includes(q)) return false;
       }
       return true;
-    }).sort((a,b)=> a.date.localeCompare(b.date));
+    }).sort((a,b)=> (a.date||"").localeCompare(b.date||"") || a.title.localeCompare(b.title));
   }
 
   /* ---------- セッション一覧描画 ---------- */
@@ -1236,16 +1334,20 @@
     });
   }
   function sessionCardHtml(s){
-    const d = fmtDateShort(s.date);
     const feeLabel = s.fee === 0 ? "無料" : `¥${s.fee.toLocaleString()}`;
+    const isCancelled = s.status === "cancelled";
+    const dateBadgeHtml = s.date
+      ? (()=>{ const d = fmtDateShort(s.date); return `<div class="m">${d.month}</div><div class="d">${d.day}</div>`; })()
+      : `<div class="m">定期</div><div class="d">開催</div>`;
     return `
-    <div class="session-card">
+    <div class="session-card ${isCancelled ? 'is-cancelled' : ''}">
       ${s.imageUrl
         ? `<div class="session-thumb"><img src="${s.imageUrl}" alt="${s.title}のイメージ画像" loading="lazy" onerror="this.closest('.session-thumb').style.display='none'"></div>`
         : `<div class="session-top"><div class="connect-row">${connectDotsSvg(cardAccentColors(s))}</div></div>`
       }
       <div class="session-body">
-        <div class="session-date-badge"><div class="m">${d.month}</div><div class="d">${d.day}</div></div>
+        ${isCancelled ? `<div class="cancelled-badge">中止</div>` : ""}
+        <div class="session-date-badge">${dateBadgeHtml}</div>
         <h3>${s.title}</h3>
         <div class="session-meta">
           <span>🕐 ${s.startTime} - ${s.endTime}</span>
@@ -1397,17 +1499,23 @@
   }
 
   /* ---------- 詳細・申し込みモーダル ---------- */
+  function dateTimeLabelHtml(s){
+    const dateLabel = s.date ? fmtDateLong(s.date) : "定期開催(日程はお問い合わせください)";
+    return `${dateLabel}・${s.startTime}-${s.endTime}`;
+  }
   function openDetailModal(id){
     const s = sessions.find(x=>x.id===id);
     if(!s) return;
     const body = document.getElementById("detailModalBody");
     const feeLabel = s.fee===0 ? "無料" : `¥${s.fee.toLocaleString()}`;
+    const isCancelled = s.status === "cancelled";
 
     if(!state.isMember){
       body.innerHTML = `
         ${detailImageHtml(s)}
+        ${isCancelled ? `<div class="cancelled-badge">中止</div>` : ""}
         <h3>${s.title}</h3>
-        <p class="modal-sub">${fmtDateLong(s.date)}・${s.startTime}-${s.endTime}</p>
+        <p class="modal-sub">${dateTimeLabelHtml(s)}</p>
         <div class="modal-summary">
           <div><span>開催場所</span><b>${s.location}</b></div>
           <div><span>参加費</span><b>${feeLabel}</b></div>
@@ -1422,35 +1530,48 @@
     } else if(!s.requiresRegistration){
       body.innerHTML = `
         ${detailImageHtml(s)}
+        ${isCancelled ? `<div class="cancelled-badge">中止</div>` : ""}
         <h3>${s.title}</h3>
-        <p class="modal-sub">${fmtDateLong(s.date)}・${s.startTime}-${s.endTime}</p>
+        <p class="modal-sub">${dateTimeLabelHtml(s)}</p>
         <div class="modal-summary">
           <div><span>開催場所</span><b>${s.location}</b></div>
           <div><span>参加費</span><b>${feeLabel}</b></div>
+          ${s.organizer ? `<div><span>作成者</span><b>${escapeHtml_(s.organizer)}</b></div>` : ""}
         </div>
         <p style="font-size:13.5px;color:var(--ink-soft);margin-bottom:16px;white-space:pre-wrap;">${escapeHtml_(s.description)}</p>
         ${ticketLinkHtml(s)}
-        <div class="need-member" style="background:#E4F5EA;color:var(--green-dark);">この勉強会は事前登録不要です。当日は直接会場・オンラインURLへどうぞ。カレンダーへの追加だけしておくと安心です。</div>
-        <a class="gcal-btn" style="width:100%;justify-content:center;" href="${googleCalUrl(s)}" target="_blank" rel="noopener">📅 Googleカレンダーに追加</a>
+        ${isCancelled ? `
+          <div class="need-member">このイベントは中止になりました。</div>
+        ` : `
+          <div class="need-member" style="background:#E4F5EA;color:var(--green-dark);">この勉強会は事前登録不要です。当日は直接会場・オンラインURLへどうぞ。カレンダーへの追加だけしておくと安心です。</div>
+          ${s.date ? `<a class="gcal-btn" style="width:100%;justify-content:center;" href="${googleCalUrl(s)}" target="_blank" rel="noopener">📅 Googleカレンダーに追加</a>` : ""}
+        `}
+        ${boardSectionHtml()}
       `;
+      initBoard_(s);
     } else {
       const remaining = s.capacity != null ? Math.max(0, s.capacity - (s.appliedCount||0)) : null;
       const isFull = remaining !== null && remaining <= 0;
+      const canApply = !isFull && !isCancelled;
       body.innerHTML = `
         ${detailImageHtml(s)}
+        ${isCancelled ? `<div class="cancelled-badge">中止</div>` : ""}
         <h3>${s.title}</h3>
-        <p class="modal-sub">${fmtDateLong(s.date)}・${s.startTime}-${s.endTime}</p>
+        <p class="modal-sub">${dateTimeLabelHtml(s)}</p>
         <div class="modal-summary">
           <div><span>開催場所</span><b>${s.location}</b></div>
           <div><span>参加費</span><b>${feeLabel}</b></div>
           ${s.capacity != null ? `<div><span>定員</span><b>${s.capacity}名</b></div>` : ""}
           ${s.minCapacity != null ? `<div><span>最低遂行人数</span><b>${s.minCapacity}名</b></div>` : ""}
           ${s.capacity != null ? `<div><span>現在の申込み</span><b>${s.appliedCount||0}名</b></div>` : ""}
+          ${s.organizer ? `<div><span>作成者</span><b>${escapeHtml_(s.organizer)}</b></div>` : ""}
         </div>
         ${capacityInfoHtml(s)}
         <p style="font-size:13.5px;color:var(--ink-soft);margin-bottom:18px;white-space:pre-wrap;">${escapeHtml_(s.description)}</p>
         ${ticketLinkHtml(s)}
-        ${isFull ? `
+        ${isCancelled ? `
+          <div class="need-member">このイベントは中止になりました。お申し込みはできません。</div>
+        ` : isFull ? `
           <div class="need-member">この勉強会は定員に達したため、お申し込みを締め切りました。</div>
         ` : `
           <div class="field"><label for="appName">お名前</label><input type="text" id="appName" value="${state.memberName}"></div>
@@ -1458,8 +1579,10 @@
           <div class="field"><label for="appNote">備考(任意)</label><textarea id="appNote" rows="2" placeholder="ご質問やご要望があればご記入ください"></textarea></div>
           <button class="btn-primary" style="width:100%;" id="submitApplyBtn">この内容で申し込む</button>
         `}
+        ${boardSectionHtml()}
       `;
-      if(!isFull){
+      initBoard_(s);
+      if(canApply){
         document.getElementById("submitApplyBtn").addEventListener("click", async ()=>{
           const name = document.getElementById("appName").value.trim();
           if(!name){ toast("お名前を入力してください"); return; }
@@ -1490,6 +1613,74 @@
       }
     }
     document.getElementById("detailModalOverlay").classList.add("open");
+  }
+  /* ---------- 簡易掲示板 ---------- */
+  function boardSectionHtml(){
+    return `
+      <div class="board-section">
+        <h4>💬 質問掲示板</h4>
+        <p class="field-hint" style="margin-top:0;margin-bottom:12px;">この勉強会について作成者に質問できます。書き込むと作成者にメールで通知が届きます(あなたのメールアドレスは他の参加者には表示されません)。</p>
+        <div id="boardMessagesList" class="board-messages"><p class="field-hint">読み込み中...</p></div>
+        <div class="field" style="margin-top:14px;">
+          <textarea id="boardMessageInput" rows="2" placeholder="質問やコメントを入力してください"></textarea>
+        </div>
+        <button class="btn-ghost" id="boardPostBtn" style="width:100%;">書き込む</button>
+      </div>
+    `;
+  }
+  async function initBoard_(s){
+    const listEl = document.getElementById("boardMessagesList");
+    const postBtn = document.getElementById("boardPostBtn");
+    if(!listEl || !postBtn) return;
+    try{
+      const res = await apiGet("listMessages", { sessionId: s.id });
+      if(res.ok){
+        renderBoardMessages_(res.messages || []);
+      } else {
+        listEl.innerHTML = `<p class="field-hint">掲示板の読み込みに失敗しました</p>`;
+      }
+    }catch(err){
+      console.error(err);
+      listEl.innerHTML = `<p class="field-hint">掲示板の読み込みに失敗しました</p>`;
+    }
+    postBtn.addEventListener("click", async ()=>{
+      const input = document.getElementById("boardMessageInput");
+      const message = input.value.trim();
+      if(!message){ toast("メッセージを入力してください"); return; }
+      postBtn.disabled = true; postBtn.textContent = "送信しています...";
+      try{
+        const res = await apiPost("postMessage", {
+          sessionId: s.id, email: state.memberEmail, name: state.memberName,
+          messengerName: state.messengerName, message
+        });
+        if(!res.ok){ toast(res.error || "書き込みに失敗しました"); return; }
+        input.value = "";
+        toast("書き込みました");
+        const listRes = await apiGet("listMessages", { sessionId: s.id });
+        if(listRes.ok) renderBoardMessages_(listRes.messages || []);
+      }catch(err){
+        console.error(err);
+        toast("通信エラーのため書き込みに失敗しました");
+      }finally{
+        postBtn.disabled = false; postBtn.textContent = "書き込む";
+      }
+    });
+  }
+  function renderBoardMessages_(messages){
+    const listEl = document.getElementById("boardMessagesList");
+    if(!listEl) return;
+    if(messages.length === 0){
+      listEl.innerHTML = `<p class="field-hint">まだ書き込みはありません。最初の質問をしてみましょう。</p>`;
+      return;
+    }
+    listEl.innerHTML = messages.map(m => `
+      <div class="board-message">
+        <div class="board-message-head">
+          <b>${escapeHtml_(m.name)}</b>${m.messengerName ? `<span class="board-messenger">Messenger: ${escapeHtml_(m.messengerName)}</span>` : ""}
+        </div>
+        <p>${escapeHtml_(m.message)}</p>
+      </div>
+    `).join("");
   }
   function showApplySuccess(s){
     const body = document.getElementById("detailModalBody");
@@ -1526,7 +1717,7 @@
       action:"TEMPLATE",
       text: s.title,
       dates: `${startUtc}/${endUtc}`,
-      details: s.description + "(LSPファシリテーターズ・コミュニティ)",
+      details: s.description + "(LSPラーニング・ガーデン)",
       location: s.location
     });
     return `https://calendar.google.com/calendar/render?${params.toString()}`;
@@ -1547,18 +1738,19 @@
     pendingOpenSessionId = afterSessionId || null;
     document.getElementById("memberModalOverlay").classList.add("open");
   }
-  async function completeRegistration(name, email, memberType, trainingDate, trainer, notifyNewSessions){
-    if(!name || !email){ toast("お名前とメールアドレスを入力してください"); return false; }
-    const isCertified = memberType === "certified";
-    if(isCertified && (!trainingDate || !trainer)){
-      toast("認定ファシリテーターとして登録する場合、トレーニング時期とトレーナーの入力が必須です");
+  async function completeRegistration(name, email, password, passwordConfirm, trainingDate, trainer, messengerName, notifyNewSessions){
+    if(!name || !email || !password){ toast("お名前・メールアドレス・パスワードを入力してください"); return false; }
+    if(password.length < 6){ toast("パスワードは6文字以上にしてください"); return false; }
+    if(password !== passwordConfirm){ toast("パスワード(確認)が一致しません"); return false; }
+    if(!trainingDate || !trainer){
+      toast("トレーニング時期とトレーナー名の入力は必須です");
       return false;
     }
     try{
       const res = await apiPost("register", {
-        name, email, memberType,
-        trainingDate: trainingDate || "",
-        trainer: trainer || "",
+        name, email, password,
+        trainingDate, trainer,
+        messengerName: messengerName || "",
         notifyNewSessions: !!notifyNewSessions
       });
       if(!res.ok){
@@ -1570,35 +1762,59 @@
       toast("通信エラーのため会員登録に失敗しました");
       return false;
     }
-    state.isMember = true;
-    state.memberName = name;
-    state.memberEmail = email;
-    state.memberType = memberType;
-    state.trainingDate = trainingDate || "";
-    state.trainer = trainer || "";
-    document.getElementById("memberPillText").textContent = `${name} さん${isCertified ? "(認定ファシリテーター)" : ""}`;
-    document.getElementById("memberAvatar").textContent = name.charAt(0);
-    updateOrganizerUiVisibility_();
+    applyLoginState_({ name, email, trainingDate, trainer, messengerName });
     toast("会員登録が完了しました。ようこそ!");
-    if(isCertified) loadMySessions_();
     return true;
   }
+  async function loginMember_(email, password){
+    if(!email || !password){ toast("メールアドレスとパスワードを入力してください"); return false; }
+    try{
+      const res = await apiPost("login", { email, password });
+      if(!res.ok){
+        toast(res.error || "ログインに失敗しました");
+        return false;
+      }
+      applyLoginState_(res);
+      toast(`おかえりなさい、${res.name}さん!`);
+      return true;
+    }catch(err){
+      console.error(err);
+      toast("通信エラーのためログインに失敗しました");
+      return false;
+    }
+  }
+  /* 登録・ログイン成功時に共通して行う状態更新。会員は全員、勉強会を主催できます */
+  function applyLoginState_(profile){
+    state.isMember = true;
+    state.memberName = profile.name;
+    state.memberEmail = profile.email;
+    state.trainingDate = profile.trainingDate || "";
+    state.trainer = profile.trainer || "";
+    state.messengerName = profile.messengerName || "";
+    document.getElementById("memberPillText").textContent = `${profile.name} さん`;
+    document.getElementById("memberAvatar").textContent = profile.name.charAt(0);
+    updateOrganizerUiVisibility_();
+    loadMySessions_();
+  }
   function updateOrganizerUiVisibility_(){
-    const show = state.isMember && state.memberType === "certified";
     document.querySelectorAll(".organizer-only").forEach(el=>{
-      el.style.display = show ? "" : "none";
+      el.style.display = state.isMember ? "" : "none";
     });
   }
-  /* 会員種別ラジオボタンの選択に応じて、トレーニング情報の必須表示を切り替える */
-  function bindMemberTypeToggle_(radioName, dateFieldId, trainerFieldId, dateReqId, trainerReqId, dateInputId, trainerInputId){
-    document.querySelectorAll(`input[name="${radioName}"]`).forEach(radio=>{
-      radio.addEventListener("change", ()=>{
-        const isCertified = document.querySelector(`input[name="${radioName}"]:checked`).value === "certified";
-        document.getElementById(dateReqId).style.display = isCertified ? "inline" : "none";
-        document.getElementById(trainerReqId).style.display = isCertified ? "inline" : "none";
-        document.getElementById(dateInputId).required = isCertified;
-        document.getElementById(trainerInputId).required = isCertified;
-      });
+  /* 「新規登録」「ログイン」タブの切り替え */
+  function bindAuthTabs_(tabRegisterId, tabLoginId, registerBlockId, loginBlockId){
+    const tabRegister = document.getElementById(tabRegisterId);
+    const tabLogin = document.getElementById(tabLoginId);
+    const registerBlock = document.getElementById(registerBlockId);
+    const loginBlock = document.getElementById(loginBlockId);
+    if(!tabRegister || !tabLogin) return;
+    tabRegister.addEventListener("click", ()=>{
+      tabRegister.classList.add("active"); tabLogin.classList.remove("active");
+      registerBlock.style.display = ""; loginBlock.style.display = "none";
+    });
+    tabLogin.addEventListener("click", ()=>{
+      tabLogin.classList.add("active"); tabRegister.classList.remove("active");
+      loginBlock.style.display = ""; registerBlock.style.display = "none";
     });
   }
 
@@ -1673,29 +1889,46 @@
       document.getElementById("mainNav").classList.toggle("open");
     });
 
-    // 会員登録(セクション内フォーム)
-    bindMemberTypeToggle_("regMemberType","regTrainingDateField","regTrainerField","regTrainingDateReq","regTrainerReq","regTrainingDate","regTrainer");
+    // 会員登録・ログイン(セクション内フォーム)
+    bindAuthTabs_("tabRegister","tabLogin","registerFormBlock","loginFormBlock");
     document.getElementById("registerBtn").addEventListener("click", async ()=>{
       const name = document.getElementById("regName").value.trim();
       const email = document.getElementById("regEmail").value.trim();
-      const memberType = document.querySelector('input[name="regMemberType"]:checked').value;
+      const password = document.getElementById("regPassword").value;
+      const passwordConfirm = document.getElementById("regPasswordConfirm").value;
       const trainingDate = document.getElementById("regTrainingDate").value.trim();
       const trainer = document.getElementById("regTrainer").value.trim();
+      const messengerName = document.getElementById("regMessenger").value.trim();
       const notify = document.getElementById("regNotify").checked;
       const btn = document.getElementById("registerBtn");
       btn.disabled = true; btn.textContent = "登録しています...";
-      const ok = await completeRegistration(name, email, memberType, trainingDate, trainer, notify);
+      const ok = await completeRegistration(name, email, password, passwordConfirm, trainingDate, trainer, messengerName, notify);
       btn.disabled = false; btn.textContent = "会員登録する";
       if(ok){
         document.getElementById("regName").value = "";
         document.getElementById("regEmail").value = "";
+        document.getElementById("regPassword").value = "";
+        document.getElementById("regPasswordConfirm").value = "";
         document.getElementById("regTrainingDate").value = "";
         document.getElementById("regTrainer").value = "";
+        document.getElementById("regMessenger").value = "";
+      }
+    });
+    document.getElementById("loginBtn").addEventListener("click", async ()=>{
+      const email = document.getElementById("loginEmail").value.trim();
+      const password = document.getElementById("loginPassword").value;
+      const btn = document.getElementById("loginBtn");
+      btn.disabled = true; btn.textContent = "ログインしています...";
+      const ok = await loginMember_(email, password);
+      btn.disabled = false; btn.textContent = "ログインする";
+      if(ok){
+        document.getElementById("loginEmail").value = "";
+        document.getElementById("loginPassword").value = "";
       }
     });
 
-    // 会員登録モーダル
-    bindMemberTypeToggle_("mmMemberType","mmTrainingDateField","mmTrainerField","mmTrainingDateReq","mmTrainerReq","mmTrainingDate","mmTrainer");
+    // 会員登録・ログインモーダル
+    bindAuthTabs_("mmTabRegister","mmTabLogin","mmRegisterFormBlock","mmLoginFormBlock");
     document.getElementById("memberPillBtn").addEventListener("click", ()=>{
       if(state.isMember){
         toast(`${state.memberName} さんとしてログイン中です`);
@@ -1706,15 +1939,34 @@
     document.getElementById("mmRegisterBtn").addEventListener("click", async ()=>{
       const name = document.getElementById("mmName").value.trim();
       const email = document.getElementById("mmEmail").value.trim();
-      const memberType = document.querySelector('input[name="mmMemberType"]:checked').value;
+      const password = document.getElementById("mmPassword").value;
+      const passwordConfirm = document.getElementById("mmPasswordConfirm").value;
       const trainingDate = document.getElementById("mmTrainingDate").value.trim();
       const trainer = document.getElementById("mmTrainer").value.trim();
+      const messengerName = document.getElementById("mmMessenger").value.trim();
       const notify = document.getElementById("mmNotify").checked;
       const btn = document.getElementById("mmRegisterBtn");
       btn.disabled = true; btn.textContent = "登録しています...";
-      const ok = await completeRegistration(name, email, memberType, trainingDate, trainer, notify);
+      const ok = await completeRegistration(name, email, password, passwordConfirm, trainingDate, trainer, messengerName, notify);
       btn.disabled = false; btn.textContent = "登録して続ける";
       if(ok){
+        closeModal("memberModalOverlay");
+        if(pendingOpenSessionId){
+          openDetailModal(pendingOpenSessionId);
+          pendingOpenSessionId = null;
+        }
+      }
+    });
+    document.getElementById("mmLoginBtn").addEventListener("click", async ()=>{
+      const email = document.getElementById("mmLoginEmail").value.trim();
+      const password = document.getElementById("mmLoginPassword").value;
+      const btn = document.getElementById("mmLoginBtn");
+      btn.disabled = true; btn.textContent = "ログインしています...";
+      const ok = await loginMember_(email, password);
+      btn.disabled = false; btn.textContent = "ログインする";
+      if(ok){
+        document.getElementById("mmLoginEmail").value = "";
+        document.getElementById("mmLoginPassword").value = "";
         closeModal("memberModalOverlay");
         if(pendingOpenSessionId){
           openDetailModal(pendingOpenSessionId);
