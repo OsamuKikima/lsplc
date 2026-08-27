@@ -153,6 +153,7 @@
   .ann-card.type-confirmed{border-top-color:var(--blue);}
   .ann-card.type-full{border-top-color:var(--amber);}
   .ann-card.type-cancelled{border-top-color:var(--brick);}
+  .ann-card.type-admin{border-top-color:var(--ink);}
   .ann-date{font-size:12px;color:var(--ink-soft);font-weight:700;}
   .ann-card h3{font-size:16px;margin-top:6px;}
   .ann-card p{font-size:13.5px;color:var(--ink-soft);margin-top:8px;}
@@ -167,6 +168,7 @@
   .ann-card.type-confirmed .ann-badge{background:#E4F3FC;color:var(--blue-dark);}
   .ann-card.type-full .ann-badge{background:#FCE9DC;color:var(--amber-dark);}
   .ann-card.type-cancelled .ann-badge{background:#FBE4E2;color:var(--brick-dark);}
+  .ann-card.type-admin .ann-badge{background:#E9E7E0;color:var(--ink);}
 
   /* Toolbar */
   .toolbar{
@@ -311,6 +313,10 @@
   .auth-tabs{display:flex;gap:6px;background:var(--cream);border:2px solid var(--line);border-radius:999px;padding:4px;margin-bottom:20px;}
   .auth-tab{flex:1;border:none;background:none;padding:9px 12px;border-radius:999px;font-weight:700;font-size:13.5px;color:var(--ink-soft);}
   .auth-tab.active{background:var(--ink);color:#fff;}
+  .link-btn{
+    background:none;border:none;color:var(--blue-dark);font-size:12.5px;font-weight:700;
+    text-decoration:underline;cursor:pointer;padding:0;display:block;
+  }
   .field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
   @media (max-width:480px){.field-row{grid-template-columns:1fr;}}
   .organizer-toolbar{margin-bottom:20px;}
@@ -328,6 +334,18 @@
   }
   .my-session-card .msc-actions button.edit:hover{border-color:var(--blue);color:var(--blue-dark);}
   .my-session-card .msc-actions button.delete:hover{border-color:var(--brick);color:var(--brick-dark);}
+  .my-session-card .msc-actions button.applicants:hover{border-color:var(--green);color:var(--green-dark);}
+  .applicants-table{width:100%;border-collapse:collapse;font-size:13px;}
+  .applicants-table th,.applicants-table td{
+    text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top;
+  }
+  .applicants-table th{color:var(--ink-soft);font-weight:700;font-size:11.5px;}
+  .applicants-table td{color:var(--ink);word-break:break-all;}
+  .cancel-applicant-btn{
+    border:2px solid var(--line);background:#fff;padding:5px 10px;border-radius:999px;
+    font-weight:700;font-size:11px;color:var(--brick-dark);white-space:nowrap;
+  }
+  .cancel-applicant-btn:hover{border-color:var(--brick);}
   .empty-organizer{color:var(--ink-soft);font-size:13.5px;padding:30px;text-align:center;background:var(--card);border-radius:16px;}
   .ticket-link{
     display:inline-flex;align-items:center;gap:6px;background:var(--amber);color:var(--ink);
@@ -446,7 +464,9 @@
     <nav id="mainNav">
       <button class="nav-link" data-scroll="#announcements">お知らせ</button>
       <button class="nav-link" data-scroll="#sessions">勉強会一覧</button>
+      <button class="nav-link" data-scroll="#pastEvents">過去の開催イベント</button>
       <button class="nav-link" data-scroll="#members">会員登録</button>
+      <button class="nav-link organizer-only" style="display:none;" data-scroll="#myApplications">申込み履歴</button>
       <button class="nav-link organizer-only" style="display:none;" data-scroll="#organizer">主催者ダッシュボード</button>
       <button class="member-pill" id="memberPillBtn">
         <span class="avatar" id="memberAvatar">?</span>
@@ -544,6 +564,15 @@
   </div>
 </section>
 
+<section id="pastEvents">
+  <div class="section-head">
+    <h2>過去の開催イベント</h2>
+    <span class="count" id="pastEventCount"></span>
+  </div>
+  <p class="field-hint" style="margin-top:-10px;margin-bottom:18px;">開催日を過ぎた勉強会を新しい順に一覧できます。検索・タグ絞り込みは上の「勉強会一覧」の条件と連動します。</p>
+  <div class="session-grid" id="pastSessionGrid"></div>
+</section>
+
 <section id="members">
   <div class="members-cta">
     <div>
@@ -604,9 +633,27 @@
           <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password">
         </div>
         <button class="btn-primary" style="width:100%;" id="loginBtn">ログインする</button>
+        <button type="button" class="link-btn" id="forgotPasswordToggle" style="margin-top:10px;">パスワードをお忘れですか?</button>
+        <div id="forgotPasswordBlock" style="display:none;margin-top:12px;padding-top:12px;border-top:2px dashed var(--line);">
+          <div class="field">
+            <label for="forgotEmail">登録済みのメールアドレス</label>
+            <input type="email" id="forgotEmail" placeholder="you@example.com">
+          </div>
+          <p class="field-hint" style="margin-top:-6px;">入力されたメールアドレス宛に、新しいパスワードをお送りします。</p>
+          <button class="btn-ghost" style="width:100%;" id="forgotSubmitBtn">新しいパスワードを送信する</button>
+        </div>
       </div>
     </div>
   </div>
+</section>
+
+<section id="myApplications" class="organizer-only" style="display:none;">
+  <div class="section-head">
+    <h2>申込み履歴</h2>
+    <span class="count">あなたが申込んだ勉強会の一覧です</span>
+  </div>
+  <p class="field-hint" style="margin-top:-10px;margin-bottom:18px;">キャンセルをご希望の場合は、お手数ですがこのサイト上ではなく、各イベントの主催者に直接ご連絡ください。</p>
+  <div id="myApplicationsList" class="my-session-list"></div>
 </section>
 
 <section id="organizer" class="organizer-only" style="display:none;">
@@ -675,6 +722,16 @@
       <button class="btn-primary" style="flex:1;" id="sessionEditorSaveBtn">保存する</button>
       <button class="btn-ghost" id="sessionEditorDeleteBtn" style="display:none;color:var(--brick);border-color:var(--brick);">削除する</button>
     </div>
+  </div>
+</div>
+
+<!-- 申込み者一覧モーダル(作成者本人のみ) -->
+<div class="modal-overlay" id="applicantsModalOverlay">
+  <div class="modal" style="max-width:560px;">
+    <button class="modal-close" id="applicantsModalClose">✕</button>
+    <h3 id="applicantsModalTitle">申込み者一覧</h3>
+    <p class="modal-sub">この一覧は、あなたが作成したイベントの申込み者のみ表示され、他の人には公開されません。</p>
+    <div id="applicantsModalBody"></div>
   </div>
 </div>
 
@@ -763,6 +820,15 @@
         <input type="password" id="mmLoginPassword" placeholder="••••••••" autocomplete="current-password">
       </div>
       <button class="btn-primary" style="width:100%;" id="mmLoginBtn">ログインする</button>
+      <button type="button" class="link-btn" id="mmForgotPasswordToggle" style="margin-top:10px;">パスワードをお忘れですか?</button>
+      <div id="mmForgotPasswordBlock" style="display:none;margin-top:12px;padding-top:12px;border-top:2px dashed var(--line);">
+        <div class="field">
+          <label for="mmForgotEmail">登録済みのメールアドレス</label>
+          <input type="email" id="mmForgotEmail" placeholder="you@example.com">
+        </div>
+        <p class="field-hint" style="margin-top:-6px;">入力されたメールアドレス宛に、新しいパスワードをお送りします。</p>
+        <button class="btn-ghost" style="width:100%;" id="mmForgotSubmitBtn">新しいパスワードを送信する</button>
+      </div>
     </div>
   </div>
 </div>
@@ -850,6 +916,41 @@
     }catch(err){
       console.error("自分の勉強会一覧の取得に失敗しました", err);
     }
+    loadMyApplications_();
+  }
+  /* ---------- 申込み履歴(マイページ) ---------- */
+  async function loadMyApplications_(){
+    const wrap = document.getElementById("myApplicationsList");
+    if(!state.memberEmail || !wrap) return;
+    wrap.innerHTML = `<p class="field-hint">読み込み中...</p>`;
+    try{
+      const res = await apiGet("listMyApplications", { email: state.memberEmail });
+      if(!res.ok){
+        wrap.innerHTML = `<p class="field-hint">${escapeHtml_(res.error || "取得に失敗しました")}</p>`;
+        return;
+      }
+      renderMyApplications_(res.applications || []);
+    }catch(err){
+      console.error(err);
+      wrap.innerHTML = `<p class="field-hint">通信エラーのため取得に失敗しました</p>`;
+    }
+  }
+  function renderMyApplications_(applications){
+    const wrap = document.getElementById("myApplicationsList");
+    if(!wrap) return;
+    if(applications.length === 0){
+      wrap.innerHTML = `<div class="empty-organizer">まだ申込んだ勉強会がありません。「勉強会一覧」からお気に入りを見つけましょう。</div>`;
+      return;
+    }
+    wrap.innerHTML = applications.map(a => `
+      <div class="my-session-card">
+        <div class="msc-main">
+          <h4>${a.status === "cancelled" ? '<span class="cancelled-badge" style="margin-right:8px;">主催者により中止</span>' : ""}${escapeHtml_(a.title)}</h4>
+          <div class="msc-meta">${a.date ? fmtDateLong(a.date) : "定期開催(日程未定)"}${a.startTime ? ` ・ ${a.startTime}-${a.endTime}` : ""} ・ ${escapeHtml_(a.location || "")} ・ 参加${a.count}名</div>
+          ${a.note ? `<div class="msc-meta">備考:${escapeHtml_(a.note)}</div>` : ""}
+        </div>
+      </div>
+    `).join("");
   }
   function renderMySessions_(){
     const wrap = document.getElementById("mySessionsList");
@@ -868,11 +969,17 @@
             <div class="msc-meta">${s.date ? fmtDateLong(s.date) : "定期開催(日程未定)"} ・ ${s.startTime}-${s.endTime} ・ 申込み${s.appliedCount||0}名${s.capacity!=null ? `/定員${s.capacity}名` : ""}</div>
           </div>
           <div class="msc-actions">
+            ${s.requiresRegistration ? `<button class="applicants" data-applicants-session="${s.id}" data-applicants-title="${escapeHtml_(s.title)}">申込み者を見る</button>` : ""}
             <button class="edit" data-edit-session="${s.id}">編集</button>
             <button class="delete" data-delete-session="${s.id}">削除</button>
           </div>
         </div>
       `).join("");
+    wrap.querySelectorAll("[data-applicants-session]").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        openApplicantsModal_(btn.dataset.applicantsSession, btn.dataset.applicantsTitle);
+      });
+    });
     wrap.querySelectorAll("[data-edit-session]").forEach(btn=>{
       btn.addEventListener("click", ()=>{
         const s = state.mySessions.find(x=>x.id === btn.dataset.editSession);
@@ -888,9 +995,81 @@
         await loadMySessions_();
         await loadSessionsFromApi();
         renderSessions();
+        renderPastSessions();
         renderCalendar();
       });
     });
+  }
+  /* ---------- 申込み者一覧(作成者本人のみ) ---------- */
+  async function openApplicantsModal_(sessionId, title){
+    const overlay = document.getElementById("applicantsModalOverlay");
+    const body = document.getElementById("applicantsModalBody");
+    document.getElementById("applicantsModalTitle").textContent = `「${title}」の申込み者一覧`;
+    body.innerHTML = `<p class="field-hint">読み込み中...</p>`;
+    overlay.classList.add("open");
+    await renderApplicantsList_(sessionId);
+  }
+  async function renderApplicantsList_(sessionId){
+    const body = document.getElementById("applicantsModalBody");
+    try{
+      const res = await apiGet("listApplicants", { sessionId, email: state.memberEmail });
+      if(!res.ok){
+        body.innerHTML = `<p class="field-hint">${escapeHtml_(res.error || "取得に失敗しました")}</p>`;
+        return;
+      }
+      if(!res.applicants || res.applicants.length === 0){
+        body.innerHTML = `<p class="field-hint">まだ申込みはありません。</p>`;
+        return;
+      }
+      body.innerHTML = `
+        <table class="applicants-table">
+          <thead><tr><th>お名前</th><th>メールアドレス</th><th>人数</th><th>備考</th><th></th></tr></thead>
+          <tbody>
+            ${res.applicants.map(a => `
+              <tr>
+                <td>${escapeHtml_(a.name)}</td>
+                <td>${escapeHtml_(a.email)}</td>
+                <td>${a.count}名</td>
+                <td>${escapeHtml_(a.note || "")}</td>
+                <td><button class="cancel-applicant-btn" data-cancel-application="${a.applicationId}" data-cancel-session="${sessionId}">キャンセル</button></td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      `;
+      body.querySelectorAll("[data-cancel-application]").forEach(btn=>{
+        btn.addEventListener("click", async ()=>{
+          if(!confirm("この申込みをキャンセルします。よろしいですか?(参加者本人には別途ご連絡ください)")) return;
+          btn.disabled = true; btn.textContent = "処理中...";
+          try{
+            const res = await apiPost("cancelApplication", {
+              email: state.memberEmail,
+              sessionId: btn.dataset.cancelSession,
+              applicationId: btn.dataset.cancelApplication
+            });
+            if(!res.ok){
+              toast(res.error || "キャンセルに失敗しました");
+              btn.disabled = false; btn.textContent = "キャンセル";
+              return;
+            }
+            toast("申込みをキャンセルしました");
+            await renderApplicantsList_(btn.dataset.cancelSession);
+            await loadMySessions_();
+            await loadSessionsFromApi();
+            renderSessions();
+            renderPastSessions();
+            renderCalendar();
+          }catch(err){
+            console.error(err);
+            toast("通信エラーのためキャンセルに失敗しました");
+            btn.disabled = false; btn.textContent = "キャンセル";
+          }
+        });
+      });
+    }catch(err){
+      console.error(err);
+      body.innerHTML = `<p class="field-hint">通信エラーのため取得に失敗しました</p>`;
+    }
   }
   let editingSessionId = null;
   let currentEditorImageUrl = "";
@@ -977,6 +1156,11 @@
     const newBtn = document.getElementById("newSessionBtn");
     if(newBtn) newBtn.addEventListener("click", ()=> openSessionEditor_(null));
 
+    const applicantsCloseBtn = document.getElementById("applicantsModalClose");
+    if(applicantsCloseBtn) applicantsCloseBtn.addEventListener("click", ()=> closeModal("applicantsModalOverlay"));
+    const applicantsOverlay = document.getElementById("applicantsModalOverlay");
+    if(applicantsOverlay) applicantsOverlay.addEventListener("click", (e)=>{ if(e.target.id === "applicantsModalOverlay") closeModal("applicantsModalOverlay"); });
+
     const feeInput = document.getElementById("seFee");
     if(feeInput) feeInput.addEventListener("input", toggleTicketUrlField_);
 
@@ -1051,6 +1235,7 @@
       await loadMySessions_();
       await loadSessionsFromApi();
       renderSessions();
+      renderPastSessions();
       renderCalendar();
     });
 
@@ -1065,6 +1250,7 @@
       await loadMySessions_();
       await loadSessionsFromApi();
       renderSessions();
+      renderPastSessions();
       renderCalendar();
     });
 
@@ -1090,6 +1276,7 @@
       await loadMySessions_();
       await loadSessionsFromApi();
       renderSessions();
+      renderPastSessions();
       renderCalendar();
     });
   }
@@ -1228,6 +1415,15 @@
   /* 自動お知らせ(created/confirmed/full/cancelled)を、表示用のtitle/bodyへ変換する */
   function normalizeAnnouncementFromApi(raw){
     const title = raw.sessionTitle || "";
+    // 管理者がスプレッドシートに直接書き込むお知らせは、SessionTitle=タイトル、Detail=本文をそのまま使う
+    if(raw.type === "admin"){
+      return {
+        type: "admin",
+        date: formatAnnouncementDate_(raw.timestamp),
+        title: title || "運営からのお知らせ",
+        body: raw.detail || ""
+      };
+    }
     const textByType = {
       created:  { title: `「${title}」を公開しました`, body: "新しい勉強会が登録されました。詳細をチェックしてみましょう。" },
       confirmed:{ title: `「${title}」の開催が決定しました`, body: "最低遂行人数に達したため、開催が確定しました。" },
@@ -1303,7 +1499,8 @@
     const wrap = document.getElementById("annScroll");
     const labels = {
       info:"お知らせ", alert:"重要", event:"新支部",
-      created:"新着", confirmed:"開催決定", full:"満席", cancelled:"中止"
+      created:"新着", confirmed:"開催決定", full:"満席", cancelled:"中止",
+      admin:"運営より"
     };
     wrap.innerHTML = announcements.map(a => `
       <div class="ann-card type-${a.type}">
@@ -1328,6 +1525,7 @@
         else state.activeTags.add(tag);
         renderTagFilters();
         renderSessions();
+        renderPastSessions();
         renderCalendar();
       });
     });
@@ -1340,27 +1538,40 @@
 
   /* ---------- フィルタリング ---------- */
   /* 実施日から1ヶ月以上経過したイベントは、一覧の表示上「終了」として除外する
-     (データそのものは削除されないので、主催者ダッシュボードでは引き続き確認できます) */
+     (データそのものは削除されないので、主催者ダッシュボードや「過去の開催イベント」では引き続き確認できます) */
   function isEnded_(s){
     if(!s.date) return false; // 定期開催(日付なし)は自動終了しない
     const end = new Date(s.date + "T00:00:00");
     end.setMonth(end.getMonth() + 1);
     return new Date() > end;
   }
-  function getFilteredSessions(){
+  /* 開催日を過ぎているかどうか(1ヶ月の猶予とは関係なく、当日が終わっていればtrue) */
+  function isPast_(s){
+    if(!s.date) return false; // 定期開催(日付なし)は「過去」にならない
+    return new Date() > new Date(s.date + "T23:59:59");
+  }
+  function matchesSearchAndTags_(s){
+    if(state.activeTags.size>0){
+      const hasAll = [...state.activeTags].every(t=>s.tags.includes(t));
+      if(!hasAll) return false;
+    }
     const q = state.query.trim().toLowerCase();
-    return sessions.filter(s=>{
-      if(isEnded_(s)) return false;
-      if(state.activeTags.size>0){
-        const hasAll = [...state.activeTags].every(t=>s.tags.includes(t));
-        if(!hasAll) return false;
-      }
-      if(q){
-        const hay = (s.title + " " + s.tags.join(" ") + " " + s.location).toLowerCase();
-        if(!hay.includes(q)) return false;
-      }
-      return true;
-    }).sort((a,b)=> (a.date||"").localeCompare(b.date||"") || a.title.localeCompare(b.title));
+    if(q){
+      const hay = (s.title + " " + s.tags.join(" ") + " " + s.location).toLowerCase();
+      if(!hay.includes(q)) return false;
+    }
+    return true;
+  }
+  function getFilteredSessions(){
+    return sessions
+      .filter(s=> !isEnded_(s) && matchesSearchAndTags_(s))
+      .sort((a,b)=> (a.date||"").localeCompare(b.date||"") || a.title.localeCompare(b.title));
+  }
+  /* 「過去の開催イベント」ページ用:開催日を過ぎたものを新しい順に */
+  function getPastSessions(){
+    return sessions
+      .filter(s=> isPast_(s) && matchesSearchAndTags_(s))
+      .sort((a,b)=> (b.date||"").localeCompare(a.date||""));
   }
 
   /* ---------- セッション一覧描画 ---------- */
@@ -1372,6 +1583,23 @@
       grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;">
         <div class="connect-row">${connectDotsSvg(["var(--brick)","var(--amber)","var(--blue)"],7)}</div>
         <p>条件に一致する勉強会が見つかりませんでした。<br>キーワードやタグの絞り込みを変えてみてください。</p>
+      </div>`;
+      return;
+    }
+    grid.innerHTML = list.map(sessionCardHtml).join("");
+    grid.querySelectorAll("[data-open-detail]").forEach(btn=>{
+      btn.addEventListener("click", ()=> openDetailModal(btn.dataset.openDetail));
+    });
+  }
+  function renderPastSessions(){
+    const list = getPastSessions();
+    const countEl = document.getElementById("pastEventCount");
+    if(countEl) countEl.textContent = `${list.length}件`;
+    const grid = document.getElementById("pastSessionGrid");
+    if(!grid) return;
+    if(list.length === 0){
+      grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;">
+        <p>該当する過去のイベントはまだありません。</p>
       </div>`;
       return;
     }
@@ -1556,6 +1784,7 @@
     const body = document.getElementById("detailModalBody");
     const feeLabel = s.fee===0 ? "無料" : `¥${s.fee.toLocaleString()}`;
     const isCancelled = s.status === "cancelled";
+    const isPast = isPast_(s);
 
     if(!state.isMember){
       body.innerHTML = `
@@ -1589,6 +1818,8 @@
         ${ticketLinkHtml(s)}
         ${isCancelled ? `
           <div class="need-member">このイベントは中止になりました。</div>
+        ` : isPast ? `
+          <div class="need-member" style="background:#EFEDE6;color:var(--ink-soft);">このイベントはすでに開催日を終えています。</div>
         ` : `
           <div class="need-member" style="background:#E4F5EA;color:var(--green-dark);">この勉強会は事前登録不要です。当日は直接会場・オンラインURLへどうぞ。カレンダーへの追加だけしておくと安心です。</div>
           ${s.date ? `<a class="gcal-btn" style="width:100%;justify-content:center;" href="${googleCalUrl(s)}" target="_blank" rel="noopener">📅 Googleカレンダーに追加</a>` : ""}
@@ -1599,7 +1830,7 @@
     } else {
       const remaining = s.capacity != null ? Math.max(0, s.capacity - (s.appliedCount||0)) : null;
       const isFull = remaining !== null && remaining <= 0;
-      const canApply = !isFull && !isCancelled;
+      const canApply = !isFull && !isCancelled && !isPast;
       body.innerHTML = `
         ${detailImageHtml(s)}
         ${isCancelled ? `<div class="cancelled-badge">中止</div>` : ""}
@@ -1618,12 +1849,20 @@
         ${ticketLinkHtml(s)}
         ${isCancelled ? `
           <div class="need-member">このイベントは中止になりました。お申し込みはできません。</div>
+        ` : isPast ? `
+          <div class="need-member" style="background:#EFEDE6;color:var(--ink-soft);">このイベントは開催日を過ぎているため、お申し込みは締め切られています。</div>
         ` : isFull ? `
           <div class="need-member">この勉強会は定員に達したため、お申し込みを締め切りました。</div>
         ` : `
           <div class="field"><label for="appName">お名前</label><input type="text" id="appName" value="${state.memberName}"></div>
           <div class="field"><label for="appCount">参加人数</label><input type="number" id="appCount" value="1" min="1" max="${remaining != null ? Math.min(5, remaining) : 5}"></div>
           <div class="field"><label for="appNote">備考(任意)</label><textarea id="appNote" rows="2" placeholder="ご質問やご要望があればご記入ください"></textarea></div>
+          ${s.date ? `
+          <label class="checkbox-field">
+            <input type="checkbox" id="appWantsCalendar" checked>
+            <span>Googleカレンダーに登録するためのメールを受け取る</span>
+          </label>` : ""}
+          <p class="field-hint" style="margin-top:-6px;">※キャンセルをご希望の場合は、お手数ですが主催者に直接ご連絡ください。このサイト上からご自身で取り消すことはできません。</p>
           <button class="btn-primary" style="width:100%;" id="submitApplyBtn">この内容で申し込む</button>
         `}
         ${boardSectionHtml()}
@@ -1636,11 +1875,13 @@
           let count = parseInt(document.getElementById("appCount").value, 10) || 1;
           if(remaining != null && count > remaining) count = remaining;
           const note = document.getElementById("appNote").value.trim();
+          const calendarCheckbox = document.getElementById("appWantsCalendar");
+          const wantsCalendarInvite = calendarCheckbox ? calendarCheckbox.checked : false;
           const btn = document.getElementById("submitApplyBtn");
           btn.disabled = true; btn.textContent = "送信しています...";
           try{
             const res = await apiPost("apply", {
-              sessionId: s.id, name, email: state.memberEmail, count, note
+              sessionId: s.id, name, email: state.memberEmail, count, note, wantsCalendarInvite
             });
             if(!res.ok){
               toast(res.error || "申込みに失敗しました");
@@ -1648,8 +1889,9 @@
               return;
             }
             s.appliedCount = res.appliedCount != null ? res.appliedCount : (s.appliedCount||0) + count;
-            showApplySuccess(s);
+            showApplySuccess(s, wantsCalendarInvite);
             renderSessions();
+            renderPastSessions();
             renderCalendar();
           }catch(err){
             console.error(err);
@@ -1729,14 +1971,18 @@
       </div>
     `).join("");
   }
-  function showApplySuccess(s){
+  function showApplySuccess(s, wantsCalendarInvite){
     const body = document.getElementById("detailModalBody");
+    const calendarNote = wantsCalendarInvite
+      ? "まもなくご登録のメールアドレス宛にGoogleカレンダーの招待が届きますので、承諾すると予定が自動で追加されます。"
+      : "Googleカレンダーへの招待メールは送信していません。ご自身で追加したい場合は下のボタンからどうぞ。";
     body.innerHTML = `
       <div class="success-box">
         <div class="connect-row">${connectDotsSvg(["var(--brick)","var(--amber)","var(--blue)","var(--green)"],7)}</div>
         <h3>申し込みが完了しました!</h3>
-        <p>「${s.title}」への参加登録を受け付けました。主催チームにも通知が届いています。まもなくご登録のメールアドレス宛にGoogleカレンダーの招待が届きますので、承諾すると予定が自動で追加されます。</p>
-        <a class="gcal-btn" href="${googleCalUrl(s)}" target="_blank" rel="noopener">📅 招待が届かない場合はこちらから追加</a>
+        <p>「${s.title}」への参加登録を受け付けました。主催チームにも通知が届いています。${calendarNote}</p>
+        <p class="field-hint">※キャンセルをご希望の場合は、お手数ですが主催者に直接ご連絡ください。</p>
+        ${s.date ? `<a class="gcal-btn" href="${googleCalUrl(s)}" target="_blank" rel="noopener">📅 Googleカレンダーに追加する</a>` : ""}
       </div>
     `;
     toast("申し込みが完了しました");
@@ -1864,18 +2110,50 @@
       loginBlock.style.display = ""; registerBlock.style.display = "none";
     });
   }
+  /* パスワードをお忘れの方向け:入力欄の開閉と再発行リクエストの送信 */
+  function bindForgotPassword_(toggleId, blockId, emailInputId, submitBtnId){
+    const toggle = document.getElementById(toggleId);
+    const block = document.getElementById(blockId);
+    const submitBtn = document.getElementById(submitBtnId);
+    if(!toggle || !block || !submitBtn) return;
+    toggle.addEventListener("click", ()=>{
+      block.style.display = block.style.display === "none" ? "" : "none";
+    });
+    submitBtn.addEventListener("click", async ()=>{
+      const email = document.getElementById(emailInputId).value.trim();
+      if(!email){ toast("メールアドレスを入力してください"); return; }
+      submitBtn.disabled = true; submitBtn.textContent = "送信しています...";
+      try{
+        const res = await apiPost("resetPassword", { email });
+        if(!res.ok){
+          toast(res.error || "パスワードの再発行に失敗しました");
+        } else {
+          toast("新しいパスワードをメールで送信しました");
+          document.getElementById(emailInputId).value = "";
+          block.style.display = "none";
+        }
+      }catch(err){
+        console.error(err);
+        toast("通信エラーのため再発行に失敗しました");
+      }finally{
+        submitBtn.disabled = false; submitBtn.textContent = "新しいパスワードを送信する";
+      }
+    });
+  }
 
   /* ---------- イベント初期化 ---------- */
   async function init(){
     renderAnnouncements();
     renderTagFilters();
     renderSessions();
+    renderPastSessions();
     renderCalendar();
 
     // バックエンド(スプレッドシート)から最新の勉強会データを取得できたら差し替えて再描画
     const loaded = await loadSessionsFromApi();
     if(loaded){
       renderSessions();
+      renderPastSessions();
       renderCalendar();
     }
 
@@ -1889,6 +2167,7 @@
     document.getElementById("searchInput").addEventListener("input", (e)=>{
       state.query = e.target.value;
       renderSessions();
+      renderPastSessions();
       renderCalendar();
     });
 
@@ -1901,6 +2180,7 @@
       state.activeTags.clear();
       renderTagFilters();
       renderSessions();
+      renderPastSessions();
       renderCalendar();
     });
 
@@ -1979,6 +2259,7 @@
         document.getElementById("loginPassword").value = "";
       }
     });
+    bindForgotPassword_("forgotPasswordToggle","forgotPasswordBlock","forgotEmail","forgotSubmitBtn");
 
     // 会員登録・ログインモーダル
     bindAuthTabs_("mmTabRegister","mmTabLogin","mmRegisterFormBlock","mmLoginFormBlock");
@@ -2027,6 +2308,7 @@
         }
       }
     });
+    bindForgotPassword_("mmForgotPasswordToggle","mmForgotPasswordBlock","mmForgotEmail","mmForgotSubmitBtn");
     document.getElementById("memberModalClose").addEventListener("click", ()=>closeModal("memberModalOverlay"));
     document.getElementById("memberModalOverlay").addEventListener("click", (e)=>{
       if(e.target.id==="memberModalOverlay") closeModal("memberModalOverlay");
