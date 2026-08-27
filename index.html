@@ -149,6 +149,10 @@
   .ann-card.type-info{border-top-color:var(--blue);}
   .ann-card.type-alert{border-top-color:var(--brick);}
   .ann-card.type-event{border-top-color:var(--green);}
+  .ann-card.type-created{border-top-color:var(--green);}
+  .ann-card.type-confirmed{border-top-color:var(--blue);}
+  .ann-card.type-full{border-top-color:var(--amber);}
+  .ann-card.type-cancelled{border-top-color:var(--brick);}
   .ann-date{font-size:12px;color:var(--ink-soft);font-weight:700;}
   .ann-card h3{font-size:16px;margin-top:6px;}
   .ann-card p{font-size:13.5px;color:var(--ink-soft);margin-top:8px;}
@@ -159,6 +163,10 @@
   .ann-card.type-info .ann-badge{background:#E4F3FC;color:var(--blue-dark);}
   .ann-card.type-alert .ann-badge{background:#FBE4E2;color:var(--brick-dark);}
   .ann-card.type-event .ann-badge{background:#E4F5EA;color:var(--green-dark);}
+  .ann-card.type-created .ann-badge{background:#E4F5EA;color:var(--green-dark);}
+  .ann-card.type-confirmed .ann-badge{background:#E4F3FC;color:var(--blue-dark);}
+  .ann-card.type-full .ann-badge{background:#FCE9DC;color:var(--amber-dark);}
+  .ann-card.type-cancelled .ann-badge{background:#FBE4E2;color:var(--brick-dark);}
 
   /* Toolbar */
   .toolbar{
@@ -1209,12 +1217,48 @@
     }
   ];
 
-  const announcements = [
+  /* APIから取得できない場合のフォールバック用サンプルお知らせ */
+  let announcements = [
     {type:"alert", date:"2026.08.20", title:"9月開催分の事前登録を開始しました", body:"9月の勉強会は定員に達し次第、締め切らせていただきます。お早めにお申し込みください。"},
     {type:"info", date:"2026.08.15", title:"会員規約を一部改定しました", body:"個人情報の取り扱いに関する項目を更新しています。詳細はマイページよりご確認ください。"},
     {type:"event", date:"2026.08.10", title:"北陸支部が新たに発足しました", body:"11月1日に発足記念の勉強会を開催予定です。北陸エリアの方はぜひご参加ください。"},
     {type:"info", date:"2026.08.01", title:"Googleカレンダー連携機能を追加しました", body:"申し込み完了後、ワンクリックでご自身のGoogleカレンダーに予定を追加できるようになりました。"}
   ];
+
+  /* 自動お知らせ(created/confirmed/full/cancelled)を、表示用のtitle/bodyへ変換する */
+  function normalizeAnnouncementFromApi(raw){
+    const title = raw.sessionTitle || "";
+    const textByType = {
+      created:  { title: `「${title}」を公開しました`, body: "新しい勉強会が登録されました。詳細をチェックしてみましょう。" },
+      confirmed:{ title: `「${title}」の開催が決定しました`, body: "最低遂行人数に達したため、開催が確定しました。" },
+      full:     { title: `「${title}」が満席になりました`, body: "定員に達したため、ただいま新規のお申し込みを締め切っています。" },
+      cancelled:{ title: `「${title}」が中止になりました`, body: "大変申し訳ございませんが、このイベントは中止となりました。" }
+    };
+    const text = textByType[raw.type] || { title, body: "" };
+    return {
+      type: raw.type,
+      date: formatAnnouncementDate_(raw.timestamp),
+      title: text.title,
+      body: text.body
+    };
+  }
+  function formatAnnouncementDate_(v){
+    const d = new Date(v);
+    if(isNaN(d.getTime())) return "";
+    return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,"0")}.${String(d.getDate()).padStart(2,"0")}`;
+  }
+  async function loadAnnouncementsFromApi(){
+    try{
+      const res = await apiGet("listAnnouncements");
+      if(res.ok && Array.isArray(res.announcements) && res.announcements.length > 0){
+        announcements = res.announcements.map(normalizeAnnouncementFromApi);
+        return true;
+      }
+    }catch(err){
+      console.warn("お知らせの取得に失敗したため、サンプルデータを表示します。", err);
+    }
+    return false;
+  }
 
   /* ---------- 状態 ---------- */
   const state = {
@@ -1257,10 +1301,13 @@
   /* ---------- お知らせ描画 ---------- */
   function renderAnnouncements(){
     const wrap = document.getElementById("annScroll");
-    const labels = {info:"お知らせ", alert:"重要", event:"新支部"};
+    const labels = {
+      info:"お知らせ", alert:"重要", event:"新支部",
+      created:"新着", confirmed:"開催決定", full:"満席", cancelled:"中止"
+    };
     wrap.innerHTML = announcements.map(a => `
       <div class="ann-card type-${a.type}">
-        <span class="ann-badge">${labels[a.type]}</span>
+        <span class="ann-badge">${labels[a.type] || "お知らせ"}</span>
         <div class="ann-date">${a.date}</div>
         <h3>${a.title}</h3>
         <p>${a.body}</p>
@@ -1830,6 +1877,12 @@
     if(loaded){
       renderSessions();
       renderCalendar();
+    }
+
+    // お知らせも同様にAPIから取得できたら差し替える
+    const announcementsLoaded = await loadAnnouncementsFromApi();
+    if(announcementsLoaded){
+      renderAnnouncements();
     }
 
     // 検索
