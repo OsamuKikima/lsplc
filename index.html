@@ -204,6 +204,8 @@
     box-shadow:var(--shadow);display:flex;flex-direction:column;
   }
   .session-top{padding:16px 18px 0;}
+  .session-thumb{width:100%;aspect-ratio:16/9;overflow:hidden;background:var(--cream);}
+  .session-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
   .session-top .connect-row{margin-bottom:10px;}
   .session-body{padding:4px 18px 18px;flex:1;display:flex;flex-direction:column;}
   .session-date-badge{
@@ -292,6 +294,56 @@
     margin-bottom:16px;cursor:pointer;line-height:1.5;
   }
   .checkbox-field input{width:auto;margin-top:3px;flex:none;accent-color:var(--blue);}
+  .required-mark{color:var(--brick);font-size:11px;font-weight:700;margin-left:6px;}
+  .member-type-choice{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .radio-card{
+    position:relative;display:flex;flex-direction:column;gap:4px;
+    border:2px solid var(--line);border-radius:12px;padding:12px;cursor:pointer;
+    background:var(--cream);transition:.15s;
+  }
+  .radio-card input{position:absolute;top:10px;right:10px;margin:0;accent-color:var(--blue);}
+  .radio-card-title{font-size:12.5px;font-weight:700;color:var(--ink);padding-right:20px;line-height:1.4;}
+  .radio-card-desc{font-size:11px;color:var(--ink-soft);}
+  .radio-card:has(input:checked){border-color:var(--blue);background:#EAF5FC;}
+  @media (max-width:480px){
+    .member-type-choice{grid-template-columns:1fr;}
+  }
+  .field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  @media (max-width:480px){.field-row{grid-template-columns:1fr;}}
+  .organizer-toolbar{margin-bottom:20px;}
+  .my-session-list{display:grid;gap:14px;}
+  .my-session-card{
+    background:var(--card);border-radius:16px;padding:16px 18px;box-shadow:var(--shadow);
+    display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;
+  }
+  .my-session-card .msc-main{flex:1;min-width:200px;}
+  .my-session-card h4{font-size:15.5px;margin-bottom:4px;}
+  .my-session-card .msc-meta{font-size:12.5px;color:var(--ink-soft);}
+  .my-session-card .msc-actions{display:flex;gap:8px;}
+  .my-session-card .msc-actions button{
+    border:2px solid var(--line);background:#fff;padding:7px 14px;border-radius:999px;font-weight:700;font-size:12.5px;color:var(--ink);
+  }
+  .my-session-card .msc-actions button.edit:hover{border-color:var(--blue);color:var(--blue-dark);}
+  .my-session-card .msc-actions button.delete:hover{border-color:var(--brick);color:var(--brick-dark);}
+  .empty-organizer{color:var(--ink-soft);font-size:13.5px;padding:30px;text-align:center;background:var(--card);border-radius:16px;}
+  .ticket-link{
+    display:inline-flex;align-items:center;gap:6px;background:var(--amber);color:var(--ink);
+    padding:8px 16px;border-radius:999px;font-weight:700;font-size:13px;text-decoration:none;margin-top:10px;
+  }
+  .ticket-link:hover{background:var(--amber-dark);}
+  .field-hint{font-size:11.5px;color:var(--ink-soft);margin-top:6px;}
+  input[type="file"]{
+    width:100%;border:2px dashed var(--line);border-radius:10px;padding:10px 12px;font-size:13px;
+    background:var(--cream);color:var(--ink-soft);font-family:inherit;
+  }
+  .se-image-preview-wrap{margin-top:10px;position:relative;display:inline-block;}
+  .se-image-preview-wrap img{
+    max-width:100%;max-height:160px;border-radius:12px;display:block;box-shadow:var(--shadow);
+  }
+  .se-image-preview-wrap button{
+    position:absolute;top:-8px;right:-8px;background:var(--brick);color:#fff;border:2px solid #fff;
+    width:24px;height:24px;border-radius:50%;font-size:11px;font-weight:900;line-height:1;cursor:pointer;
+  }
 
   footer{
     background:var(--ink);color:#EDEFF3;padding:40px 24px 30px;margin-top:20px;
@@ -312,6 +364,8 @@
     padding:26px;position:relative;box-shadow:0 20px 0 rgba(35,43,58,0.08);
   }
   .modal-close{position:absolute;top:16px;right:16px;border:none;background:var(--cream);width:32px;height:32px;border-radius:50%;font-size:16px;font-weight:900;color:var(--ink-soft);}
+  .detail-image{margin:-26px -26px 18px;border-radius:22px 22px 0 0;overflow:hidden;aspect-ratio:16/9;background:var(--cream);}
+  .detail-image img{width:100%;height:100%;object-fit:cover;display:block;}
   .modal h3{font-size:19px;margin-bottom:4px;}
   .modal .modal-sub{font-size:13px;color:var(--ink-soft);margin-bottom:18px;}
   .modal-summary{background:var(--cream);border-radius:14px;padding:14px 16px;margin-bottom:18px;font-size:13.5px;}
@@ -381,6 +435,7 @@
       <button class="nav-link" data-scroll="#announcements">お知らせ</button>
       <button class="nav-link" data-scroll="#sessions">勉強会一覧</button>
       <button class="nav-link" data-scroll="#members">会員登録</button>
+      <button class="nav-link organizer-only" style="display:none;" data-scroll="#organizer">主催者ダッシュボード</button>
       <button class="member-pill" id="memberPillBtn">
         <span class="avatar" id="memberAvatar">?</span>
         <span id="memberPillText">会員登録・ログイン</span>
@@ -481,7 +536,7 @@
     <div>
       <div class="hero-eyebrow">🎟️ Membership</div>
       <h2>会員登録すれば、誰でも勉強会に申し込めます</h2>
-      <p>お名前とメールアドレスを登録するだけ。トレーニング情報は任意です。登録後はすぐに勉強会への参加申し込みができるようになります。</p>
+      <p>お名前とメールアドレスを登録するだけ。登録後はすぐに勉強会への参加申し込みができるようになります。</p>
     </div>
     <div class="members-form">
       <div class="field">
@@ -493,11 +548,26 @@
         <input type="email" id="regEmail" placeholder="you@example.com">
       </div>
       <div class="field">
-        <label for="regTrainingDate">トレーニング時期(任意)</label>
+        <label>会員種別</label>
+        <div class="member-type-choice">
+          <label class="radio-card">
+            <input type="radio" name="regMemberType" value="general" checked>
+            <span class="radio-card-title">一般</span>
+            <span class="radio-card-desc">勉強会への参加のみ</span>
+          </label>
+          <label class="radio-card">
+            <input type="radio" name="regMemberType" value="certified">
+            <span class="radio-card-title">LEGO® SERIOUS PLAY®メソッド<br>トレーニング修了認定ファシリテーター</span>
+            <span class="radio-card-desc">自分で勉強会を主催できます</span>
+          </label>
+        </div>
+      </div>
+      <div class="field" id="regTrainingDateField">
+        <label for="regTrainingDate">トレーニング時期<span class="required-mark" id="regTrainingDateReq" style="display:none;">*必須</span></label>
         <input type="text" id="regTrainingDate" placeholder="例:2023年4月">
       </div>
-      <div class="field">
-        <label for="regTrainer">トレーナー(任意)</label>
+      <div class="field" id="regTrainerField">
+        <label for="regTrainer">トレーナー<span class="required-mark" id="regTrainerReq" style="display:none;">*必須</span></label>
         <input type="text" id="regTrainer" placeholder="例:山田 太郎トレーナー">
       </div>
       <label class="checkbox-field">
@@ -508,6 +578,71 @@
     </div>
   </div>
 </section>
+
+<section id="organizer" class="organizer-only" style="display:none;">
+  <div class="section-head">
+    <h2>主催者ダッシュボード</h2>
+    <span class="count">認定ファシリテーターとして登録すると、勉強会を作成・編集・削除できます</span>
+  </div>
+  <div class="organizer-toolbar">
+    <button class="btn-primary" id="newSessionBtn">+ 新しい勉強会を作成</button>
+  </div>
+  <div id="mySessionsList" class="my-session-list"></div>
+</section>
+
+<!-- 勉強会 作成/編集モーダル -->
+<div class="modal-overlay" id="sessionEditorOverlay">
+  <div class="modal" style="max-width:560px;">
+    <button class="modal-close" id="sessionEditorClose">✕</button>
+    <h3 id="sessionEditorTitle">新しい勉強会を作成</h3>
+    <p class="modal-sub">入力後、「保存する」を押すとすぐにサイトに反映されます。</p>
+    <div class="field"><label for="seTitle">タイトル</label><input type="text" id="seTitle" placeholder="例:読書会 vol.5"></div>
+    <div class="field-row">
+      <div class="field"><label for="seDate">開催日</label><input type="date" id="seDate"></div>
+      <div class="field"><label for="seDeadline">申込締切(任意)</label><input type="date" id="seDeadline"></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label for="seStart">開始時刻</label><input type="time" id="seStart"></div>
+      <div class="field"><label for="seEnd">終了時刻</label><input type="time" id="seEnd"></div>
+    </div>
+    <div class="field"><label for="seLocation">開催場所</label><input type="text" id="seLocation" placeholder="例:オンライン(Zoom) / 東京都渋谷区〇〇"></div>
+    <div class="field">
+      <label>タグ</label>
+      <div class="tag-pills" id="seTagPills"></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label for="seFee">参加費(円・0で無料)</label><input type="number" id="seFee" value="0" min="0"></div>
+      <div class="field"><label for="seCapacity">定員(任意)</label><input type="number" id="seCapacity" min="1"></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label for="seMinCapacity">最低遂行人数(任意)</label><input type="number" id="seMinCapacity" min="1"></div>
+      <div class="field">
+        <label class="checkbox-field" style="margin-bottom:0;margin-top:22px;">
+          <input type="checkbox" id="seRequiresRegistration" checked>
+          <span>事前登録制にする</span>
+        </label>
+      </div>
+    </div>
+    <div class="field" id="seTicketUrlField" style="display:none;">
+      <label for="seTicketUrl">チケット購入・お支払いページのURL(任意)</label>
+      <input type="text" id="seTicketUrl" placeholder="https://...(Peatix、Stripeなど外部サイトのリンク)">
+    </div>
+    <div class="field">
+      <label for="seImageFile">イベント画像・チラシ(任意)</label>
+      <input type="file" id="seImageFile" accept="image/png,image/jpeg,image/webp,image/gif">
+      <div class="se-image-preview-wrap" id="seImagePreviewWrap" style="display:none;">
+        <img id="seImagePreview" alt="アップロードした画像のプレビュー">
+        <button type="button" id="seImageRemoveBtn">✕ 画像を削除</button>
+      </div>
+      <p class="field-hint">一覧のサムネイルと、詳細ページの上部に表示されます(5MBまで)</p>
+    </div>
+    <div class="field"><label for="seDescription">詳細説明</label><textarea id="seDescription" rows="5" placeholder="勉強会の内容、持ち物、当日の流れなどを詳しく記入してください。ここに書いた内容が詳細ページに表示されます。"></textarea></div>
+    <div style="display:flex; gap:10px;">
+      <button class="btn-primary" style="flex:1;" id="sessionEditorSaveBtn">保存する</button>
+      <button class="btn-ghost" id="sessionEditorDeleteBtn" style="display:none;color:var(--brick);border-color:var(--brick);">削除する</button>
+    </div>
+  </div>
+</div>
 
 <footer>
   <div class="footer-inner">
@@ -551,11 +686,26 @@
       <input type="email" id="mmEmail" placeholder="you@example.com">
     </div>
     <div class="field">
-      <label for="mmTrainingDate">トレーニング時期(任意)</label>
+      <label>会員種別</label>
+      <div class="member-type-choice">
+        <label class="radio-card">
+          <input type="radio" name="mmMemberType" value="general" checked>
+          <span class="radio-card-title">一般</span>
+          <span class="radio-card-desc">勉強会への参加のみ</span>
+        </label>
+        <label class="radio-card">
+          <input type="radio" name="mmMemberType" value="certified">
+          <span class="radio-card-title">LEGO® SERIOUS PLAY®メソッド<br>トレーニング修了認定ファシリテーター</span>
+          <span class="radio-card-desc">自分で勉強会を主催できます</span>
+        </label>
+      </div>
+    </div>
+    <div class="field" id="mmTrainingDateField">
+      <label for="mmTrainingDate">トレーニング時期<span class="required-mark" id="mmTrainingDateReq" style="display:none;">*必須</span></label>
       <input type="text" id="mmTrainingDate" placeholder="例:2023年4月">
     </div>
-    <div class="field">
-      <label for="mmTrainer">トレーナー(任意)</label>
+    <div class="field" id="mmTrainerField">
+      <label for="mmTrainer">トレーナー<span class="required-mark" id="mmTrainerReq" style="display:none;">*必須</span></label>
       <input type="text" id="mmTrainer" placeholder="例:山田 太郎トレーナー">
     </div>
     <label class="checkbox-field">
@@ -608,7 +758,10 @@
       appliedCount: Number(raw.AppliedCount) || 0,
       deadline: raw.Deadline ? formatDateValue_(raw.Deadline) : null,
       organizer: raw.Organizer || "",
-      description: raw.Description || ""
+      organizerEmail: raw.OrganizerEmail || "",
+      description: raw.Description || "",
+      ticketUrl: raw.TicketUrl || "",
+      imageUrl: raw.ImageUrl || ""
     };
   }
   /* Apps Scriptから返る日付(ISO文字列 or Dateオブジェクト文字列)を YYYY-MM-DD に揃える */
@@ -629,6 +782,220 @@
       console.warn("勉強会データの取得に失敗したため、サンプルデータを表示します。", err);
     }
     return false;
+  }
+
+  /* ---------- 主催者ダッシュボード(認定ファシリテーターのみ) ---------- */
+  async function loadMySessions_(){
+    if(!state.memberEmail) return;
+    try{
+      const res = await apiGet("listMySessions", { email: state.memberEmail });
+      if(res.ok){
+        state.mySessions = (res.sessions || []).map(normalizeSessionFromApi);
+        renderMySessions_();
+      } else {
+        console.warn(res.error);
+      }
+    }catch(err){
+      console.error("自分の勉強会一覧の取得に失敗しました", err);
+    }
+  }
+  function renderMySessions_(){
+    const wrap = document.getElementById("mySessionsList");
+    if(!wrap) return;
+    if(state.mySessions.length === 0){
+      wrap.innerHTML = `<div class="empty-organizer">まだ作成した勉強会がありません。「+ 新しい勉強会を作成」から始めましょう。</div>`;
+      return;
+    }
+    wrap.innerHTML = state.mySessions
+      .slice()
+      .sort((a,b)=> a.date.localeCompare(b.date))
+      .map(s => `
+        <div class="my-session-card">
+          <div class="msc-main">
+            <h4>${s.title}</h4>
+            <div class="msc-meta">${fmtDateLong(s.date)} ・ ${s.startTime}-${s.endTime} ・ 申込み${s.appliedCount||0}名${s.capacity!=null ? `/定員${s.capacity}名` : ""}</div>
+          </div>
+          <div class="msc-actions">
+            <button class="edit" data-edit-session="${s.id}">編集</button>
+            <button class="delete" data-delete-session="${s.id}">削除</button>
+          </div>
+        </div>
+      `).join("");
+    wrap.querySelectorAll("[data-edit-session]").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        const s = state.mySessions.find(x=>x.id === btn.dataset.editSession);
+        if(s) openSessionEditor_(s);
+      });
+    });
+    wrap.querySelectorAll("[data-delete-session]").forEach(btn=>{
+      btn.addEventListener("click", async ()=>{
+        if(!confirm("この勉強会を削除します。よろしいですか?(申込み履歴は残りますが、勉強会自体は表示されなくなります)")) return;
+        const res = await apiPost("deleteSession", { email: state.memberEmail, sessionId: btn.dataset.deleteSession });
+        if(!res.ok){ toast(res.error || "削除に失敗しました"); return; }
+        toast("勉強会を削除しました");
+        await loadMySessions_();
+        await loadSessionsFromApi();
+        renderSessions();
+        renderCalendar();
+      });
+    });
+  }
+  let editingSessionId = null;
+  let currentEditorImageUrl = "";
+  function openSessionEditor_(session){
+    editingSessionId = session ? session.id : null;
+    currentEditorImageUrl = session ? (session.imageUrl || "") : "";
+    document.getElementById("sessionEditorTitle").textContent = session ? "勉強会を編集" : "新しい勉強会を作成";
+    document.getElementById("seTitle").value = session ? session.title : "";
+    document.getElementById("seDate").value = session ? session.date : "";
+    document.getElementById("seDeadline").value = session && session.deadline ? session.deadline : "";
+    document.getElementById("seStart").value = session ? session.startTime : "";
+    document.getElementById("seEnd").value = session ? session.endTime : "";
+    document.getElementById("seLocation").value = session ? session.location : "";
+    document.getElementById("seFee").value = session ? session.fee : 0;
+    document.getElementById("seCapacity").value = session && session.capacity != null ? session.capacity : "";
+    document.getElementById("seMinCapacity").value = session && session.minCapacity != null ? session.minCapacity : "";
+    document.getElementById("seRequiresRegistration").checked = session ? !!session.requiresRegistration : true;
+    document.getElementById("seTicketUrl").value = session ? (session.ticketUrl || "") : "";
+    document.getElementById("seDescription").value = session ? session.description : "";
+    document.getElementById("seImageFile").value = "";
+    renderSessionEditorTagPills_(session ? session.tags : []);
+    toggleTicketUrlField_();
+    updateImagePreviewUI_();
+    document.getElementById("sessionEditorDeleteBtn").style.display = session ? "" : "none";
+    document.getElementById("sessionEditorOverlay").classList.add("open");
+  }
+  function updateImagePreviewUI_(){
+    const wrap = document.getElementById("seImagePreviewWrap");
+    const img = document.getElementById("seImagePreview");
+    if(currentEditorImageUrl){
+      img.src = currentEditorImageUrl;
+      wrap.style.display = "inline-block";
+    } else {
+      img.src = "";
+      wrap.style.display = "none";
+    }
+  }
+  function readFileAsBase64_(file){
+    return new Promise((resolve, reject)=>{
+      const reader = new FileReader();
+      reader.onload = ()=> resolve(reader.result.split(",")[1]);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+  function renderSessionEditorTagPills_(selectedTags){
+    const wrap = document.getElementById("seTagPills");
+    const all = [...FORMAT_TAGS, ...THEME_TAGS];
+    wrap.innerHTML = all.map(tag => {
+      const cls = tagClass(tag);
+      const active = selectedTags.includes(tag) ? "active" : "";
+      return `<button type="button" class="tag-pill ${cls} ${active}" data-se-tag="${tag}"><span class="dot"></span>${tag}</button>`;
+    }).join("");
+    wrap.querySelectorAll("[data-se-tag]").forEach(btn=>{
+      btn.addEventListener("click", ()=> btn.classList.toggle("active"));
+    });
+  }
+  function getSelectedEditorTags_(){
+    return Array.from(document.querySelectorAll("#seTagPills .tag-pill.active")).map(b=>b.dataset.seTag);
+  }
+  function toggleTicketUrlField_(){
+    const fee = Number(document.getElementById("seFee").value) || 0;
+    document.getElementById("seTicketUrlField").style.display = fee > 0 ? "" : "none";
+  }
+  function bindOrganizerDashboardEvents_(){
+    const newBtn = document.getElementById("newSessionBtn");
+    if(newBtn) newBtn.addEventListener("click", ()=> openSessionEditor_(null));
+
+    const feeInput = document.getElementById("seFee");
+    if(feeInput) feeInput.addEventListener("input", toggleTicketUrlField_);
+
+    const imageFileInput = document.getElementById("seImageFile");
+    if(imageFileInput) imageFileInput.addEventListener("change", async ()=>{
+      const file = imageFileInput.files[0];
+      if(!file) return;
+      if(file.size > 5 * 1024 * 1024){
+        toast("画像サイズは5MBまでです");
+        imageFileInput.value = "";
+        return;
+      }
+      toast("画像をアップロードしています...");
+      try{
+        const dataBase64 = await readFileAsBase64_(file);
+        const res = await apiPost("uploadImage", {
+          email: state.memberEmail, filename: file.name, mimeType: file.type, dataBase64
+        });
+        if(!res.ok){ toast(res.error || "画像のアップロードに失敗しました"); imageFileInput.value = ""; return; }
+        currentEditorImageUrl = res.url;
+        updateImagePreviewUI_();
+        toast("画像をアップロードしました");
+      }catch(err){
+        console.error(err);
+        toast("画像のアップロードに失敗しました");
+      }
+      imageFileInput.value = "";
+    });
+    const imageRemoveBtn = document.getElementById("seImageRemoveBtn");
+    if(imageRemoveBtn) imageRemoveBtn.addEventListener("click", ()=>{
+      currentEditorImageUrl = "";
+      updateImagePreviewUI_();
+    });
+
+    const closeBtn = document.getElementById("sessionEditorClose");
+    if(closeBtn) closeBtn.addEventListener("click", ()=> closeModal("sessionEditorOverlay"));
+    const overlay = document.getElementById("sessionEditorOverlay");
+    if(overlay) overlay.addEventListener("click", (e)=>{ if(e.target.id === "sessionEditorOverlay") closeModal("sessionEditorOverlay"); });
+
+    const saveBtn = document.getElementById("sessionEditorSaveBtn");
+    if(saveBtn) saveBtn.addEventListener("click", async ()=>{
+      const payload = {
+        email: state.memberEmail,
+        title: document.getElementById("seTitle").value.trim(),
+        date: document.getElementById("seDate").value,
+        deadline: document.getElementById("seDeadline").value || "",
+        startTime: document.getElementById("seStart").value,
+        endTime: document.getElementById("seEnd").value,
+        location: document.getElementById("seLocation").value.trim(),
+        tags: getSelectedEditorTags_(),
+        fee: Number(document.getElementById("seFee").value) || 0,
+        capacity: document.getElementById("seCapacity").value || "",
+        minCapacity: document.getElementById("seMinCapacity").value || "",
+        requiresRegistration: document.getElementById("seRequiresRegistration").checked,
+        ticketUrl: document.getElementById("seTicketUrl").value.trim(),
+        imageUrl: currentEditorImageUrl,
+        description: document.getElementById("seDescription").value.trim()
+      };
+      if(!payload.title || !payload.date || !payload.startTime || !payload.endTime || !payload.location){
+        toast("タイトル・開催日・時刻・場所は必須です");
+        return;
+      }
+      saveBtn.disabled = true; saveBtn.textContent = "保存しています...";
+      const res = editingSessionId
+        ? await apiPost("updateSession", { ...payload, sessionId: editingSessionId })
+        : await apiPost("createSession", payload);
+      saveBtn.disabled = false; saveBtn.textContent = "保存する";
+      if(!res.ok){ toast(res.error || "保存に失敗しました"); return; }
+      toast(editingSessionId ? "勉強会を更新しました" : "勉強会を作成しました");
+      closeModal("sessionEditorOverlay");
+      await loadMySessions_();
+      await loadSessionsFromApi();
+      renderSessions();
+      renderCalendar();
+    });
+
+    const deleteBtn = document.getElementById("sessionEditorDeleteBtn");
+    if(deleteBtn) deleteBtn.addEventListener("click", async ()=>{
+      if(!editingSessionId) return;
+      if(!confirm("この勉強会を削除します。よろしいですか?")) return;
+      const res = await apiPost("deleteSession", { email: state.memberEmail, sessionId: editingSessionId });
+      if(!res.ok){ toast(res.error || "削除に失敗しました"); return; }
+      toast("勉強会を削除しました");
+      closeModal("sessionEditorOverlay");
+      await loadMySessions_();
+      await loadSessionsFromApi();
+      renderSessions();
+      renderCalendar();
+    });
   }
 
   /* ---------- タグ定義 ---------- */
@@ -773,6 +1140,8 @@
     trainer: "",
     memberName: "",
     memberEmail: "",
+    memberType: "general",
+    mySessions: [],
     filterOpen:false
   };
 
@@ -871,9 +1240,10 @@
     const feeLabel = s.fee === 0 ? "無料" : `¥${s.fee.toLocaleString()}`;
     return `
     <div class="session-card">
-      <div class="session-top">
-        <div class="connect-row">${connectDotsSvg(cardAccentColors(s))}</div>
-      </div>
+      ${s.imageUrl
+        ? `<div class="session-thumb"><img src="${s.imageUrl}" alt="${s.title}のイメージ画像" loading="lazy" onerror="this.closest('.session-thumb').style.display='none'"></div>`
+        : `<div class="session-top"><div class="connect-row">${connectDotsSvg(cardAccentColors(s))}</div></div>`
+      }
       <div class="session-body">
         <div class="session-date-badge"><div class="m">${d.month}</div><div class="d">${d.day}</div></div>
         <h3>${s.title}</h3>
@@ -1035,6 +1405,7 @@
 
     if(!state.isMember){
       body.innerHTML = `
+        ${detailImageHtml(s)}
         <h3>${s.title}</h3>
         <p class="modal-sub">${fmtDateLong(s.date)}・${s.startTime}-${s.endTime}</p>
         <div class="modal-summary">
@@ -1050,13 +1421,15 @@
       });
     } else if(!s.requiresRegistration){
       body.innerHTML = `
+        ${detailImageHtml(s)}
         <h3>${s.title}</h3>
         <p class="modal-sub">${fmtDateLong(s.date)}・${s.startTime}-${s.endTime}</p>
         <div class="modal-summary">
           <div><span>開催場所</span><b>${s.location}</b></div>
           <div><span>参加費</span><b>${feeLabel}</b></div>
         </div>
-        <p style="font-size:13.5px;color:var(--ink-soft);margin-bottom:16px;">${s.description}</p>
+        <p style="font-size:13.5px;color:var(--ink-soft);margin-bottom:16px;white-space:pre-wrap;">${escapeHtml_(s.description)}</p>
+        ${ticketLinkHtml(s)}
         <div class="need-member" style="background:#E4F5EA;color:var(--green-dark);">この勉強会は事前登録不要です。当日は直接会場・オンラインURLへどうぞ。カレンダーへの追加だけしておくと安心です。</div>
         <a class="gcal-btn" style="width:100%;justify-content:center;" href="${googleCalUrl(s)}" target="_blank" rel="noopener">📅 Googleカレンダーに追加</a>
       `;
@@ -1064,6 +1437,7 @@
       const remaining = s.capacity != null ? Math.max(0, s.capacity - (s.appliedCount||0)) : null;
       const isFull = remaining !== null && remaining <= 0;
       body.innerHTML = `
+        ${detailImageHtml(s)}
         <h3>${s.title}</h3>
         <p class="modal-sub">${fmtDateLong(s.date)}・${s.startTime}-${s.endTime}</p>
         <div class="modal-summary">
@@ -1074,7 +1448,8 @@
           ${s.capacity != null ? `<div><span>現在の申込み</span><b>${s.appliedCount||0}名</b></div>` : ""}
         </div>
         ${capacityInfoHtml(s)}
-        <p style="font-size:13.5px;color:var(--ink-soft);margin-bottom:18px;">${s.description}</p>
+        <p style="font-size:13.5px;color:var(--ink-soft);margin-bottom:18px;white-space:pre-wrap;">${escapeHtml_(s.description)}</p>
+        ${ticketLinkHtml(s)}
         ${isFull ? `
           <div class="need-member">この勉強会は定員に達したため、お申し込みを締め切りました。</div>
         ` : `
@@ -1128,6 +1503,22 @@
     `;
     toast("申し込みが完了しました");
   }
+  function detailImageHtml(s){
+    if(!s.imageUrl) return "";
+    return `<div class="detail-image"><img src="${s.imageUrl}" alt="${s.title}のイメージ画像" onerror="this.closest('.detail-image').style.display='none'"></div>`;
+  }
+  function escapeHtml_(text){
+    if(!text) return "";
+    const div = document.createElement("div");
+    div.textContent = text;
+    return div.innerHTML;
+  }
+  function ticketLinkHtml(s){
+    if(s.fee > 0 && s.ticketUrl){
+      return `<a class="ticket-link" href="${s.ticketUrl}" target="_blank" rel="noopener">🎫 チケット購入・お支払いはこちら</a>`;
+    }
+    return "";
+  }
   function googleCalUrl(s){
     const startUtc = jstToUtcCompact(s.date, s.startTime);
     const endUtc = jstToUtcCompact(s.date, s.endTime);
@@ -1156,11 +1547,16 @@
     pendingOpenSessionId = afterSessionId || null;
     document.getElementById("memberModalOverlay").classList.add("open");
   }
-  async function completeRegistration(name, email, trainingDate, trainer, notifyNewSessions){
+  async function completeRegistration(name, email, memberType, trainingDate, trainer, notifyNewSessions){
     if(!name || !email){ toast("お名前とメールアドレスを入力してください"); return false; }
+    const isCertified = memberType === "certified";
+    if(isCertified && (!trainingDate || !trainer)){
+      toast("認定ファシリテーターとして登録する場合、トレーニング時期とトレーナーの入力が必須です");
+      return false;
+    }
     try{
       const res = await apiPost("register", {
-        name, email,
+        name, email, memberType,
         trainingDate: trainingDate || "",
         trainer: trainer || "",
         notifyNewSessions: !!notifyNewSessions
@@ -1177,12 +1573,33 @@
     state.isMember = true;
     state.memberName = name;
     state.memberEmail = email;
+    state.memberType = memberType;
     state.trainingDate = trainingDate || "";
     state.trainer = trainer || "";
-    document.getElementById("memberPillText").textContent = `${name} さん`;
+    document.getElementById("memberPillText").textContent = `${name} さん${isCertified ? "(認定ファシリテーター)" : ""}`;
     document.getElementById("memberAvatar").textContent = name.charAt(0);
+    updateOrganizerUiVisibility_();
     toast("会員登録が完了しました。ようこそ!");
+    if(isCertified) loadMySessions_();
     return true;
+  }
+  function updateOrganizerUiVisibility_(){
+    const show = state.isMember && state.memberType === "certified";
+    document.querySelectorAll(".organizer-only").forEach(el=>{
+      el.style.display = show ? "" : "none";
+    });
+  }
+  /* 会員種別ラジオボタンの選択に応じて、トレーニング情報の必須表示を切り替える */
+  function bindMemberTypeToggle_(radioName, dateFieldId, trainerFieldId, dateReqId, trainerReqId, dateInputId, trainerInputId){
+    document.querySelectorAll(`input[name="${radioName}"]`).forEach(radio=>{
+      radio.addEventListener("change", ()=>{
+        const isCertified = document.querySelector(`input[name="${radioName}"]:checked`).value === "certified";
+        document.getElementById(dateReqId).style.display = isCertified ? "inline" : "none";
+        document.getElementById(trainerReqId).style.display = isCertified ? "inline" : "none";
+        document.getElementById(dateInputId).required = isCertified;
+        document.getElementById(trainerInputId).required = isCertified;
+      });
+    });
   }
 
   /* ---------- イベント初期化 ---------- */
@@ -1257,15 +1674,17 @@
     });
 
     // 会員登録(セクション内フォーム)
+    bindMemberTypeToggle_("regMemberType","regTrainingDateField","regTrainerField","regTrainingDateReq","regTrainerReq","regTrainingDate","regTrainer");
     document.getElementById("registerBtn").addEventListener("click", async ()=>{
       const name = document.getElementById("regName").value.trim();
       const email = document.getElementById("regEmail").value.trim();
+      const memberType = document.querySelector('input[name="regMemberType"]:checked').value;
       const trainingDate = document.getElementById("regTrainingDate").value.trim();
       const trainer = document.getElementById("regTrainer").value.trim();
       const notify = document.getElementById("regNotify").checked;
       const btn = document.getElementById("registerBtn");
       btn.disabled = true; btn.textContent = "登録しています...";
-      const ok = await completeRegistration(name, email, trainingDate, trainer, notify);
+      const ok = await completeRegistration(name, email, memberType, trainingDate, trainer, notify);
       btn.disabled = false; btn.textContent = "会員登録する";
       if(ok){
         document.getElementById("regName").value = "";
@@ -1276,6 +1695,7 @@
     });
 
     // 会員登録モーダル
+    bindMemberTypeToggle_("mmMemberType","mmTrainingDateField","mmTrainerField","mmTrainingDateReq","mmTrainerReq","mmTrainingDate","mmTrainer");
     document.getElementById("memberPillBtn").addEventListener("click", ()=>{
       if(state.isMember){
         toast(`${state.memberName} さんとしてログイン中です`);
@@ -1286,12 +1706,13 @@
     document.getElementById("mmRegisterBtn").addEventListener("click", async ()=>{
       const name = document.getElementById("mmName").value.trim();
       const email = document.getElementById("mmEmail").value.trim();
+      const memberType = document.querySelector('input[name="mmMemberType"]:checked').value;
       const trainingDate = document.getElementById("mmTrainingDate").value.trim();
       const trainer = document.getElementById("mmTrainer").value.trim();
       const notify = document.getElementById("mmNotify").checked;
       const btn = document.getElementById("mmRegisterBtn");
       btn.disabled = true; btn.textContent = "登録しています...";
-      const ok = await completeRegistration(name, email, trainingDate, trainer, notify);
+      const ok = await completeRegistration(name, email, memberType, trainingDate, trainer, notify);
       btn.disabled = false; btn.textContent = "登録して続ける";
       if(ok){
         closeModal("memberModalOverlay");
@@ -1311,6 +1732,10 @@
     document.getElementById("detailModalOverlay").addEventListener("click", (e)=>{
       if(e.target.id==="detailModalOverlay") closeModal("detailModalOverlay");
     });
+
+    // 主催者ダッシュボード
+    bindOrganizerDashboardEvents_();
+    updateOrganizerUiVisibility_();
   }
 
   document.addEventListener("DOMContentLoaded", init);
