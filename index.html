@@ -486,6 +486,7 @@
       <button class="nav-link" data-scroll="#pastEvents">過去の開催イベント</button>
       <button class="nav-link" data-scroll="#members">会員登録</button>
       <button class="nav-link organizer-only" style="display:none;" data-scroll="#myApplications">申込み履歴</button>
+      <button class="nav-link organizer-only" style="display:none;" id="changePasswordNavBtn">パスワード変更</button>
       <button class="nav-link organizer-only" style="display:none;" data-scroll="#organizer">主催者ダッシュボード</button>
       <button class="member-pill" id="memberPillBtn">
         <span class="avatar" id="memberAvatar">?</span>
@@ -751,6 +752,28 @@
     <h3 id="applicantsModalTitle">申込み者一覧</h3>
     <p class="modal-sub">この一覧は、あなたが作成したイベントの申込み者のみ表示され、他の人には公開されません。</p>
     <div id="applicantsModalBody"></div>
+  </div>
+</div>
+
+<!-- パスワード変更モーダル -->
+<div class="modal-overlay" id="changePasswordModalOverlay">
+  <div class="modal">
+    <button class="modal-close" id="changePasswordModalClose">✕</button>
+    <h3>パスワード変更</h3>
+    <p class="modal-sub">現在のパスワードを確認の上、新しいパスワードに変更します。</p>
+    <div class="field">
+      <label for="cpOldPassword">現在のパスワード</label>
+      <input type="password" id="cpOldPassword" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <div class="field">
+      <label for="cpNewPassword">新しいパスワード(6文字以上)</label>
+      <input type="password" id="cpNewPassword" placeholder="••••••••" autocomplete="new-password">
+    </div>
+    <div class="field">
+      <label for="cpNewPasswordConfirm">新しいパスワード(確認)</label>
+      <input type="password" id="cpNewPasswordConfirm" placeholder="••••••••" autocomplete="new-password">
+    </div>
+    <button class="btn-primary" style="width:100%;" id="changePasswordSubmitBtn">パスワードを変更する</button>
   </div>
 </div>
 
@@ -1882,11 +1905,6 @@
           <p class="field-hint" style="margin-top:0;">お申し込みはご本人1名分のみです。ご友人・ご家族の代理申込みはできません。</p>
           <div class="field"><label for="appName">お名前</label><input type="text" id="appName" value="${state.memberName}" readonly></div>
           <div class="field"><label for="appNote">備考(任意)</label><textarea id="appNote" rows="2" placeholder="ご質問やご要望があればご記入ください"></textarea></div>
-          ${s.date ? `
-          <label class="checkbox-field">
-            <input type="checkbox" id="appWantsCalendar" checked>
-            <span>Googleカレンダーに登録するためのメールを受け取る</span>
-          </label>` : ""}
           <p class="field-hint" style="margin-top:-6px;">※キャンセルをご希望の場合は、お手数ですが主催者に直接ご連絡ください。このサイト上からご自身で取り消すことはできません。</p>
           <button class="btn-primary" style="width:100%;" id="submitApplyBtn">この内容で申し込む</button>
         `}
@@ -1899,13 +1917,11 @@
           if(!name){ toast("お名前を入力してください"); return; }
           const count = 1; // 申込みは会員本人1名のみ
           const note = document.getElementById("appNote").value.trim();
-          const calendarCheckbox = document.getElementById("appWantsCalendar");
-          const wantsCalendarInvite = calendarCheckbox ? calendarCheckbox.checked : false;
           const btn = document.getElementById("submitApplyBtn");
           btn.disabled = true; btn.textContent = "送信しています...";
           try{
             const res = await apiPost("apply", {
-              sessionId: s.id, name, email: state.memberEmail, count, note, wantsCalendarInvite
+              sessionId: s.id, name, email: state.memberEmail, count, note
             });
             if(!res.ok){
               toast(res.error || "申込みに失敗しました");
@@ -1913,7 +1929,7 @@
               return;
             }
             s.appliedCount = res.appliedCount != null ? res.appliedCount : (s.appliedCount||0) + count;
-            showApplySuccess(s, wantsCalendarInvite);
+            showApplySuccess(s);
             renderSessions();
             renderPastSessions();
             renderCalendar();
@@ -2014,16 +2030,13 @@
       </div>
     `).join("");
   }
-  function showApplySuccess(s, wantsCalendarInvite){
+  function showApplySuccess(s){
     const body = document.getElementById("detailModalBody");
-    const calendarNote = wantsCalendarInvite
-      ? "まもなくご登録のメールアドレス宛にGoogleカレンダーの招待が届きますので、承諾すると予定が自動で追加されます。"
-      : "Googleカレンダーへの招待メールは送信していません。ご自身で追加したい場合は下のボタンからどうぞ。";
     body.innerHTML = `
       <div class="success-box">
         <div class="connect-row">${connectDotsSvg(["var(--brick)","var(--amber)","var(--blue)","var(--green)"],7)}</div>
         <h3>申し込みが完了しました!</h3>
-        <p>「${s.title}」への参加登録を受け付けました。主催チームにも通知が届いています。${calendarNote}</p>
+        <p>「${s.title}」への参加登録を受け付けました。主催チームにも通知が届いています。${s.date ? "下のボタンからGoogleカレンダーに追加できます。" : ""}</p>
         <p class="field-hint">※キャンセルをご希望の場合は、お手数ですが主催者に直接ご連絡ください。</p>
         ${s.date ? `<a class="gcal-btn" href="${googleCalUrl(s)}" target="_blank" rel="noopener">📅 Googleカレンダーに追加する</a>` : ""}
       </div>
@@ -2183,6 +2196,51 @@
         toast("通信エラーのため再発行に失敗しました");
       }finally{
         submitBtn.disabled = false; submitBtn.textContent = "新しいパスワードを送信する";
+      }
+    });
+  }
+
+  /* パスワード変更(ログイン中の会員向け) */
+  function bindChangePassword_(){
+    const navBtn = document.getElementById("changePasswordNavBtn");
+    const overlay = document.getElementById("changePasswordModalOverlay");
+    const closeBtn = document.getElementById("changePasswordModalClose");
+    const submitBtn = document.getElementById("changePasswordSubmitBtn");
+    if(!navBtn || !overlay || !closeBtn || !submitBtn) return;
+
+    navBtn.addEventListener("click", ()=>{
+      document.getElementById("cpOldPassword").value = "";
+      document.getElementById("cpNewPassword").value = "";
+      document.getElementById("cpNewPasswordConfirm").value = "";
+      overlay.classList.add("open");
+    });
+    closeBtn.addEventListener("click", ()=> closeModal("changePasswordModalOverlay"));
+    overlay.addEventListener("click", (e)=>{
+      if(e.target.id === "changePasswordModalOverlay") closeModal("changePasswordModalOverlay");
+    });
+    submitBtn.addEventListener("click", async ()=>{
+      const oldPassword = document.getElementById("cpOldPassword").value;
+      const newPassword = document.getElementById("cpNewPassword").value;
+      const newPasswordConfirm = document.getElementById("cpNewPasswordConfirm").value;
+      if(!oldPassword || !newPassword){ toast("現在のパスワードと新しいパスワードを入力してください"); return; }
+      if(newPassword.length < 6){ toast("新しいパスワードは6文字以上にしてください"); return; }
+      if(newPassword !== newPasswordConfirm){ toast("新しいパスワード(確認)が一致しません"); return; }
+      submitBtn.disabled = true; submitBtn.textContent = "変更しています...";
+      try{
+        const res = await apiPost("changePassword", {
+          email: state.memberEmail, oldPassword, newPassword
+        });
+        if(!res.ok){
+          toast(res.error || "パスワードの変更に失敗しました");
+        } else {
+          toast("パスワードを変更しました");
+          closeModal("changePasswordModalOverlay");
+        }
+      }catch(err){
+        console.error(err);
+        toast("通信エラーのためパスワードの変更に失敗しました");
+      }finally{
+        submitBtn.disabled = false; submitBtn.textContent = "パスワードを変更する";
       }
     });
   }
@@ -2377,6 +2435,7 @@
 
     // 主催者ダッシュボード
     bindOrganizerDashboardEvents_();
+    bindChangePassword_();
     updateOrganizerUiVisibility_();
   }
 
