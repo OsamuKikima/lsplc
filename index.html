@@ -481,11 +481,9 @@
     </div>
     <button class="hamburger" id="hamburgerBtn" aria-label="メニューを開く"><span></span><span></span><span></span></button>
     <nav id="mainNav">
-      <button class="nav-link" data-scroll="#announcements">お知らせ</button>
       <button class="nav-link" data-scroll="#sessions">勉強会・交流会</button>
-      <button class="nav-link" data-scroll="#pastEvents">過去の開催イベント</button>
+      <button class="nav-link" data-scroll="#pastEvents">過去のイベント</button>
       <button class="nav-link" data-scroll="#members">会員登録</button>
-      <button class="nav-link organizer-only" style="display:none;" data-scroll="#myApplications">申込み履歴</button>
       <button class="nav-link organizer-only" style="display:none;" id="changePasswordNavBtn">パスワード変更</button>
       <button class="nav-link organizer-only" style="display:none;" data-scroll="#organizer">主催者MENU</button>
       <button class="nav-link organizer-only" style="display:none;color:var(--brick-dark);" id="logoutNavBtn">ログアウト</button>
@@ -587,7 +585,7 @@
 
 <section id="pastEvents">
   <div class="section-head">
-    <h2>過去の開催イベント</h2>
+    <h2>過去のイベント</h2>
     <span class="count" id="pastEventCount"></span>
   </div>
   <p class="field-hint" style="margin-top:-10px;margin-bottom:18px;">開催日を過ぎた勉強会を新しい順に一覧できます。検索・タグ絞り込みは上の「勉強会一覧」の条件と連動します。</p>
@@ -1476,7 +1474,7 @@
 
   /* ---------- フィルタリング ---------- */
   /* 実施日から1ヶ月以上経過したイベントは、一覧の表示上「終了」として除外する
-     (データそのものは削除されないので、主催者MENUや「過去の開催イベント」では引き続き確認できます) */
+     (データそのものは削除されないので、主催者MENUや「過去のイベント」では引き続き確認できます) */
   function isEnded_(s){
     if(!s.date) return false; // 定期開催(日付なし)は自動終了しない
     const end = new Date(s.date + "T00:00:00");
@@ -1505,7 +1503,7 @@
       .filter(s=> !isEnded_(s) && matchesSearchAndTags_(s))
       .sort((a,b)=> (a.date||"").localeCompare(b.date||"") || a.title.localeCompare(b.title));
   }
-  /* 「過去の開催イベント」ページ用:開催日を過ぎたものを新しい順に */
+  /* 「過去のイベント」ページ用:開催日を過ぎたものを新しい順に */
   function getPastSessions(){
     return sessions
       .filter(s=> isPast_(s) && matchesSearchAndTags_(s))
