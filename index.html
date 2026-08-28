@@ -894,13 +894,16 @@
     const res = await fetch(API_BASE_URL, {
       method: "POST",
       headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify({ action, ...payload })
+      body: JSON.stringify({ action, ...payload }),
+      cache: "no-store"
     });
     return res.json();
   }
   async function apiGet(action, params){
-    const qs = new URLSearchParams({ action, ...(params||{}) }).toString();
-    const res = await fetch(`${API_BASE_URL}?${qs}`);
+    // ブラウザによるGETリクエストのキャッシュを防ぐため、no-storeに加えて
+    // 呼び出しごとに変わるダミーパラメータ(_)を付与し、常に最新データを取得する
+    const qs = new URLSearchParams({ action, ...(params||{}), _: Date.now() }).toString();
+    const res = await fetch(`${API_BASE_URL}?${qs}`, { cache: "no-store" });
     return res.json();
   }
   /* スプレッドシートの列名(SessionID, Title...)を、サイト内部で使う形に変換 */
@@ -939,12 +942,13 @@
   async function loadSessionsFromApi(){
     try{
       const res = await apiGet("listSessions");
-      if(res.ok && Array.isArray(res.sessions) && res.sessions.length > 0){
+      if(res.ok && Array.isArray(res.sessions)){
+        // 0件(登録なし)でも必ず反映する。表示するダミーデータは持たない。
         sessions = res.sessions.map(normalizeSessionFromApi);
         return true;
       }
     }catch(err){
-      console.warn("勉強会データの取得に失敗したため、サンプルデータを表示します。", err);
+      console.warn("勉強会データの取得に失敗しました。", err);
     }
     return false;
   }
@@ -1338,126 +1342,11 @@
     return "theme";
   }
 
-  /* ---------- サンプルデータ ---------- */
-  /* APIから取得できない場合のフォールバック用サンプルデータ */
-  let sessions = [
-    {
-      id:"s1", title:"LSP基礎の学び直し 読書会 vol.4",
-      date:"2026-09-05", startTime:"19:30", endTime:"21:00",
-      location:"オンライン(Zoom)",
-      tags:["オンライン","読書会","定期開催(メンバー募集)"],
-      fee:0, requiresRegistration:true, capacity:20, minCapacity:5, appliedCount:8,
-      deadline:"2026-08-20", organizer:"オンライン読書会チーム",
-      description:"『Building a Better Business Using the LEGO Serious Play Method』の第4章を輪読します。事前に該当章を読んでご参加ください。"
-    },
-    {
-      id:"s2", title:"関東エリア対面勉強会:事例共有会",
-      date:"2026-09-13", startTime:"13:00", endTime:"16:00",
-      location:"東京都渋谷区 コミュニティスペースA",
-      tags:["対面(関東)","事例共有"],
-      fee:1500, requiresRegistration:true, capacity:15, minCapacity:6, appliedCount:10,
-      deadline:"2026-09-08", organizer:"関東支部運営チーム",
-      description:"実際のファシリテーション現場での成功例・失敗例を共有します。自身の事例を1つご準備ください。"
-    },
-    {
-      id:"s3", title:"実践練習会:即興ファシリテーション特訓",
-      date:"2026-09-20", startTime:"10:00", endTime:"13:00",
-      location:"大阪府大阪市 関西支部会場",
-      tags:["対面(関西)","実践練習"],
-      fee:2000, requiresRegistration:true, capacity:12, minCapacity:5, appliedCount:4,
-      deadline:"2026-09-15", organizer:"関西支部運営チーム",
-      description:"ペア/グループでの模擬ファシリテーションを通して、とっさの問いかけ力を鍛えます。動きやすい服装でお越しください。"
-    },
-    {
-      id:"s4", title:"月例オンライン懇親会",
-      date:"2026-09-26", startTime:"20:00", endTime:"21:30",
-      location:"オンライン(Zoom)",
-      tags:["オンライン","懇親会"],
-      fee:0, requiresRegistration:false, capacity:null, minCapacity:null, appliedCount:0,
-      deadline:null, organizer:"コミュニティ運営事務局",
-      description:"気軽な近況報告と交流の場です。事前登録不要、途中参加・途中退室も自由です。"
-    },
-    {
-      id:"s5", title:"北海道支部 秋の対面勉強会",
-      date:"2026-10-04", startTime:"10:30", endTime:"15:00",
-      location:"札幌市 北海道支部会場",
-      tags:["対面(北海道)","実践練習","事例共有"],
-      fee:3000, requiresRegistration:true, capacity:16, minCapacity:6, appliedCount:9,
-      deadline:"2026-09-27", organizer:"北海道支部運営チーム",
-      description:"実践練習と事例共有を組み合わせた1日集中プログラム。ランチタイムに交流会も予定しています。"
-    },
-    {
-      id:"s6", title:"九州支部 読書会×事例共有ナイト",
-      date:"2026-10-11", startTime:"18:30", endTime:"20:30",
-      location:"福岡市 九州支部会場",
-      tags:["対面(九州)","読書会","事例共有"],
-      fee:1000, requiresRegistration:true, capacity:14, minCapacity:5, appliedCount:3,
-      deadline:"2026-10-05", organizer:"九州支部運営チーム",
-      description:"課題図書の読書会に加え、参加者持ち回りで事例を共有します。"
-    },
-    {
-      id:"s7", title:"東海エリア 実践練習ワークショップ",
-      date:"2026-10-18", startTime:"13:30", endTime:"17:00",
-      location:"名古屋市 東海支部会場",
-      tags:["対面(東海)","実践練習"],
-      fee:2500, requiresRegistration:true, capacity:12, minCapacity:4, appliedCount:2,
-      deadline:"2026-10-13", organizer:"東海支部運営チーム",
-      description:"複雑な問いの立て方をテーマに、実践形式で練習します。"
-    },
-    {
-      id:"s8", title:"オンライン事例共有ラウンドテーブル",
-      date:"2026-10-24", startTime:"19:00", endTime:"20:30",
-      location:"オンライン(Zoom)",
-      tags:["オンライン","事例共有"],
-      fee:0, requiresRegistration:true, capacity:30, minCapacity:8, appliedCount:22,
-      deadline:"2026-10-19", organizer:"コミュニティ運営事務局",
-      description:"全国のファシリテーターが集まり、直近の実施事例をラウンドテーブル形式で共有します。"
-    },
-    {
-      id:"s9", title:"北陸支部 発足記念 対面勉強会",
-      date:"2026-11-01", startTime:"11:00", endTime:"14:00",
-      location:"金沢市 北陸支部会場(準備中)",
-      tags:["対面(北陸)","読書会","懇親会"],
-      fee:1500, requiresRegistration:true, capacity:10, minCapacity:4, appliedCount:1,
-      deadline:"2026-10-25", organizer:"北陸支部運営チーム",
-      description:"北陸支部発足記念の第一回勉強会です。読書会のあとに懇親会も予定しています。"
-    },
-    {
-      id:"s10", title:"四国・中国合同 実践練習会",
-      date:"2026-11-08", startTime:"10:00", endTime:"13:00",
-      location:"高松市 四国支部会場",
-      tags:["対面(四国)","対面(中国)","実践練習"],
-      fee:2000, requiresRegistration:true, capacity:14, minCapacity:6, appliedCount:5,
-      deadline:"2026-11-02", organizer:"四国支部・中国支部運営チーム",
-      description:"四国支部・中国支部の合同開催。エリアを越えたつながりづくりも目的のひとつです。"
-    },
-    {
-      id:"s11", title:"沖縄支部 オープン勉強会",
-      date:"2026-11-15", startTime:"14:00", endTime:"17:00",
-      location:"那覇市 沖縄支部会場",
-      tags:["対面(沖縄)","事例共有","懇親会"],
-      fee:1000, requiresRegistration:true, capacity:12, minCapacity:4, appliedCount:6,
-      deadline:"2026-11-09", organizer:"沖縄支部運営チーム",
-      description:"事例共有のあと、そのまま懇親会へ。沖縄ならではのゆったりとした時間で交流しましょう。"
-    },
-    {
-      id:"s12", title:"関西支部 月例読書会",
-      date:"2026-11-21", startTime:"19:00", endTime:"20:30",
-      location:"オンライン(Zoom)",
-      tags:["オンライン","対面(関西)","読書会","定期開催(メンバー募集)"],
-      fee:0, requiresRegistration:false, capacity:null, minCapacity:null, appliedCount:0,
-      deadline:null, organizer:"関西支部運営チーム",
-      description:"関西支部主催ですが、オンライン参加もできるハイブリッド開催です。"
-    }
-  ];
+  /* イベント・お知らせはすべてスプレッドシート(Apps Script API)から取得する。
+     取得できない場合やまだ何も登録されていない場合は、ダミーデータを表示せず空のまま扱う。 */
+  let sessions = [];
+  let announcements = [];
 
-  /* APIから取得できない場合のフォールバック用サンプルお知らせ */
-  let announcements = [
-    {type:"alert", date:"2026.08.20", title:"9月開催分の事前登録を開始しました", body:"9月の勉強会は定員に達し次第、締め切らせていただきます。お早めにお申し込みください。"},
-    {type:"info", date:"2026.08.15", title:"会員規約を一部改定しました", body:"個人情報の取り扱いに関する項目を更新しています。詳細はマイページよりご確認ください。"},
-    {type:"event", date:"2026.08.10", title:"北陸支部が新たに発足しました", body:"11月1日に発足記念の勉強会を開催予定です。北陸エリアの方はぜひご参加ください。"},
-    {type:"info", date:"2026.08.01", title:"Googleカレンダー連携機能を追加しました", body:"申し込み完了後、ワンクリックでご自身のGoogleカレンダーに予定を追加できるようになりました。"}
-  ];
 
   /* 自動お知らせ(created/confirmed/full/cancelled)を、表示用のtitle/bodyへ変換する */
   function normalizeAnnouncementFromApi(raw){
@@ -1493,12 +1382,13 @@
   async function loadAnnouncementsFromApi(){
     try{
       const res = await apiGet("listAnnouncements");
-      if(res.ok && Array.isArray(res.announcements) && res.announcements.length > 0){
+      if(res.ok && Array.isArray(res.announcements)){
+        // 0件(お知らせなし)でも必ず反映する。表示するダミーデータは持たない。
         announcements = res.announcements.map(normalizeAnnouncementFromApi);
         return true;
       }
     }catch(err){
-      console.warn("お知らせの取得に失敗したため、サンプルデータを表示します。", err);
+      console.warn("お知らせの取得に失敗しました。", err);
     }
     return false;
   }
