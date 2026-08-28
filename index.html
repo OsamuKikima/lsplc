@@ -482,12 +482,13 @@
     <button class="hamburger" id="hamburgerBtn" aria-label="メニューを開く"><span></span><span></span><span></span></button>
     <nav id="mainNav">
       <button class="nav-link" data-scroll="#announcements">お知らせ</button>
-      <button class="nav-link" data-scroll="#sessions">勉強会・交流イベント一覧</button>
+      <button class="nav-link" data-scroll="#sessions">勉強会・交流会</button>
       <button class="nav-link" data-scroll="#pastEvents">過去の開催イベント</button>
       <button class="nav-link" data-scroll="#members">会員登録</button>
       <button class="nav-link organizer-only" style="display:none;" data-scroll="#myApplications">申込み履歴</button>
       <button class="nav-link organizer-only" style="display:none;" id="changePasswordNavBtn">パスワード変更</button>
-      <button class="nav-link organizer-only" style="display:none;" data-scroll="#organizer">主催者ダッシュボード</button>
+      <button class="nav-link organizer-only" style="display:none;" data-scroll="#organizer">主催者MENU</button>
+      <button class="nav-link organizer-only" style="display:none;color:var(--brick-dark);" id="logoutNavBtn">ログアウト</button>
       <button class="member-pill" id="memberPillBtn">
         <span class="avatar" id="memberAvatar">?</span>
         <span id="memberPillText">会員登録・ログイン</span>
@@ -597,7 +598,7 @@
   <div class="members-cta">
     <div>
       <div class="hero-eyebrow">🎟️ Membership</div>
-      <h2 id="membersHeading">会員登録すれば、誰でも勉強会に申し込めます</h2>
+      <h2 id="membersHeading">会員登録すれば、誰でも勉強会・交流会に申し込め、勉強会・交流会を登録できます</h2>
       <p id="membersLead">お名前とメールアドレスを登録するだけ。登録後はすぐに勉強会への参加申し込みができるようになります。2回目以降はメールアドレスとパスワードでログインできます。</p>
     </div>
     <div class="members-form">
@@ -678,7 +679,7 @@
 
 <section id="organizer" class="organizer-only" style="display:none;">
   <div class="section-head">
-    <h2>主催者ダッシュボード</h2>
+    <h2>主催者MENU</h2>
     <span class="count">認定ファシリテーターとして登録すると、勉強会を作成・編集・削除できます</span>
   </div>
   <div class="organizer-toolbar">
@@ -953,7 +954,7 @@
     return false;
   }
 
-  /* ---------- 主催者ダッシュボード(認定ファシリテーターのみ) ---------- */
+  /* ---------- 主催者MENU(認定ファシリテーターのみ) ---------- */
   async function loadMySessions_(){
     if(!state.memberEmail) return;
     try{
@@ -1475,7 +1476,7 @@
 
   /* ---------- フィルタリング ---------- */
   /* 実施日から1ヶ月以上経過したイベントは、一覧の表示上「終了」として除外する
-     (データそのものは削除されないので、主催者ダッシュボードや「過去の開催イベント」では引き続き確認できます) */
+     (データそのものは削除されないので、主催者MENUや「過去の開催イベント」では引き続き確認できます) */
   function isEnded_(s){
     if(!s.date) return false; // 定期開催(日付なし)は自動終了しない
     const end = new Date(s.date + "T00:00:00");
@@ -2042,6 +2043,24 @@
       el.style.display = state.isMember ? "" : "none";
     });
   }
+  /* 会員が自分の意思でログアウトする */
+  function logoutMember_(){
+    if(!confirm("ログアウトします。よろしいですか?")) return;
+    state.isMember = false;
+    state.memberName = "";
+    state.memberEmail = "";
+    state.trainingDate = "";
+    state.trainer = "";
+    state.messengerName = "";
+    state.mySessions = [];
+    document.getElementById("memberPillText").textContent = "会員登録・ログイン";
+    document.getElementById("memberAvatar").textContent = "?";
+    updateOrganizerUiVisibility_();
+    renderSessions();
+    renderPastSessions();
+    renderCalendar();
+    toast("ログアウトしました");
+  }
   /* 「新規登録」「ログイン」タブの切り替え */
   function bindAuthTabs_(tabRegisterId, tabLoginId, registerBlockId, loginBlockId){
     const tabRegister = document.getElementById(tabRegisterId);
@@ -2322,9 +2341,10 @@
       if(e.key === "Escape") closeImageLightbox_();
     });
 
-    // 主催者ダッシュボード
+    // 主催者MENU
     bindOrganizerDashboardEvents_();
     bindChangePassword_();
+    document.getElementById("logoutNavBtn").addEventListener("click", logoutMember_);
     updateOrganizerUiVisibility_();
   }
 
