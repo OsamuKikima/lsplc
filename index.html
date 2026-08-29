@@ -99,9 +99,9 @@
 
   /* Hero */
   .hero{
-    max-width:1180px;margin:0 auto;
+    max-width:800px;margin:0 auto;
     padding:56px 24px 40px;
-    display:grid;grid-template-columns:1.2fr 1fr;gap:40px;align-items:center;
+    text-align:center;
   }
   .hero-eyebrow{
     display:inline-flex;align-items:center;gap:8px;
@@ -110,29 +110,12 @@
   }
   .hero h1{font-size:clamp(30px,4.2vw,46px);line-height:1.3;}
   .hero h1 .hi{color:var(--brick);}
-  .hero p.lead{margin-top:16px;color:var(--ink-soft);font-size:16px;max-width:46ch;}
-  .hero-cta{margin-top:26px;display:flex;gap:12px;flex-wrap:wrap;}
+  .hero p.lead{margin:16px auto 0;color:var(--ink-soft);font-size:16px;max-width:46ch;}
+  .hero-cta{margin-top:26px;display:flex;gap:12px;flex-wrap:wrap;justify-content:center;}
   .btn-ghost{
     background:#fff;border:2px solid var(--ink);color:var(--ink);
     padding:10px 20px;border-radius:999px;font-weight:700;font-size:14px;
   }
-  .hero-art{
-    position:relative;
-    background:linear-gradient(135deg,#FFEAC2,#BFE6FF);
-    border-radius:28px;padding:26px;
-    box-shadow:var(--shadow);
-  }
-  .hero-art .connect-row{display:flex;justify-content:center;margin-bottom:18px;}
-  .hero-art .stack{
-    display:grid;gap:10px;
-  }
-  .info-chip{
-    background:#fff;border-radius:14px;padding:14px 16px;
-    display:flex;align-items:center;gap:12px;
-    box-shadow:0 3px 0 rgba(0,0,0,0.06);
-  }
-  .info-chip .dot{width:10px;height:10px;border-radius:50%;flex:none;}
-  .info-chip span{font-size:13px;font-weight:700;color:var(--ink-soft);}
 
   section{max-width:1180px;margin:0 auto;padding:36px 24px;}
   .section-head{display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin-bottom:22px;flex-wrap:wrap;}
@@ -438,12 +421,16 @@
   .lightbox-close:hover{background:rgba(255,255,255,0.28);}
 
   @media (max-width: 900px){
-    .hero{grid-template-columns:1fr;padding-top:32px;}
+    .hero{padding-top:32px;}
     nav{
-      position:fixed;top:64px;left:0;right:0;bottom:0;background:#FFFFFF;
+      position:fixed;top:64px;left:0;right:0;bottom:0;
+      background-color:#FFFFFF !important;
+      background:#FFFFFF !important;
+      opacity:1;backdrop-filter:none;-webkit-backdrop-filter:none;
       flex-direction:column;align-items:stretch;padding:20px;gap:8px;
-      transform:translateX(100%);transition:.25s;z-index:60;
-      box-shadow:-4px 0 24px rgba(0,0,0,0.08);
+      transform:translateX(100%);transition:.25s;z-index:9999;
+      box-shadow:-4px 0 24px rgba(0,0,0,0.15);
+      isolation:isolate;
     }
     nav.open{transform:translateX(0);}
     .nav-link{text-align:left;font-size:16px;padding:14px 16px;}
@@ -504,23 +491,6 @@
     <div class="hero-cta">
       <button class="btn-primary" data-scroll="#sessions">勉強会をさがす</button>
       <button class="btn-ghost" data-scroll="#members">会員登録する</button>
-    </div>
-  </div>
-  <div class="hero-art">
-    <div class="connect-row">
-      <svg width="220" height="60" viewBox="0 0 220 60" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <path d="M8 44 Q40 8 72 34 T140 20 T212 40" stroke="rgba(35,43,58,0.18)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-        <circle cx="8" cy="44" r="7" fill="var(--brick)"/>
-        <circle cx="72" cy="34" r="7" fill="var(--amber)"/>
-        <circle cx="140" cy="20" r="7" fill="var(--blue)"/>
-        <circle cx="212" cy="40" r="7" fill="var(--green)"/>
-      </svg>
-    </div>
-    <div class="stack">
-      <div class="info-chip"><div class="dot" style="background:var(--blue)"></div><span>オンライン開催もあります</span></div>
-      <div class="info-chip"><div class="dot" style="background:var(--green)"></div><span>全国9エリアで対面開催</span></div>
-      <div class="info-chip"><div class="dot" style="background:var(--amber)"></div><span>読書会・事例共有・実践練習</span></div>
-      <div class="info-chip"><div class="dot" style="background:var(--brick)"></div><span>申し込み後Googleカレンダーへ追加OK</span></div>
     </div>
   </div>
 </section>
