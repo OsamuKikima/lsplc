@@ -422,6 +422,11 @@
 
   @media (max-width: 900px){
     .hero{padding-top:32px;}
+    /* position:stickyの祖先(header)の中にposition:fixedのnavを入れ子にすると、
+       Safari(iOS)でnavの背景色が正しく描画されない(透けて見える)不具合があるため、
+       モバイル表示中はheaderのstickyを解除して、この問題の根本原因を取り除く。
+       (スクロール追従ヘッダーはデスクトップ表示でのみ有効) */
+    header{position:static;}
     nav{
       position:fixed;top:64px;left:0;right:0;bottom:0;
       background-color:#FFFFFF !important;
