@@ -2007,10 +2007,15 @@
     toast("会員登録が完了しました。ようこそ!");
     return true;
   }
-  async function loginMember_(email, password){
+  async function loginMember_(email, password, onSlow){
     if(!email || !password){ toast("メールアドレスとパスワードを入力してください"); return false; }
+    // Apps Script側の起動(コールドスタート)やモバイル回線の状況によっては、
+    // 応答までに数秒〜十数秒かかることがある。フリーズしたと誤解されないよう、
+    // 一定時間経っても終わらない場合はボタンの表示を切り替える。
+    const slowTimer = setTimeout(()=>{ if(onSlow) onSlow(); }, 4000);
     try{
       const res = await apiPost("login", { email, password });
+      clearTimeout(slowTimer);
       if(!res.ok){
         toast(res.error || "ログインに失敗しました");
         return false;
@@ -2019,6 +2024,7 @@
       toast(`おかえりなさい、${res.name}さん!`);
       return true;
     }catch(err){
+      clearTimeout(slowTimer);
       console.error(err);
       toast("通信エラーのためログインに失敗しました");
       return false;
@@ -2252,7 +2258,9 @@
       const password = document.getElementById("loginPassword").value;
       const btn = document.getElementById("loginBtn");
       btn.disabled = true; btn.textContent = "ログインしています...";
-      const ok = await loginMember_(email, password);
+      const ok = await loginMember_(email, password, ()=>{
+        btn.textContent = "通信中です(回線状況により時間がかかる場合があります)...";
+      });
       btn.disabled = false; btn.textContent = "ログインする";
       if(ok){
         document.getElementById("loginEmail").value = "";
@@ -2296,7 +2304,9 @@
       const password = document.getElementById("mmLoginPassword").value;
       const btn = document.getElementById("mmLoginBtn");
       btn.disabled = true; btn.textContent = "ログインしています...";
-      const ok = await loginMember_(email, password);
+      const ok = await loginMember_(email, password, ()=>{
+        btn.textContent = "通信中です(回線状況により時間がかかる場合があります)...";
+      });
       btn.disabled = false; btn.textContent = "ログインする";
       if(ok){
         document.getElementById("mmLoginEmail").value = "";
