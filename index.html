@@ -2163,20 +2163,6 @@
     renderPastSessions();
     renderCalendar();
 
-    // バックエンド(スプレッドシート)から最新の勉強会データを取得できたら差し替えて再描画
-    const loaded = await loadSessionsFromApi();
-    if(loaded){
-      renderSessions();
-      renderPastSessions();
-      renderCalendar();
-    }
-
-    // お知らせも同様にAPIから取得できたら差し替える
-    const announcementsLoaded = await loadAnnouncementsFromApi();
-    if(announcementsLoaded){
-      renderAnnouncements();
-    }
-
     // 検索
     document.getElementById("searchInput").addEventListener("input", (e)=>{
       state.query = e.target.value;
@@ -2348,6 +2334,28 @@
     bindChangePassword_();
     document.getElementById("logoutNavBtn").addEventListener("click", logoutMember_);
     updateOrganizerUiVisibility_();
+
+    // ここまでで画面上の操作(ログイン・申込みボタンなど)は全て有効になっている。
+    // データ取得(スプレッドシートとの通信)は、操作性を損なわないようこの後に行う。
+    // 通信が遅い・失敗した場合でも、ボタン操作自体は問題なく行える。
+    try{
+      const loaded = await loadSessionsFromApi();
+      if(loaded){
+        renderSessions();
+        renderPastSessions();
+        renderCalendar();
+      }
+    }catch(err){
+      console.error("初期データ(勉強会)の取得中にエラーが発生しました", err);
+    }
+    try{
+      const announcementsLoaded = await loadAnnouncementsFromApi();
+      if(announcementsLoaded){
+        renderAnnouncements();
+      }
+    }catch(err){
+      console.error("初期データ(お知らせ)の取得中にエラーが発生しました", err);
+    }
   }
 
   document.addEventListener("DOMContentLoaded", init);
