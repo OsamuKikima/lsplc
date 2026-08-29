@@ -440,9 +440,10 @@
   @media (max-width: 900px){
     .hero{grid-template-columns:1fr;padding-top:32px;}
     nav{
-      position:fixed;top:64px;left:0;right:0;bottom:0;background:var(--cream);
+      position:fixed;top:64px;left:0;right:0;bottom:0;background:#FFFFFF;
       flex-direction:column;align-items:stretch;padding:20px;gap:8px;
       transform:translateX(100%);transition:.25s;z-index:60;
+      box-shadow:-4px 0 24px rgba(0,0,0,0.08);
     }
     nav.open{transform:translateX(0);}
     .nav-link{text-align:left;font-size:16px;padding:14px 16px;}
@@ -2035,6 +2036,9 @@
     document.getElementById("memberAvatar").textContent = profile.name.charAt(0);
     updateOrganizerUiVisibility_();
     loadMySessions_();
+    // ログイン・会員登録の場所に留まらず、ページの先頭に画面表示を戻す(スマートフォン対応)
+    document.getElementById("mainNav").classList.remove("open");
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }
   function updateOrganizerUiVisibility_(){
     document.querySelectorAll(".organizer-only").forEach(el=>{
