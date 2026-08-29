@@ -27,9 +27,11 @@
     --radius: 18px;
   }
   *{box-sizing:border-box;}
-  html{scroll-behavior:smooth;}
+  html{scroll-behavior:smooth;overflow-x:hidden;width:100%;}
   body{
     margin:0;
+    overflow-x:hidden;
+    max-width:100vw;
     background:var(--cream);
     color:var(--ink);
     font-family:'Noto Sans JP', sans-serif;
@@ -309,9 +311,9 @@
     background:var(--card);border-radius:16px;padding:16px 18px;box-shadow:var(--shadow);
     display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;
   }
-  .my-session-card .msc-main{flex:1;min-width:200px;}
-  .my-session-card h4{font-size:15.5px;margin-bottom:4px;}
-  .my-session-card .msc-meta{font-size:12.5px;color:var(--ink-soft);}
+  .my-session-card .msc-main{flex:1;min-width:200px;overflow-wrap:break-word;word-break:break-word;}
+  .my-session-card h4{font-size:15.5px;margin-bottom:4px;overflow-wrap:break-word;word-break:break-word;}
+  .my-session-card .msc-meta{font-size:12.5px;color:var(--ink-soft);overflow-wrap:break-word;word-break:break-word;}
   .my-session-card .msc-actions{display:flex;gap:8px;}
   .my-session-card .msc-actions button{
     border:2px solid var(--line);background:#fff;padding:7px 14px;border-radius:999px;font-weight:700;font-size:12.5px;color:var(--ink);
