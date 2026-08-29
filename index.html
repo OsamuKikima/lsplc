@@ -474,10 +474,6 @@
       <button class="nav-link organizer-only" style="display:none;" id="changePasswordNavBtn">パスワード変更</button>
       <button class="nav-link organizer-only" style="display:none;" data-scroll="#organizer">主催者MENU</button>
       <button class="nav-link organizer-only" style="display:none;color:var(--brick-dark);" id="logoutNavBtn">ログアウト</button>
-      <button class="member-pill" id="memberPillBtn">
-        <span class="avatar" id="memberAvatar">?</span>
-        <span id="memberPillText">会員登録・ログイン</span>
-      </button>
     </nav>
   </div>
 </header>
@@ -489,7 +485,7 @@
     <p class="lead">LEGO® SERIOUS PLAY®メソッドを学んだファシリテーターのための限定コミュニティ。勉強会の予定確認から事前登録まで、ここでまとめて完結します。</p>
     <div class="hero-cta">
       <button class="btn-primary" data-scroll="#sessions">勉強会をさがす</button>
-      <button class="btn-ghost" data-scroll="#members">会員登録する</button>
+      <button class="btn-ghost" data-scroll="#members">会員登録・ログイン</button>
     </div>
   </div>
 </section>
@@ -2026,8 +2022,6 @@
     state.trainingDate = profile.trainingDate || "";
     state.trainer = profile.trainer || "";
     state.messengerName = profile.messengerName || "";
-    document.getElementById("memberPillText").textContent = `${profile.name} さん`;
-    document.getElementById("memberAvatar").textContent = profile.name.charAt(0);
     updateOrganizerUiVisibility_();
     loadMySessions_();
     // ログイン・会員登録の場所に留まらず、ページの先頭に画面表示を戻す(スマートフォン対応)
@@ -2049,8 +2043,6 @@
     state.trainer = "";
     state.messengerName = "";
     state.mySessions = [];
-    document.getElementById("memberPillText").textContent = "会員登録・ログイン";
-    document.getElementById("memberAvatar").textContent = "?";
     updateOrganizerUiVisibility_();
     renderSessions();
     renderPastSessions();
@@ -2266,13 +2258,6 @@
 
     // 会員登録・ログインモーダル
     bindAuthTabs_("mmTabRegister","mmTabLogin","mmRegisterFormBlock","mmLoginFormBlock");
-    document.getElementById("memberPillBtn").addEventListener("click", ()=>{
-      if(state.isMember){
-        toast(`${state.memberName} さんとしてログイン中です`);
-        return;
-      }
-      openMemberModal(null);
-    });
     document.getElementById("mmRegisterBtn").addEventListener("click", async ()=>{
       const name = document.getElementById("mmName").value.trim();
       const email = document.getElementById("mmEmail").value.trim();
