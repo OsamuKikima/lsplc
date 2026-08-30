@@ -476,8 +476,8 @@
     <button class="hamburger" id="hamburgerBtn" aria-label="メニューを開く"><span></span><span></span><span></span></button>
     <nav id="mainNav">
       <button class="nav-link" data-scroll="#sessions">勉強会・交流会</button>
-      <button class="nav-link" data-scroll="#pastEvents">過去のイベント</button>
-      <button class="nav-link" data-scroll="#members">会員登録</button>
+      <a class="nav-link" href="past-events.html" style="text-decoration:none;display:inline-flex;align-items:center;">過去のイベント</a>
+      <button class="nav-link guest-only" data-scroll="#members">会員登録</button>
       <button class="nav-link organizer-only" style="display:none;" id="changePasswordNavBtn">パスワード変更</button>
       <button class="nav-link organizer-only" style="display:none;" data-scroll="#organizer">主催者MENU</button>
       <button class="nav-link organizer-only" style="display:none;color:var(--brick-dark);" id="logoutNavBtn">ログアウト</button>
@@ -556,16 +556,7 @@
   </div>
 </section>
 
-<section id="pastEvents">
-  <div class="section-head">
-    <h2>過去のイベント</h2>
-    <span class="count" id="pastEventCount"></span>
-  </div>
-  <p class="field-hint" style="margin-top:-10px;margin-bottom:18px;">開催日を過ぎた勉強会を新しい順に一覧できます。検索・タグ絞り込みは上の「勉強会一覧」の条件と連動します。</p>
-  <div class="session-grid" id="pastSessionGrid"></div>
-</section>
-
-<section id="members">
+<section id="members" class="guest-only">
   <div class="members-cta">
     <div>
       <div class="hero-eyebrow">🎟️ Membership</div>
@@ -978,11 +969,13 @@
   function renderMySessions_(){
     const wrap = document.getElementById("mySessionsList");
     if(!wrap) return;
-    if(state.mySessions.length === 0){
-      wrap.innerHTML = `<div class="empty-organizer">まだ作成した勉強会がありません。「+ 新しい勉強会を作成」から始めましょう。</div>`;
+    // 開催日を過ぎたイベントはここには表示しない(「過去のイベント」ページの主催者MENUに表示される)
+    const upcoming = state.mySessions.filter(s => !isPast_(s));
+    if(upcoming.length === 0){
+      wrap.innerHTML = `<div class="empty-organizer">開催予定の勉強会がありません。「+ 新しい勉強会を作成」から始めましょう。過去に作成した勉強会は「過去のイベント」ページの主催者MENUからご確認いただけます。</div>`;
       return;
     }
-    wrap.innerHTML = state.mySessions
+    wrap.innerHTML = upcoming
       .slice()
       .sort((a,b)=> (a.date||"").localeCompare(b.date||""))
       .map(s => `
@@ -1018,7 +1011,6 @@
         await loadMySessions_();
         await loadSessionsFromApi();
         renderSessions();
-        renderPastSessions();
         renderCalendar();
       });
     });
@@ -1080,7 +1072,6 @@
             await loadMySessions_();
             await loadSessionsFromApi();
             renderSessions();
-            renderPastSessions();
             renderCalendar();
           }catch(err){
             console.error(err);
@@ -1258,7 +1249,6 @@
       await loadMySessions_();
       await loadSessionsFromApi();
       renderSessions();
-      renderPastSessions();
       renderCalendar();
     });
 
@@ -1273,7 +1263,6 @@
       await loadMySessions_();
       await loadSessionsFromApi();
       renderSessions();
-      renderPastSessions();
       renderCalendar();
     });
 
@@ -1299,7 +1288,6 @@
       await loadMySessions_();
       await loadSessionsFromApi();
       renderSessions();
-      renderPastSessions();
       renderCalendar();
     });
   }
@@ -1434,7 +1422,6 @@
         else state.activeTags.add(tag);
         renderTagFilters();
         renderSessions();
-        renderPastSessions();
         renderCalendar();
       });
     });
@@ -1446,15 +1433,8 @@
   }
 
   /* ---------- フィルタリング ---------- */
-  /* 実施日から1ヶ月以上経過したイベントは、一覧の表示上「終了」として除外する
-     (データそのものは削除されないので、主催者MENUや「過去のイベント」では引き続き確認できます) */
-  function isEnded_(s){
-    if(!s.date) return false; // 定期開催(日付なし)は自動終了しない
-    const end = new Date(s.date + "T00:00:00");
-    end.setMonth(end.getMonth() + 1);
-    return new Date() > end;
-  }
-  /* 開催日を過ぎているかどうか(1ヶ月の猶予とは関係なく、当日が終わっていればtrue) */
+  /* 実施日を過ぎたイベントは、即座に「勉強会一覧」から除外する
+     (データそのものは削除されないので、「過去のイベント」ページでは引き続き確認できます) */
   function isPast_(s){
     if(!s.date) return false; // 定期開催(日付なし)は「過去」にならない
     return new Date() > new Date(s.date + "T23:59:59");
@@ -1473,14 +1453,8 @@
   }
   function getFilteredSessions(){
     return sessions
-      .filter(s=> !isEnded_(s) && matchesSearchAndTags_(s))
+      .filter(s=> !isPast_(s) && matchesSearchAndTags_(s))
       .sort((a,b)=> (a.date||"").localeCompare(b.date||"") || a.title.localeCompare(b.title));
-  }
-  /* 「過去のイベント」ページ用:開催日を過ぎたものを新しい順に */
-  function getPastSessions(){
-    return sessions
-      .filter(s=> isPast_(s) && matchesSearchAndTags_(s))
-      .sort((a,b)=> (b.date||"").localeCompare(a.date||""));
   }
 
   /* ---------- セッション一覧描画 ---------- */
@@ -1492,23 +1466,6 @@
       grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;">
         <div class="connect-row">${connectDotsSvg(["var(--brick)","var(--amber)","var(--blue)"],7)}</div>
         <p>条件に一致する勉強会が見つかりませんでした。<br>キーワードやタグの絞り込みを変えてみてください。</p>
-      </div>`;
-      return;
-    }
-    grid.innerHTML = list.map(sessionCardHtml).join("");
-    grid.querySelectorAll("[data-open-detail]").forEach(btn=>{
-      btn.addEventListener("click", ()=> openDetailModal(btn.dataset.openDetail));
-    });
-  }
-  function renderPastSessions(){
-    const list = getPastSessions();
-    const countEl = document.getElementById("pastEventCount");
-    if(countEl) countEl.textContent = `${list.length}件`;
-    const grid = document.getElementById("pastSessionGrid");
-    if(!grid) return;
-    if(list.length === 0){
-      grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;">
-        <p>該当する過去のイベントはまだありません。</p>
       </div>`;
       return;
     }
@@ -1792,7 +1749,6 @@
             s.appliedCount = res.appliedCount != null ? res.appliedCount : (s.appliedCount||0) + count;
             showApplySuccess(s);
             renderSessions();
-            renderPastSessions();
             renderCalendar();
           }catch(err){
             console.error(err);
@@ -2089,6 +2045,10 @@
     document.querySelectorAll(".organizer-only").forEach(el=>{
       el.style.display = state.isMember ? "" : "none";
     });
+    // ログイン中は「会員登録」欄(まだ会員でない人向けの案内)を表示しない
+    document.querySelectorAll(".guest-only").forEach(el=>{
+      el.style.display = state.isMember ? "none" : "";
+    });
   }
   /* 会員が自分の意思でログアウトする */
   function logoutMember_(){
@@ -2102,7 +2062,6 @@
     state.mySessions = [];
     updateOrganizerUiVisibility_();
     renderSessions();
-    renderPastSessions();
     renderCalendar();
     toast("ログアウトしました");
   }
@@ -2203,14 +2162,12 @@
     renderAnnouncements();
     renderTagFilters();
     renderSessions();
-    renderPastSessions();
     renderCalendar();
 
     // 検索
     document.getElementById("searchInput").addEventListener("input", (e)=>{
       state.query = e.target.value;
       renderSessions();
-      renderPastSessions();
       renderCalendar();
     });
 
@@ -2223,7 +2180,6 @@
       state.activeTags.clear();
       renderTagFilters();
       renderSessions();
-      renderPastSessions();
       renderCalendar();
     });
 
@@ -2389,7 +2345,6 @@
       const loaded = await loadSessionsFromApi();
       if(loaded){
         renderSessions();
-        renderPastSessions();
         renderCalendar();
       }
     }catch(err){

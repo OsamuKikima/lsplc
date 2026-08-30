@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>過去のイベント | LSPラーニング・ガーデン</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#FFFDF7;
+    --ink:#232B3A;
+    --ink-soft:#5B6472;
+    --brick:#E8483C;
+    --brick-dark:#C63A2F;
+    --yellow:#FFC72C;
+    --amber:#F2924A;
+    --amber-dark:#DC7A30;
+    --blue:#2E9CE0;
+    --blue-dark:#1F7CB8;
+    --green:#4CAF6D;
+    --green-dark:#3B9257;
+    --line:#EEE7D6;
+    --card:#FFFFFF;
+    --shadow: 0 6px 0 rgba(35,43,58,0.08);
+    --radius: 18px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;overflow-x:hidden;width:100%;position:relative;}
+  body{
+    margin:0;overflow-x:hidden;position:relative;width:100%;
+    background:var(--cream);color:var(--ink);
+    font-family:'Noto Sans JP', sans-serif;line-height:1.7;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{font-family:'Zen Maru Gothic', sans-serif;font-weight:900;color:var(--ink);margin:0;}
+  a{color:inherit;}
+  button{font-family:inherit;cursor:pointer;}
+
+  header{
+    position:sticky;top:0;z-index:50;
+    background:rgba(255,253,247,0.92);backdrop-filter:blur(6px);
+    border-bottom:2px solid var(--line);
+  }
+  .header-inner{
+    max-width:1180px;margin:0 auto;padding:14px 24px;
+    display:flex;align-items:center;justify-content:space-between;gap:16px;
+  }
+  .back-link{
+    display:inline-flex;align-items:center;gap:6px;font-size:13.5px;font-weight:700;
+    color:var(--ink-soft);text-decoration:none;
+  }
+  .back-link:hover{color:var(--ink);}
+  .logo-text{font-size:15px;line-height:1.25;font-family:'Zen Maru Gothic';font-weight:900;}
+  .logo-text small{display:block;font-family:'Noto Sans JP';font-weight:500;font-size:10.5px;color:var(--ink-soft);}
+
+  .page-head{max-width:1180px;margin:0 auto;padding:36px 24px 8px;}
+  .page-head h1{font-size:clamp(24px,3.4vw,32px);}
+  .page-head p{color:var(--ink-soft);font-size:14px;margin-top:8px;}
+
+  section{max-width:1180px;margin:0 auto;padding:16px 24px 60px;}
+
+  .toolbar{background:var(--card);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow);margin-bottom:26px;}
+  .toolbar-row{display:flex;gap:12px;align-items:center;flex-wrap:wrap;}
+  .search-box{
+    flex:1;min-width:220px;display:flex;align-items:center;gap:10px;
+    background:var(--cream);border:2px solid var(--line);border-radius:999px;padding:10px 16px;
+  }
+  .search-box input{border:none;background:none;outline:none;font-size:14px;width:100%;font-family:inherit;color:var(--ink);}
+  .filter-panel{margin-top:16px;padding-top:16px;border-top:2px dashed var(--line);}
+  .filter-group{margin-bottom:14px;}
+  .filter-group h4{font-size:12px;color:var(--ink-soft);font-weight:700;margin:0 0 8px;}
+  .tag-pills{display:flex;flex-wrap:wrap;gap:8px;}
+  .tag-pill{
+    border:2px solid var(--line);background:#fff;padding:6px 14px;border-radius:999px;
+    font-size:12.5px;font-weight:700;color:var(--ink-soft);display:flex;align-items:center;gap:6px;
+  }
+  .tag-pill .dot{width:8px;height:8px;border-radius:50%;}
+  .tag-pill.online{--tagc:var(--blue);}
+  .tag-pill.venue{--tagc:var(--green);}
+  .tag-pill.theme{--tagc:var(--amber);}
+  .tag-pill .dot{background:var(--tagc,var(--ink-soft));}
+  .tag-pill.active{background:var(--tagc,var(--ink));border-color:var(--tagc,var(--ink));color:#fff;}
+  .tag-pill.active .dot{background:#fff;}
+  .clear-filters{border:none;background:none;color:var(--brick);font-weight:700;font-size:12.5px;text-decoration:underline;}
+
+  .session-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+  .session-card{background:var(--card);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column;}
+  .session-thumb{width:100%;aspect-ratio:16/9;overflow:hidden;background:var(--cream);}
+  .session-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+  .session-top{padding:16px 18px 0;color:var(--ink-soft);font-size:12px;font-weight:700;}
+  .session-body{padding:10px 18px 18px;flex:1;display:flex;flex-direction:column;}
+  .session-card h3{font-size:16.5px;margin-bottom:6px;}
+  .session-meta{font-size:13px;color:var(--ink-soft);display:flex;flex-direction:column;gap:4px;margin-bottom:10px;}
+  .session-meta span{display:flex;align-items:center;gap:6px;}
+  .session-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;}
+  .mini-tag{font-size:11px;font-weight:700;padding:4px 10px;border-radius:999px;}
+  .mini-tag.online{background:#E4F3FC;color:var(--blue-dark);}
+  .mini-tag.venue{background:#E4F5EA;color:var(--green-dark);}
+  .mini-tag.theme{background:#FCE9DC;color:var(--amber-dark);}
+  .cancelled-badge{display:inline-block;background:var(--brick);color:#fff;font-size:11px;font-weight:700;padding:4px 12px;border-radius:999px;margin-bottom:10px;}
+  .session-footer{margin-top:auto;display:flex;align-items:center;justify-content:space-between;gap:10px;}
+  .fee{font-weight:900;font-family:'Zen Maru Gothic';font-size:15px;}
+  .fee.free{color:var(--green-dark);}
+  .btn-detail{background:var(--ink);color:#fff;border:none;padding:9px 16px;border-radius:999px;font-weight:700;font-size:13px;white-space:nowrap;}
+  .btn-detail:hover{background:var(--brick);}
+  .empty-state{grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--ink-soft);}
+
+  .modal-overlay{position:fixed;inset:0;background:rgba(35,43,58,0.55);z-index:100;display:none;align-items:center;justify-content:center;padding:20px;}
+  .modal-overlay.open{display:flex;}
+  .modal{background:#fff;border-radius:22px;max-width:480px;width:100%;max-height:88vh;overflow-y:auto;padding:26px;position:relative;box-shadow:0 20px 0 rgba(35,43,58,0.08);}
+  .modal-close{position:absolute;top:16px;right:16px;border:none;background:var(--cream);width:32px;height:32px;border-radius:50%;font-size:16px;font-weight:900;color:var(--ink-soft);}
+  .detail-image{margin:-26px -26px 14px;border-radius:22px 22px 0 0;overflow:hidden;aspect-ratio:16/9;background:var(--cream);}
+  .detail-image img{width:100%;height:100%;object-fit:cover;display:block;}
+  .modal h3{font-size:19px;margin-bottom:4px;}
+  .modal .modal-sub{font-size:13px;color:var(--ink-soft);margin-bottom:18px;}
+  .modal-summary{background:var(--cream);border-radius:14px;padding:14px 16px;margin-bottom:18px;font-size:13.5px;}
+  .modal-summary div{display:flex;justify-content:space-between;padding:4px 0;color:var(--ink-soft);}
+  .modal-summary div b{color:var(--ink);font-weight:700;}
+  .ticket-link{display:inline-flex;align-items:center;gap:6px;background:var(--amber);color:var(--ink);padding:8px 16px;border-radius:999px;font-weight:700;font-size:13px;text-decoration:none;margin-top:10px;}
+
+  .my-session-card{
+    background:var(--card);border-radius:16px;padding:16px 18px;box-shadow:var(--shadow);
+    display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;
+  }
+  .my-session-card .msc-main{flex:1;min-width:200px;overflow-wrap:break-word;word-break:break-word;}
+  .my-session-card h4{font-size:15.5px;margin-bottom:4px;overflow-wrap:break-word;word-break:break-word;}
+  .my-session-card .msc-meta{font-size:12.5px;color:var(--ink-soft);overflow-wrap:break-word;word-break:break-word;}
+  .my-session-card .msc-actions{display:flex;gap:8px;flex-wrap:wrap;}
+  .my-session-card .msc-actions button{
+    border:2px solid var(--line);background:#fff;padding:7px 14px;border-radius:999px;font-weight:700;font-size:12.5px;color:var(--ink);
+  }
+  .my-session-card .msc-actions button.delete:hover{border-color:var(--brick);color:var(--brick-dark);}
+  .my-session-card .msc-actions button.applicants:hover{border-color:var(--green);color:var(--green-dark);}
+  .empty-organizer{color:var(--ink-soft);font-size:13.5px;padding:30px;text-align:center;background:var(--card);border-radius:16px;}
+  .applicants-table{width:100%;border-collapse:collapse;font-size:13px;}
+  .applicants-table th,.applicants-table td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top;}
+  .applicants-table th{color:var(--ink-soft);font-weight:700;font-size:11.5px;}
+  .applicants-table td{color:var(--ink);word-break:break-all;}
+  .field-hint{font-size:11.5px;color:var(--ink-soft);}
+
+  footer{background:var(--ink);color:#EDEFF3;padding:32px 24px;text-align:center;}
+  footer a{color:#FFC72C;text-decoration:none;font-weight:700;}
+  footer p{font-size:12px;color:#9BA3B4;margin-top:12px;line-height:1.8;}
+
+  @media (max-width:900px){
+    .session-grid{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="logo-text">LSPラーニング・ガーデン<small>過去のイベント</small></div>
+    <div style="display:flex;align-items:center;gap:14px;">
+      <button class="back-link" id="loginPillBtn" style="border:none;background:none;font-family:inherit;cursor:pointer;">会員ログイン</button>
+      <a class="back-link" href="index.html">← トップページに戻る</a>
+    </div>
+  </div>
+</header>
+
+<div class="page-head">
+  <h1>過去のイベント</h1>
+  <p>開催日をすでに過ぎた勉強会・交流会を新しい順に一覧できます。内容の確認はできますが、新規のお申し込みはできません。</p>
+</div>
+
+<section>
+  <div class="toolbar">
+    <div class="toolbar-row">
+      <div class="search-box">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="#5B6472" stroke-width="2"/><path d="M21 21l-4.3-4.3" stroke="#5B6472" stroke-width="2" stroke-linecap="round"/></svg>
+        <input type="text" id="searchInput" placeholder="勉強会名・タグで検索">
+      </div>
+      <button class="clear-filters" id="clearFiltersBtn">絞り込みをリセット</button>
+    </div>
+    <div class="filter-panel">
+      <div class="filter-group">
+        <h4>開催形式</h4>
+        <div class="tag-pills" id="formatTags"></div>
+      </div>
+      <div class="filter-group">
+        <h4>テーマ</h4>
+        <div class="tag-pills" id="themeTags"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="session-grid" id="pastSessionGrid">
+    <div class="empty-state"><p>読み込み中...</p></div>
+  </div>
+</section>
+
+<section id="organizerPast" style="display:none;">
+  <div class="section-head" style="display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin-bottom:18px;flex-wrap:wrap;">
+    <h2 style="font-size:22px;">主催者MENU(過去のイベント)</h2>
+    <span style="color:var(--ink-soft);font-size:13px;">自分が主催した、開催日を過ぎたイベントを管理できます</span>
+  </div>
+  <div id="myPastSessionsList" style="display:grid;gap:14px;"></div>
+</section>
+
+<footer>
+  <a href="index.html">LSPラーニング・ガーデン トップページへ</a>
+  <p>LEGO® SERIOUS PLAY®はThe LEGO Groupの商標であり、本サイトはLEGO Groupと提携するものではありません。</p>
+</footer>
+
+<!-- ログインモーダル -->
+<div class="modal-overlay" id="loginModalOverlay">
+  <div class="modal" style="max-width:380px;">
+    <button class="modal-close" id="loginModalClose">✕</button>
+    <h3>会員ログイン</h3>
+    <p class="modal-sub">過去に自分が主催したイベントを管理するには、ログインしてください。新規登録はトップページから行えます。</p>
+    <div style="margin-bottom:14px;">
+      <label style="display:block;font-size:12.5px;font-weight:700;color:var(--ink-soft);margin-bottom:6px;">メールアドレス</label>
+      <input type="email" id="loginEmail" style="width:100%;border:2px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px;font-family:inherit;background:var(--cream);color:var(--ink);" placeholder="you@example.com">
+    </div>
+    <div style="margin-bottom:18px;">
+      <label style="display:block;font-size:12.5px;font-weight:700;color:var(--ink-soft);margin-bottom:6px;">パスワード</label>
+      <input type="password" id="loginPassword" style="width:100%;border:2px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px;font-family:inherit;background:var(--cream);color:var(--ink);" placeholder="••••••••">
+    </div>
+    <button id="loginSubmitBtn" style="width:100%;background:var(--brick);color:#fff;border:none;padding:11px 20px;border-radius:999px;font-weight:700;font-size:14px;">ログインする</button>
+  </div>
+</div>
+
+<!-- 申込み者一覧モーダル -->
+<div class="modal-overlay" id="applicantsModalOverlay">
+  <div class="modal" style="max-width:520px;">
+    <button class="modal-close" id="applicantsModalClose">✕</button>
+    <h3 id="applicantsModalTitle">申込み者一覧</h3>
+    <p class="modal-sub">この一覧は、あなたが作成したイベントの申込み者のみ表示され、他の人には公開されません。</p>
+    <div id="applicantsModalBody"></div>
+  </div>
+</div>
+
+
+<div class="modal-overlay" id="detailModalOverlay">
+  <div class="modal">
+    <button class="modal-close" id="detailModalClose">✕</button>
+    <div id="detailModalBody"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  const API_BASE_URL = "https://script.google.com/macros/s/AKfycbyBCQyOW8kKA5n568uBAlw-K3plg_E7Ch0YBjn1nm3nyA1NfVLD1Ex68Ci8ZzLxmmXgZw/exec";
+
+  async function apiGet(action, params){
+    const qs = new URLSearchParams({ action, ...(params||{}), _: Date.now() }).toString();
+    const res = await fetch(`${API_BASE_URL}?${qs}`, { cache: "no-store" });
+    return res.json();
+  }
+  async function apiPost(action, payload){
+    const res = await fetch(API_BASE_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({ action, ...payload }),
+      cache: "no-store"
+    });
+    return res.json();
+  }
+
+  const FORMAT_TAGS = ["オンライン","対面(関東)","対面(北海道)","対面(関西)","対面(東海)","対面(北陸)","対面(四国)","対面(中国)","対面(九州)","対面(沖縄)"];
+  const THEME_TAGS = ["読書会","事例共有","実践練習","懇親会","定期開催(メンバー募集)"];
+  function tagClass(tag){
+    if(tag === "オンライン") return "online";
+    if(FORMAT_TAGS.includes(tag)) return "venue";
+    return "theme";
+  }
+  function escapeHtml_(text){
+    if(!text) return "";
+    const div = document.createElement("div");
+    div.textContent = text;
+    return div.innerHTML;
+  }
+  function formatDateValue_(v){
+    if(!v) return v;
+    const d = new Date(v);
+    if(isNaN(d.getTime())) return v;
+    return d.toISOString().slice(0,10);
+  }
+  function normalizeDateString_(v){
+    if(!v) return "";
+    const d = new Date(v);
+    if(isNaN(d.getTime())) return String(v);
+    return d.toISOString().slice(0,10);
+  }
+  function normalizeTimeString_(v){
+    if(!v) return "";
+    const s = String(v).trim();
+    const m = s.match(/^(\d{1,2}):(\d{2})/);
+    if(m) return `${m[1].padStart(2,"0")}:${m[2]}`;
+    const d = new Date(v);
+    if(!isNaN(d.getTime())) return d.toISOString().slice(11,16);
+    return s;
+  }
+  function normalizeSessionFromApi(raw){
+    const toBool = v => v === true || v === "TRUE" || v === "true" || v === 1;
+    const toNumOrNull = v => (v === "" || v === null || v === undefined) ? null : Number(v);
+    return {
+      id: String(raw.SessionID),
+      title: raw.Title,
+      date: formatDateValue_(raw.Date),
+      startTime: normalizeTimeString_(raw.StartTime),
+      endTime: normalizeTimeString_(raw.EndTime),
+      location: raw.Location,
+      tags: String(raw.Tags || "").split(",").map(t=>t.trim()).filter(Boolean),
+      fee: Number(raw.Fee) || 0,
+      capacity: toNumOrNull(raw.Capacity),
+      description: raw.Description || "",
+      ticketUrl: raw.TicketUrl || "",
+      imageUrl: raw.ImageUrl || "",
+      status: raw.Status === "cancelled" ? "cancelled" : "active"
+    };
+  }
+
+  const state = { query:"", activeTags:new Set(), isMember:false, memberEmail:"", memberName:"", myPastSessions:[] };
+  let sessions = [];
+
+  function isPast_(s){
+    if(!s.date) return false;
+    return new Date() > new Date(s.date + "T23:59:59");
+  }
+  function matchesSearchAndTags_(s){
+    if(state.activeTags.size>0){
+      const hasAll = [...state.activeTags].every(t=>s.tags.includes(t));
+      if(!hasAll) return false;
+    }
+    const q = state.query.trim().toLowerCase();
+    if(q){
+      const hay = (s.title + " " + s.tags.join(" ") + " " + s.location).toLowerCase();
+      if(!hay.includes(q)) return false;
+    }
+    return true;
+  }
+  function getPastSessions(){
+    return sessions
+      .filter(s=> isPast_(s) && matchesSearchAndTags_(s))
+      .sort((a,b)=> (b.date||"").localeCompare(a.date||""));
+  }
+
+  function fmtDateShort(iso){
+    const d = new Date(iso+"T00:00:00");
+    const months = ["1月","2月","3月","4月","5月","6月","7月","8月","9月","10月","11月","12月"];
+    return {month: months[d.getMonth()], day: d.getDate()};
+  }
+  function fmtDateLong(iso){
+    const d = new Date(iso+"T00:00:00");
+    const dows = ["日","月","火","水","木","金","土"];
+    return `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日(${dows[d.getDay()]})`;
+  }
+
+  function sessionCardHtml(s){
+    const feeLabel = s.fee === 0 ? "無料" : `¥${s.fee.toLocaleString()}`;
+    const isCancelled = s.status === "cancelled";
+    const d = s.date ? fmtDateShort(s.date) : null;
+    return `
+    <div class="session-card">
+      ${s.imageUrl
+        ? `<div class="session-thumb"><img src="${s.imageUrl}" alt="${escapeHtml_(s.title)}のイメージ画像" loading="lazy" onerror="this.closest('.session-thumb').style.display='none'"></div>`
+        : `<div class="session-top">${d ? `${d.month}${d.day}日` : "定期開催"}</div>`
+      }
+      <div class="session-body">
+        ${isCancelled ? `<div class="cancelled-badge">中止</div>` : ""}
+        <h3>${escapeHtml_(s.title)}</h3>
+        <div class="session-meta">
+          <span>🕐 ${s.startTime} - ${s.endTime}</span>
+          <span>📍 ${escapeHtml_(s.location)}</span>
+        </div>
+        <div class="session-tags">${s.tags.map(t=>`<span class="mini-tag ${tagClass(t)}">${t}</span>`).join("")}</div>
+        <div class="session-footer">
+          <div class="fee ${s.fee===0?'free':''}">${feeLabel}</div>
+          <button class="btn-detail" data-open-detail="${s.id}">詳細を見る</button>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  function ticketLinkHtml(s){
+    if(s.fee > 0 && s.ticketUrl){
+      return `<a class="ticket-link" href="${s.ticketUrl}" target="_blank" rel="noopener">🎫 チケット購入・お支払いページ</a>`;
+    }
+    return "";
+  }
+  function detailImageHtml(s){
+    if(!s.imageUrl) return "";
+    return `<div class="detail-image"><img src="${s.imageUrl}" alt="${escapeHtml_(s.title)}のイメージ画像" onerror="this.closest('.detail-image').style.display='none'"></div>`;
+  }
+
+  function openDetailModal(id){
+    const s = sessions.find(x=>x.id===id);
+    if(!s) return;
+    const body = document.getElementById("detailModalBody");
+    const feeLabel = s.fee===0 ? "無料" : `¥${s.fee.toLocaleString()}`;
+    const isCancelled = s.status === "cancelled";
+    body.innerHTML = `
+      ${detailImageHtml(s)}
+      ${isCancelled ? `<div class="cancelled-badge">中止</div>` : ""}
+      <h3>${escapeHtml_(s.title)}</h3>
+      <p class="modal-sub">${s.date ? fmtDateLong(s.date) : "定期開催"}・${s.startTime}-${s.endTime}</p>
+      <div class="modal-summary">
+        <div><span>開催場所</span><b>${escapeHtml_(s.location)}</b></div>
+        <div><span>参加費</span><b>${feeLabel}</b></div>
+      </div>
+      <p style="font-size:13.5px;color:var(--ink-soft);margin-bottom:16px;white-space:pre-wrap;">${escapeHtml_(s.description)}</p>
+      ${ticketLinkHtml(s)}
+      <p style="font-size:12.5px;color:var(--ink-soft);margin-top:16px;">このイベントは開催日を過ぎているため、新規のお申し込みはできません。</p>
+    `;
+    document.getElementById("detailModalOverlay").classList.add("open");
+  }
+  function closeModal(){
+    document.getElementById("detailModalOverlay").classList.remove("open");
+  }
+
+  /* ---------- ログイン ---------- */
+  async function loginMember_(email, password){
+    if(!email || !password){ alert("メールアドレスとパスワードを入力してください"); return false; }
+    try{
+      const res = await apiPost("login", { email, password });
+      if(!res.ok){
+        alert(res.error || "ログインに失敗しました");
+        return false;
+      }
+      state.isMember = true;
+      state.memberEmail = email;
+      state.memberName = res.name;
+      document.getElementById("loginPillBtn").textContent = `${res.name} さん`;
+      document.getElementById("organizerPast").style.display = "";
+      loadMyPastSessions_();
+      return true;
+    }catch(err){
+      console.error(err);
+      alert("通信エラーのためログインに失敗しました");
+      return false;
+    }
+  }
+
+  /* ---------- 主催者MENU(過去のイベント) ---------- */
+  async function loadMyPastSessions_(){
+    const wrap = document.getElementById("myPastSessionsList");
+    if(!state.memberEmail || !wrap) return;
+    wrap.innerHTML = `<p class="field-hint">読み込み中...</p>`;
+    try{
+      const res = await apiGet("listMySessions", { email: state.memberEmail });
+      if(!res.ok){
+        wrap.innerHTML = `<p class="field-hint">${escapeHtml_(res.error || "取得に失敗しました")}</p>`;
+        return;
+      }
+      state.myPastSessions = (res.sessions || [])
+        .map(normalizeSessionFromApi)
+        .filter(s => isPast_(s));
+      renderMyPastSessions_();
+    }catch(err){
+      console.error(err);
+      wrap.innerHTML = `<p class="field-hint">通信エラーのため取得に失敗しました</p>`;
+    }
+  }
+  function renderMyPastSessions_(){
+    const wrap = document.getElementById("myPastSessionsList");
+    if(!wrap) return;
+    if(state.myPastSessions.length === 0){
+      wrap.innerHTML = `<div class="empty-organizer">過去に主催したイベントはまだありません。</div>`;
+      return;
+    }
+    wrap.innerHTML = state.myPastSessions
+      .slice()
+      .sort((a,b)=> (b.date||"").localeCompare(a.date||""))
+      .map(s => `
+        <div class="my-session-card">
+          <div class="msc-main">
+            <h4>${s.status === "cancelled" ? '<span class="cancelled-badge" style="margin-right:8px;">中止</span>' : ""}${escapeHtml_(s.title)}</h4>
+            <div class="msc-meta">${s.date ? fmtDateLong(s.date) : ""} ・ ${s.startTime}-${s.endTime} ・ 申込み${s.appliedCount||0}名${s.capacity!=null ? `/定員${s.capacity}名` : ""}</div>
+          </div>
+          <div class="msc-actions">
+            ${s.requiresRegistration ? `<button class="applicants" data-applicants-session="${s.id}" data-applicants-title="${escapeHtml_(s.title)}">申込み者を見る</button>` : ""}
+            <button class="delete" data-delete-session="${s.id}">削除</button>
+          </div>
+        </div>
+      `).join("");
+    wrap.querySelectorAll("[data-applicants-session]").forEach(btn=>{
+      btn.addEventListener("click", ()=> openApplicantsModal_(btn.dataset.applicantsSession, btn.dataset.applicantsTitle));
+    });
+    wrap.querySelectorAll("[data-delete-session]").forEach(btn=>{
+      btn.addEventListener("click", async ()=>{
+        if(!confirm("この過去のイベントを削除します。よろしいですか?(申込み履歴は残ります)")) return;
+        const res = await apiPost("deleteSession", { email: state.memberEmail, sessionId: btn.dataset.deleteSession });
+        if(!res.ok){ alert(res.error || "削除に失敗しました"); return; }
+        await loadMyPastSessions_();
+        await loadSessionsFromApi();
+        renderPastSessions();
+      });
+    });
+  }
+
+  /* ---------- 申込み者一覧 ---------- */
+  async function openApplicantsModal_(sessionId, title){
+    const overlay = document.getElementById("applicantsModalOverlay");
+    const body = document.getElementById("applicantsModalBody");
+    document.getElementById("applicantsModalTitle").textContent = `「${title}」の申込み者一覧`;
+    body.innerHTML = `<p class="field-hint">読み込み中...</p>`;
+    overlay.classList.add("open");
+    try{
+      const res = await apiGet("listApplicants", { sessionId, email: state.memberEmail });
+      if(!res.ok){
+        body.innerHTML = `<p class="field-hint">${escapeHtml_(res.error || "取得に失敗しました")}</p>`;
+        return;
+      }
+      if(!res.applicants || res.applicants.length === 0){
+        body.innerHTML = `<p class="field-hint">申込みはありませんでした。</p>`;
+        return;
+      }
+      body.innerHTML = `
+        <table class="applicants-table">
+          <thead><tr><th>お名前</th><th>メールアドレス</th><th>人数</th><th>備考</th></tr></thead>
+          <tbody>
+            ${res.applicants.map(a => `
+              <tr>
+                <td>${escapeHtml_(a.name)}</td>
+                <td>${escapeHtml_(a.email)}</td>
+                <td>${a.count}名</td>
+                <td>${escapeHtml_(a.note || "")}</td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      `;
+    }catch(err){
+      console.error(err);
+      body.innerHTML = `<p class="field-hint">通信エラーのため取得に失敗しました</p>`;
+    }
+  }
+
+  function renderTagFilters(){
+    const formatWrap = document.getElementById("formatTags");
+    const themeWrap = document.getElementById("themeTags");
+    const pill = (tag)=>{
+      const cls = tagClass(tag);
+      const active = state.activeTags.has(tag) ? "active" : "";
+      return `<button type="button" class="tag-pill ${cls} ${active}" data-tag="${tag}"><span class="dot"></span>${tag}</button>`;
+    };
+    formatWrap.innerHTML = FORMAT_TAGS.map(pill).join("");
+    themeWrap.innerHTML = THEME_TAGS.map(pill).join("");
+    document.querySelectorAll(".tag-pill").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        const tag = btn.dataset.tag;
+        if(state.activeTags.has(tag)) state.activeTags.delete(tag);
+        else state.activeTags.add(tag);
+        renderTagFilters();
+        renderPastSessions();
+      });
+    });
+  }
+
+  function renderPastSessions(){
+    const list = getPastSessions();
+    const grid = document.getElementById("pastSessionGrid");
+    if(list.length === 0){
+      grid.innerHTML = `<div class="empty-state"><p>該当する過去のイベントはまだありません。</p></div>`;
+      return;
+    }
+    grid.innerHTML = list.map(sessionCardHtml).join("");
+    grid.querySelectorAll("[data-open-detail]").forEach(btn=>{
+      btn.addEventListener("click", ()=> openDetailModal(btn.dataset.openDetail));
+    });
+  }
+
+  async function loadSessionsFromApi(){
+    try{
+      const res = await apiGet("listSessions");
+      if(res.ok && Array.isArray(res.sessions)){
+        sessions = res.sessions.map(normalizeSessionFromApi);
+      }
+    }catch(err){
+      console.warn("勉強会データの取得に失敗しました。", err);
+    }
+  }
+
+  async function init(){
+    renderTagFilters();
+    renderPastSessions();
+
+    document.getElementById("searchInput").addEventListener("input", (e)=>{
+      state.query = e.target.value;
+      renderPastSessions();
+    });
+    document.getElementById("clearFiltersBtn").addEventListener("click", ()=>{
+      state.activeTags.clear();
+      state.query = "";
+      document.getElementById("searchInput").value = "";
+      renderTagFilters();
+      renderPastSessions();
+    });
+    document.getElementById("detailModalClose").addEventListener("click", closeModal);
+    document.getElementById("detailModalOverlay").addEventListener("click", (e)=>{
+      if(e.target.id === "detailModalOverlay") closeModal();
+    });
+
+    // ログインモーダル
+    const loginOverlay = document.getElementById("loginModalOverlay");
+    document.getElementById("loginPillBtn").addEventListener("click", ()=>{
+      if(state.isMember){
+        alert(`${state.memberName} さんとしてログイン中です`);
+        return;
+      }
+      loginOverlay.classList.add("open");
+    });
+    document.getElementById("loginModalClose").addEventListener("click", ()=> loginOverlay.classList.remove("open"));
+    loginOverlay.addEventListener("click", (e)=>{
+      if(e.target.id === "loginModalOverlay") loginOverlay.classList.remove("open");
+    });
+    document.getElementById("loginSubmitBtn").addEventListener("click", async ()=>{
+      const email = document.getElementById("loginEmail").value.trim();
+      const password = document.getElementById("loginPassword").value;
+      const btn = document.getElementById("loginSubmitBtn");
+      btn.disabled = true; btn.textContent = "ログインしています...";
+      const ok = await loginMember_(email, password);
+      btn.disabled = false; btn.textContent = "ログインする";
+      if(ok){
+        document.getElementById("loginEmail").value = "";
+        document.getElementById("loginPassword").value = "";
+        loginOverlay.classList.remove("open");
+      }
+    });
+
+    // 申込み者一覧モーダル
+    document.getElementById("applicantsModalClose").addEventListener("click", ()=>{
+      document.getElementById("applicantsModalOverlay").classList.remove("open");
+    });
+    document.getElementById("applicantsModalOverlay").addEventListener("click", (e)=>{
+      if(e.target.id === "applicantsModalOverlay") e.currentTarget.classList.remove("open");
+    });
+
+    await loadSessionsFromApi();
+    renderPastSessions();
+  }
+
+  document.addEventListener("DOMContentLoaded", init);
+})();
+</script>
+</body>
+</html>
