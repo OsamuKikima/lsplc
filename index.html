@@ -693,6 +693,11 @@
       <input type="text" id="seTicketUrl" placeholder="https://...(Peatix、Stripeなど外部サイトのリンク)">
     </div>
     <div class="field">
+      <label for="seRelatedUrl">関連ページのURL(任意)</label>
+      <input type="text" id="seRelatedUrl" placeholder="https://...(告知SNS投稿、Zoomリンク、詳細ページなど)">
+      <p class="field-hint">参加費の有無に関わらず設定できます。詳細ページにリンクとして表示されます。</p>
+    </div>
+    <div class="field">
       <label for="seImageFile">イベント画像・チラシ(任意)</label>
       <input type="file" id="seImageFile" accept="image/png,image/jpeg,image/webp,image/gif">
       <div class="se-image-preview-wrap" id="seImagePreviewWrap" style="display:none;">
@@ -893,6 +898,7 @@
       organizerEmail: raw.OrganizerEmail || "",
       description: raw.Description || "",
       ticketUrl: raw.TicketUrl || "",
+      relatedUrl: raw.RelatedUrl || "",
       imageUrl: raw.ImageUrl || "",
       status: raw.Status === "cancelled" ? "cancelled" : "active"
     };
@@ -1108,6 +1114,7 @@
     document.getElementById("seMinCapacity").value = session && session.minCapacity != null ? session.minCapacity : "";
     document.getElementById("seRequiresRegistration").checked = session ? !!session.requiresRegistration : true;
     document.getElementById("seTicketUrl").value = session ? (session.ticketUrl || "") : "";
+    document.getElementById("seRelatedUrl").value = session ? (session.relatedUrl || "") : "";
     document.getElementById("seDescription").value = session ? session.description : "";
     document.getElementById("seImageFile").value = "";
     renderSessionEditorTagPills_(session ? session.tags : []);
@@ -1234,6 +1241,7 @@
         minCapacity: document.getElementById("seMinCapacity").value || "",
         requiresRegistration: document.getElementById("seRequiresRegistration").checked,
         ticketUrl: document.getElementById("seTicketUrl").value.trim(),
+        relatedUrl: document.getElementById("seRelatedUrl").value.trim(),
         imageUrl: currentEditorImageUrl,
         description: document.getElementById("seDescription").value.trim()
       };
@@ -1685,7 +1693,7 @@
           ${s.organizer ? `<div><span>作成者</span><b>${escapeHtml_(s.organizer)}</b></div>` : ""}
         </div>
         <p style="font-size:13.5px;color:var(--ink-soft);margin-bottom:16px;white-space:pre-wrap;">${escapeHtml_(s.description)}</p>
-        ${ticketLinkHtml(s)}
+        ${ticketLinkHtml(s)}${relatedLinkHtml(s)}
         ${isCancelled ? `
           <div class="need-member">このイベントは中止になりました。</div>
         ` : isPast ? `
@@ -1716,7 +1724,7 @@
         </div>
         ${capacityInfoHtml(s)}
         <p style="font-size:13.5px;color:var(--ink-soft);margin-bottom:18px;white-space:pre-wrap;">${escapeHtml_(s.description)}</p>
-        ${ticketLinkHtml(s)}
+        ${ticketLinkHtml(s)}${relatedLinkHtml(s)}
         ${isCancelled ? `
           <div class="need-member">このイベントは中止になりました。お申し込みはできません。</div>
         ` : isPast ? `
@@ -1899,6 +1907,12 @@
   function ticketLinkHtml(s){
     if(s.fee > 0 && s.ticketUrl){
       return `<a class="ticket-link" href="${s.ticketUrl}" target="_blank" rel="noopener">🎫 チケット購入・お支払いはこちら</a>`;
+    }
+    return "";
+  }
+  function relatedLinkHtml(s){
+    if(s.relatedUrl){
+      return `<a class="ticket-link" style="background:var(--blue);color:#fff;margin-left:8px;" href="${s.relatedUrl}" target="_blank" rel="noopener">🔗 関連ページを見る</a>`;
     }
     return "";
   }

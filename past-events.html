@@ -318,6 +318,7 @@
       capacity: toNumOrNull(raw.Capacity),
       description: raw.Description || "",
       ticketUrl: raw.TicketUrl || "",
+      relatedUrl: raw.RelatedUrl || "",
       imageUrl: raw.ImageUrl || "",
       status: raw.Status === "cancelled" ? "cancelled" : "active"
     };
@@ -391,6 +392,12 @@
     }
     return "";
   }
+  function relatedLinkHtml(s){
+    if(s.relatedUrl){
+      return `<a class="ticket-link" style="background:var(--blue);color:#fff;margin-left:8px;" href="${s.relatedUrl}" target="_blank" rel="noopener">🔗 関連ページを見る</a>`;
+    }
+    return "";
+  }
   function detailImageHtml(s){
     if(!s.imageUrl) return "";
     return `<div class="detail-image"><img src="${s.imageUrl}" alt="${escapeHtml_(s.title)}のイメージ画像" onerror="this.closest('.detail-image').style.display='none'"></div>`;
@@ -412,7 +419,7 @@
         <div><span>参加費</span><b>${feeLabel}</b></div>
       </div>
       <p style="font-size:13.5px;color:var(--ink-soft);margin-bottom:16px;white-space:pre-wrap;">${escapeHtml_(s.description)}</p>
-      ${ticketLinkHtml(s)}
+      ${ticketLinkHtml(s)}${relatedLinkHtml(s)}
       <p style="font-size:12.5px;color:var(--ink-soft);margin-top:16px;">このイベントは開催日を過ぎているため、新規のお申し込みはできません。</p>
     `;
     document.getElementById("detailModalOverlay").classList.add("open");
