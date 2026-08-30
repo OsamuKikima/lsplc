@@ -581,7 +581,7 @@
 
 <section id="sessions">
   <div class="section-head">
-    <h2>勉強会一覧</h2>
+    <h2>イベント一覧</h2>
     <span class="count" id="sessionCount"></span>
   </div>
 
@@ -634,10 +634,10 @@
 
 <section id="myApplications" class="organizer-only" style="display:none;">
   <div class="section-head">
-    <h2>申込み履歴</h2>
-    <span class="count">あなたが申込んだ勉強会の一覧です</span>
+    <h2>申し込み済イベント</h2>
+    <span class="count">あなたが申込んだイベントの一覧です</span>
   </div>
-  <p class="field-hint" style="margin-top:-10px;margin-bottom:18px;">キャンセルをご希望の場合は、お手数ですがこのサイト上ではなく、各イベントの主催者に直接ご連絡ください。</p>
+  <p class="field-hint" style="margin-top:-10px;margin-bottom:18px;">キャンセルをご希望の場合は、お手数ですがこのサイト上ではなく、各イベントの主催者に直接ご連絡ください。開催日を過ぎたイベントへの申込みは、「過去のイベント」ページの「過去に申し込んだイベント」からご確認いただけます。</p>
   <div id="myApplicationsList" class="my-session-list"></div>
 </section>
 
@@ -934,7 +934,7 @@
     }
     loadMyApplications_();
   }
-  /* ---------- 申込み履歴(マイページ) ---------- */
+  /* ---------- 申し込み済イベント(マイページ) ---------- */
   async function loadMyApplications_(){
     const wrap = document.getElementById("myApplicationsList");
     if(!state.memberEmail || !wrap) return;
@@ -945,7 +945,9 @@
         wrap.innerHTML = `<p class="field-hint">${escapeHtml_(res.error || "取得に失敗しました")}</p>`;
         return;
       }
-      renderMyApplications_(res.applications || []);
+      // 開催日を過ぎた申込みは、ここには表示しない(「過去のイベント」ページに表示される)
+      const upcoming = (res.applications || []).filter(a => !isPast_(a));
+      renderMyApplications_(upcoming);
     }catch(err){
       console.error(err);
       wrap.innerHTML = `<p class="field-hint">通信エラーのため取得に失敗しました</p>`;
@@ -955,7 +957,7 @@
     const wrap = document.getElementById("myApplicationsList");
     if(!wrap) return;
     if(applications.length === 0){
-      wrap.innerHTML = `<div class="empty-organizer">まだ申込んだ勉強会がありません。「勉強会一覧」からお気に入りを見つけましょう。</div>`;
+      wrap.innerHTML = `<div class="empty-organizer">まだ申込んだイベントがありません。「イベント一覧」からお気に入りを見つけましょう。開催日を過ぎたイベントへの申込みは「過去のイベント」ページでご確認いただけます。</div>`;
       return;
     }
     wrap.innerHTML = applications.map(a => `
@@ -1980,20 +1982,48 @@
     }
   }
   /* 登録・ログイン成功時に共通して行う状態更新。会員は全員、勉強会を主催できます */
-  function applyLoginState_(profile){
+  /* ---------- ログイン状態の保持(ページ間・再読み込みをまたいで維持する) ----------
+     このサイトはGoogle Apps Script側でパスワードによるセッション管理を行っていないため、
+     ページ遷移のたびにログインが外れてしまう。これを防ぐため、ログイン中のメールアドレス等
+     (パスワードは含まない)をブラウザのlocalStorageに保存し、他のページ(過去のイベント等)や
+     再読み込み時にも自動的にログイン状態を復元できるようにしている。 */
+  const MEMBER_SESSION_KEY = "lspMemberSession";
+  function saveMemberSession_(profile){
+    try{
+      localStorage.setItem(MEMBER_SESSION_KEY, JSON.stringify({
+        email: profile.email, name: profile.name,
+        trainingDate: profile.trainingDate || "", trainer: profile.trainer || "",
+        messengerName: profile.messengerName || ""
+      }));
+    }catch(err){ console.warn("ログイン情報の保存に失敗しました", err); }
+  }
+  function loadMemberSession_(){
+    try{
+      const raw = localStorage.getItem(MEMBER_SESSION_KEY);
+      return raw ? JSON.parse(raw) : null;
+    }catch(err){ return null; }
+  }
+  function clearMemberSession_(){
+    try{ localStorage.removeItem(MEMBER_SESSION_KEY); }catch(err){}
+  }
+
+  function applyLoginState_(profile, isRestore){
     state.isMember = true;
     state.memberName = profile.name;
     state.memberEmail = profile.email;
     state.trainingDate = profile.trainingDate || "";
     state.trainer = profile.trainer || "";
     state.messengerName = profile.messengerName || "";
+    saveMemberSession_(profile);
     updateOrganizerUiVisibility_();
     loadMySessions_();
-    // ログイン・会員登録の場所に留まらず、ページの先頭に画面表示を戻す(スマートフォン対応)
-    document.getElementById("mainNav").classList.remove("open");
-    window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
-    // 【一時的な診断機能】横にはみ出している要素があれば、赤枠と一覧パネルで表示する
-    setTimeout(debugHorizontalOverflow_, 600);
+    if(!isRestore){
+      // ログイン・会員登録の場所に留まらず、ページの先頭に画面表示を戻す(スマートフォン対応)
+      document.getElementById("mainNav").classList.remove("open");
+      window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+      // 【一時的な診断機能】横にはみ出している要素があれば、赤枠と一覧パネルで表示する
+      setTimeout(debugHorizontalOverflow_, 600);
+    }
   }
   /* 【一時的な診断用】画面幅を超えて右にはみ出している要素を洗い出し、
      赤枠で囲んで、画面下部に一覧パネルとして表示する(スクリーンショットで共有してもらうため) */
@@ -2062,6 +2092,7 @@
     state.trainer = "";
     state.messengerName = "";
     state.mySessions = [];
+    clearMemberSession_();
     updateOrganizerUiVisibility_();
     renderSessions();
     renderCalendar();
@@ -2339,6 +2370,13 @@
     bindChangePassword_();
     document.getElementById("logoutNavBtn").addEventListener("click", logoutMember_);
     updateOrganizerUiVisibility_();
+
+    // 保存済みのログイン情報があれば、再入力なしで自動的に復元する
+    // (過去のイベントページなど、他のページから戻ってきた場合や再読み込み時のため)
+    const savedSession = loadMemberSession_();
+    if(savedSession && savedSession.email){
+      applyLoginState_(savedSession, true);
+    }
 
     // ここまでで画面上の操作(ログイン・申込みボタンなど)は全て有効になっている。
     // データ取得(スプレッドシートとの通信)は、操作性を損なわないようこの後に行う。

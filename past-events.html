@@ -191,6 +191,14 @@
   </div>
 </section>
 
+<section id="myPastApplications" style="display:none;">
+  <div class="section-head" style="display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin-bottom:18px;flex-wrap:wrap;">
+    <h2 style="font-size:22px;">過去に申し込んだイベント</h2>
+    <span style="color:var(--ink-soft);font-size:13px;">あなたが申込んだ、開催日を過ぎたイベントの一覧です</span>
+  </div>
+  <div id="myPastApplicationsList" style="display:grid;gap:14px;"></div>
+</section>
+
 <section id="organizerPast" style="display:none;">
   <div class="section-head" style="display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin-bottom:18px;flex-wrap:wrap;">
     <h2 style="font-size:22px;">主催者MENU(過去のイベント)</h2>
@@ -315,7 +323,7 @@
     };
   }
 
-  const state = { query:"", activeTags:new Set(), isMember:false, memberEmail:"", memberName:"", myPastSessions:[] };
+  const state = { query:"", activeTags:new Set(), isMember:false, memberEmail:"", memberName:"", myPastSessions:[], myPastApplications:[] };
   let sessions = [];
 
   function isPast_(s){
@@ -413,6 +421,50 @@
     document.getElementById("detailModalOverlay").classList.remove("open");
   }
 
+  /* ---------- ログイン状態の保持(トップページと共通のキーを使い、ページ間で維持する) ---------- */
+  const MEMBER_SESSION_KEY = "lspMemberSession";
+  function saveMemberSession_(profile){
+    try{
+      localStorage.setItem(MEMBER_SESSION_KEY, JSON.stringify({
+        email: profile.email, name: profile.name,
+        trainingDate: profile.trainingDate || "", trainer: profile.trainer || "",
+        messengerName: profile.messengerName || ""
+      }));
+    }catch(err){ console.warn("ログイン情報の保存に失敗しました", err); }
+  }
+  function loadMemberSession_(){
+    try{
+      const raw = localStorage.getItem(MEMBER_SESSION_KEY);
+      return raw ? JSON.parse(raw) : null;
+    }catch(err){ return null; }
+  }
+  function clearMemberSession_(){
+    try{ localStorage.removeItem(MEMBER_SESSION_KEY); }catch(err){}
+  }
+  function applyLoginState_(profile){
+    state.isMember = true;
+    state.memberEmail = profile.email;
+    state.memberName = profile.name;
+    saveMemberSession_(profile);
+    document.getElementById("loginPillBtn").textContent = `${profile.name} さん`;
+    document.getElementById("organizerPast").style.display = "";
+    document.getElementById("myPastApplications").style.display = "";
+    loadMyPastSessions_();
+    loadMyPastApplications_();
+  }
+  function logoutMember_(){
+    if(!confirm("ログアウトします。よろしいですか?")) return;
+    state.isMember = false;
+    state.memberEmail = "";
+    state.memberName = "";
+    state.myPastSessions = [];
+    state.myPastApplications = [];
+    clearMemberSession_();
+    document.getElementById("loginPillBtn").textContent = "会員ログイン";
+    document.getElementById("organizerPast").style.display = "none";
+    document.getElementById("myPastApplications").style.display = "none";
+  }
+
   /* ---------- ログイン ---------- */
   async function loginMember_(email, password){
     if(!email || !password){ alert("メールアドレスとパスワードを入力してください"); return false; }
@@ -422,12 +474,7 @@
         alert(res.error || "ログインに失敗しました");
         return false;
       }
-      state.isMember = true;
-      state.memberEmail = email;
-      state.memberName = res.name;
-      document.getElementById("loginPillBtn").textContent = `${res.name} さん`;
-      document.getElementById("organizerPast").style.display = "";
-      loadMyPastSessions_();
+      applyLoginState_({ ...res, email });
       return true;
     }catch(err){
       console.error(err);
@@ -491,6 +538,45 @@
         renderPastSessions();
       });
     });
+  }
+
+  /* ---------- 過去に申し込んだイベント ---------- */
+  async function loadMyPastApplications_(){
+    const wrap = document.getElementById("myPastApplicationsList");
+    if(!state.memberEmail || !wrap) return;
+    wrap.innerHTML = `<p class="field-hint">読み込み中...</p>`;
+    try{
+      const res = await apiGet("listMyApplications", { email: state.memberEmail });
+      if(!res.ok){
+        wrap.innerHTML = `<p class="field-hint">${escapeHtml_(res.error || "取得に失敗しました")}</p>`;
+        return;
+      }
+      state.myPastApplications = (res.applications || []).filter(a => isPast_(a));
+      renderMyPastApplications_();
+    }catch(err){
+      console.error(err);
+      wrap.innerHTML = `<p class="field-hint">通信エラーのため取得に失敗しました</p>`;
+    }
+  }
+  function renderMyPastApplications_(){
+    const wrap = document.getElementById("myPastApplicationsList");
+    if(!wrap) return;
+    if(state.myPastApplications.length === 0){
+      wrap.innerHTML = `<div class="empty-organizer">開催日を過ぎた申込みはまだありません。</div>`;
+      return;
+    }
+    wrap.innerHTML = state.myPastApplications
+      .slice()
+      .sort((a,b)=> (b.date||"").localeCompare(a.date||""))
+      .map(a => `
+        <div class="my-session-card">
+          <div class="msc-main">
+            <h4>${a.status === "cancelled" ? '<span class="cancelled-badge" style="margin-right:8px;">主催者により中止</span>' : ""}${escapeHtml_(a.title)}</h4>
+            <div class="msc-meta">${a.date ? fmtDateLong(a.date) : ""}${a.startTime ? ` ・ ${a.startTime}-${a.endTime}` : ""} ・ ${escapeHtml_(a.location || "")} ・ 参加${a.count}名</div>
+            ${a.note ? `<div class="msc-meta">備考:${escapeHtml_(a.note)}</div>` : ""}
+          </div>
+        </div>
+      `).join("");
   }
 
   /* ---------- 申込み者一覧 ---------- */
@@ -580,6 +666,12 @@
     renderTagFilters();
     renderPastSessions();
 
+    // トップページ等で保存されたログイン情報があれば、再入力なしで自動的に復元する
+    const savedSession = loadMemberSession_();
+    if(savedSession && savedSession.email){
+      applyLoginState_(savedSession);
+    }
+
     document.getElementById("searchInput").addEventListener("input", (e)=>{
       state.query = e.target.value;
       renderPastSessions();
@@ -600,7 +692,7 @@
     const loginOverlay = document.getElementById("loginModalOverlay");
     document.getElementById("loginPillBtn").addEventListener("click", ()=>{
       if(state.isMember){
-        alert(`${state.memberName} さんとしてログイン中です`);
+        logoutMember_();
         return;
       }
       loginOverlay.classList.add("open");
