@@ -497,65 +497,6 @@
   </div>
 </section>
 
-<section id="announcements">
-  <div class="section-head">
-    <h2>お知らせ</h2>
-    <span class="count">コミュニティ運営より</span>
-  </div>
-  <div class="ann-scroll" id="annScroll"></div>
-</section>
-
-<section id="sessions">
-  <div class="section-head">
-    <h2>勉強会一覧</h2>
-    <span class="count" id="sessionCount"></span>
-  </div>
-
-  <div class="toolbar">
-    <div class="toolbar-row">
-      <div class="search-box">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="#5B6472" stroke-width="2"/><path d="M21 21l-4.3-4.3" stroke="#5B6472" stroke-width="2" stroke-linecap="round"/></svg>
-        <input type="text" id="searchInput" placeholder="勉強会名・タグで検索(例:読書会、関西)">
-      </div>
-      <button class="filter-toggle-btn" id="filterToggleBtn">タグで絞り込み ▾</button>
-      <div class="view-toggle">
-        <button class="active" id="listViewBtn">リスト</button>
-        <button id="calViewBtn">カレンダー</button>
-      </div>
-    </div>
-    <div class="filter-panel" id="filterPanel">
-      <div class="filter-group">
-        <h4>開催形式</h4>
-        <div class="tag-pills" id="formatTags"></div>
-      </div>
-      <div class="filter-group">
-        <h4>テーマ</h4>
-        <div class="tag-pills" id="themeTags"></div>
-      </div>
-      <button class="clear-filters" id="clearFiltersBtn">絞り込みをリセット</button>
-    </div>
-  </div>
-
-  <div id="listView">
-    <div class="session-grid" id="sessionGrid"></div>
-  </div>
-
-  <div id="calView" style="display:none;">
-    <div class="calendar-wrap">
-      <div class="cal-head">
-        <h3 id="calMonthLabel"></h3>
-        <div class="cal-nav">
-          <button id="calPrevBtn" aria-label="前の月">‹</button>
-          <button id="calNextBtn" aria-label="次の月">›</button>
-        </div>
-      </div>
-      <div class="cal-grid" id="calGrid"></div>
-      <p class="field-hint" style="margin-top:12px;">※日付を固定しない「定期開催」の勉強会はカレンダーには表示されません。リスト表示でご確認ください。</p>
-      <div class="cal-day-list" id="calDayList" style="display:none;"></div>
-    </div>
-  </div>
-</section>
-
 <section id="members" class="guest-only">
   <div class="members-cta">
     <div>
@@ -629,6 +570,67 @@
     </div>
   </div>
 </section>
+
+<section id="announcements">
+  <div class="section-head">
+    <h2>お知らせ</h2>
+    <span class="count">コミュニティ運営より</span>
+  </div>
+  <div class="ann-scroll" id="annScroll"></div>
+</section>
+
+<section id="sessions">
+  <div class="section-head">
+    <h2>勉強会一覧</h2>
+    <span class="count" id="sessionCount"></span>
+  </div>
+
+  <div class="toolbar">
+    <div class="toolbar-row">
+      <div class="search-box">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="#5B6472" stroke-width="2"/><path d="M21 21l-4.3-4.3" stroke="#5B6472" stroke-width="2" stroke-linecap="round"/></svg>
+        <input type="text" id="searchInput" placeholder="勉強会名・タグで検索(例:読書会、関西)">
+      </div>
+      <button class="filter-toggle-btn" id="filterToggleBtn">タグで絞り込み ▾</button>
+      <div class="view-toggle">
+        <button class="active" id="listViewBtn">リスト</button>
+        <button id="calViewBtn">カレンダー</button>
+      </div>
+    </div>
+    <div class="filter-panel" id="filterPanel">
+      <div class="filter-group">
+        <h4>開催形式</h4>
+        <div class="tag-pills" id="formatTags"></div>
+      </div>
+      <div class="filter-group">
+        <h4>テーマ</h4>
+        <div class="tag-pills" id="themeTags"></div>
+      </div>
+      <button class="clear-filters" id="clearFiltersBtn">絞り込みをリセット</button>
+    </div>
+  </div>
+
+  <div id="listView">
+    <div class="session-grid" id="sessionGrid"></div>
+  </div>
+
+  <div id="calView" style="display:none;">
+    <div class="calendar-wrap">
+      <div class="cal-head">
+        <h3 id="calMonthLabel"></h3>
+        <div class="cal-nav">
+          <button id="calPrevBtn" aria-label="前の月">‹</button>
+          <button id="calNextBtn" aria-label="次の月">›</button>
+        </div>
+      </div>
+      <div class="cal-grid" id="calGrid"></div>
+      <p class="field-hint" style="margin-top:12px;">※日付を固定しない「定期開催」の勉強会はカレンダーには表示されません。リスト表示でご確認ください。</p>
+      <div class="cal-day-list" id="calDayList" style="display:none;"></div>
+    </div>
+  </div>
+</section>
+
+
 
 <section id="myApplications" class="organizer-only" style="display:none;">
   <div class="section-head">
