@@ -431,10 +431,17 @@
       background:#FFFFFF !important;
       opacity:1;
       flex-direction:column;align-items:stretch;padding:20px;gap:8px;
-      transform:translateX(100%);transition:.25s;z-index:9999;
+      transform:translateX(100%);
+      visibility:hidden;
+      transition:transform .25s, visibility 0s linear .25s;
+      z-index:9999;
       box-shadow:-4px 0 24px rgba(0,0,0,0.15);
     }
-    nav.open{transform:translateX(0);}
+    nav.open{
+      transform:translateX(0);
+      visibility:visible;
+      transition:transform .25s, visibility 0s linear 0s;
+    }
     .nav-link{text-align:left;font-size:16px;padding:14px 16px;}
     .hamburger{display:block;}
     .session-grid{grid-template-columns:1fr;}
@@ -2029,7 +2036,7 @@
     loadMySessions_();
     // ログイン・会員登録の場所に留まらず、ページの先頭に画面表示を戻す(スマートフォン対応)
     document.getElementById("mainNav").classList.remove("open");
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
   }
   function updateOrganizerUiVisibility_(){
     document.querySelectorAll(".organizer-only").forEach(el=>{
