@@ -739,6 +739,26 @@
   </div>
 </div>
 
+<!-- 参加者への一斉メール送信モーダル -->
+<div class="modal-overlay" id="bulkEmailModalOverlay">
+  <div class="modal" style="max-width:520px;">
+    <button class="modal-close" id="bulkEmailModalClose">✕</button>
+    <h3 id="bulkEmailModalTitle">参加者へメールを送る</h3>
+    <p class="modal-sub" id="bulkEmailModalSub"></p>
+    <div class="field">
+      <label for="bulkEmailSubject">件名(任意)</label>
+      <input type="text" id="bulkEmailSubject" placeholder="例:【〇〇】当日の持ち物について">
+      <p class="field-hint">空欄の場合は「【イベント名】主催者からのお知らせ」という件名で送信されます。</p>
+    </div>
+    <div class="field">
+      <label for="bulkEmailMessage">本文</label>
+      <textarea id="bulkEmailMessage" rows="6" placeholder="申込み者の皆さまへお伝えしたい内容をご記入ください"></textarea>
+    </div>
+    <p class="field-hint">送信元は自動的にコミュニティのメールアドレスになりますが、本文に「返信は主催者へ」という案内が自動で付き、受信者が返信すると主催者(あなた)のメールアドレスに届くようになっています。</p>
+    <button class="btn-primary" style="width:100%;" id="bulkEmailSendBtn">送信する</button>
+  </div>
+</div>
+
 <!-- パスワード変更モーダル -->
 <div class="modal-overlay" id="changePasswordModalOverlay">
   <div class="modal">
@@ -1042,7 +1062,9 @@
     });
   }
   /* ---------- 申込み者一覧(作成者本人のみ) ---------- */
+  let applicantsModalContext_ = { sessionId: null, title: "" };
   async function openApplicantsModal_(sessionId, title){
+    applicantsModalContext_ = { sessionId, title };
     const overlay = document.getElementById("applicantsModalOverlay");
     const body = document.getElementById("applicantsModalBody");
     document.getElementById("applicantsModalTitle").textContent = `「${title}」の申込み者一覧`;
@@ -1063,6 +1085,7 @@
         return;
       }
       body.innerHTML = `
+        <button class="btn-ghost" style="width:100%;margin-bottom:16px;" id="openBulkEmailBtn">📧 参加者全員にメールを送る(${res.applicants.length}名)</button>
         <table class="applicants-table">
           <thead><tr><th>お名前</th><th>メールアドレス</th><th>人数</th><th>備考</th><th></th></tr></thead>
           <tbody>
@@ -1078,6 +1101,9 @@
           </tbody>
         </table>
       `;
+      document.getElementById("openBulkEmailBtn").addEventListener("click", ()=>{
+        openBulkEmailModal_(applicantsModalContext_.sessionId, applicantsModalContext_.title);
+      });
       body.querySelectorAll("[data-cancel-application]").forEach(btn=>{
         btn.addEventListener("click", async ()=>{
           if(!confirm("この申込みをキャンセルします。よろしいですか?(参加者本人には別途ご連絡ください)")) return;
@@ -1110,6 +1136,48 @@
       console.error(err);
       body.innerHTML = `<p class="field-hint">通信エラーのため取得に失敗しました</p>`;
     }
+  }
+  /* ---------- 参加者への一斉メール送信 ---------- */
+  function openBulkEmailModal_(sessionId, title){
+    applicantsModalContext_ = { sessionId, title };
+    document.getElementById("bulkEmailModalSub").textContent = `「${title}」の申込み者全員に、以下の内容でメールが送信されます。`;
+    document.getElementById("bulkEmailSubject").value = "";
+    document.getElementById("bulkEmailMessage").value = "";
+    document.getElementById("bulkEmailModalOverlay").classList.add("open");
+  }
+  function bindBulkEmailModal_(){
+    const overlay = document.getElementById("bulkEmailModalOverlay");
+    const closeBtn = document.getElementById("bulkEmailModalClose");
+    const sendBtn = document.getElementById("bulkEmailSendBtn");
+    if(!overlay || !closeBtn || !sendBtn) return;
+    closeBtn.addEventListener("click", ()=> closeModal("bulkEmailModalOverlay"));
+    overlay.addEventListener("click", (e)=>{
+      if(e.target.id === "bulkEmailModalOverlay") closeModal("bulkEmailModalOverlay");
+    });
+    sendBtn.addEventListener("click", async ()=>{
+      const sessionId = applicantsModalContext_.sessionId;
+      const subject = document.getElementById("bulkEmailSubject").value.trim();
+      const message = document.getElementById("bulkEmailMessage").value.trim();
+      if(!message){ toast("本文を入力してください"); return; }
+      if(!confirm("この内容で、申込み者全員にメールを送信します。よろしいですか?")) return;
+      sendBtn.disabled = true; sendBtn.textContent = "送信しています...";
+      try{
+        const res = await apiPost("sendBulkEmailToApplicants", {
+          email: state.memberEmail, sessionId, subject, message
+        });
+        if(!res.ok){
+          toast(res.error || "送信に失敗しました");
+        } else {
+          toast(`${res.count}名にメールを送信しました`);
+          closeModal("bulkEmailModalOverlay");
+        }
+      }catch(err){
+        console.error(err);
+        toast("通信エラーのため送信に失敗しました");
+      }finally{
+        sendBtn.disabled = false; sendBtn.textContent = "送信する";
+      }
+    });
   }
   let editingSessionId = null;
   let currentEditorImageUrl = "";
@@ -2423,6 +2491,7 @@
     // 主催者MENU
     bindOrganizerDashboardEvents_();
     bindChangePassword_();
+    bindBulkEmailModal_();
     document.getElementById("logoutNavBtn").addEventListener("click", logoutMember_);
     updateOrganizerUiVisibility_();
 
