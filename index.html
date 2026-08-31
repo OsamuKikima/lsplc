@@ -464,7 +464,7 @@
      取得した「サイトキー」を設定してください。 */
   const RECAPTCHA_SITE_KEY = "6Le04aAtAAAAAN0rolJtNsb2dMQkd8x81P2aDS0p";
   function onRecaptchaLoad(){
-    if(!window.grecaptcha || RECAPTCHA_SITE_KEY === "6Le04aAtAAAAAN0rolJtNsb2dMQkd8x81P2aDS0p") return;
+    if(!window.grecaptcha || RECAPTCHA_SITE_KEY === "YOUR_RECAPTCHA_SITE_KEY_HERE") return;
     window.recaptchaWidgetSection = grecaptcha.render("recaptchaSection", { sitekey: RECAPTCHA_SITE_KEY });
     window.recaptchaWidgetModal = grecaptcha.render("recaptchaModal", { sitekey: RECAPTCHA_SITE_KEY });
     window.recaptchaWidgetChangePassword = grecaptcha.render("recaptchaChangePassword", { sitekey: RECAPTCHA_SITE_KEY });
@@ -1970,7 +1970,7 @@
     }
     // reCAPTCHAが有効な場合、チェックが済んでいるか確認する(サイトキー未設定時はスキップ)
     let recaptchaToken = "";
-    const recaptchaConfigured = RECAPTCHA_SITE_KEY !== "6Le04aAtAAAAAN0rolJtNsb2dMQkd8x81P2aDS0p" && window.grecaptcha;
+    const recaptchaConfigured = RECAPTCHA_SITE_KEY !== "YOUR_RECAPTCHA_SITE_KEY_HERE" && window.grecaptcha;
     if(recaptchaConfigured){
       recaptchaToken = grecaptcha.getResponse(recaptchaWidgetId);
       if(!recaptchaToken){
@@ -2215,7 +2215,7 @@
       if(newPassword !== newPasswordConfirm){ toast("新しいパスワード(確認)が一致しません"); return; }
       // reCAPTCHAが有効な場合、チェックが済んでいるか確認する(サイトキー未設定時はスキップ)
       let recaptchaToken = "";
-      const recaptchaConfigured = RECAPTCHA_SITE_KEY !== "6Le04aAtAAAAAN0rolJtNsb2dMQkd8x81P2aDS0p" && window.grecaptcha;
+      const recaptchaConfigured = RECAPTCHA_SITE_KEY !== "YOUR_RECAPTCHA_SITE_KEY_HERE" && window.grecaptcha;
       if(recaptchaConfigured){
         recaptchaToken = grecaptcha.getResponse(window.recaptchaWidgetChangePassword);
         if(!recaptchaToken){
