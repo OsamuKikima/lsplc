@@ -458,6 +458,19 @@
   }
   :focus-visible{outline:3px solid var(--blue);outline-offset:2px;}
 </style>
+<script>
+  /* reCAPTCHA v2(会員登録フォームのボット対策)
+     ここに、Google reCAPTCHA管理コンソール(https://www.google.com/recaptcha/admin)で
+     取得した「サイトキー」を設定してください。 */
+  const RECAPTCHA_SITE_KEY = "6Le04aAtAAAAAN0rolJtNsb2dMQkd8x81P2aDS0p";
+  function onRecaptchaLoad(){
+    if(!window.grecaptcha || RECAPTCHA_SITE_KEY === "6Le04aAtAAAAAN0rolJtNsb2dMQkd8x81P2aDS0p") return;
+    window.recaptchaWidgetSection = grecaptcha.render("recaptchaSection", { sitekey: RECAPTCHA_SITE_KEY });
+    window.recaptchaWidgetModal = grecaptcha.render("recaptchaModal", { sitekey: RECAPTCHA_SITE_KEY });
+    window.recaptchaWidgetChangePassword = grecaptcha.render("recaptchaChangePassword", { sitekey: RECAPTCHA_SITE_KEY });
+  }
+</script>
+<script src="https://www.google.com/recaptcha/api.js?onload=onRecaptchaLoad&render=explicit" async defer></script>
 </head>
 <body>
 
@@ -544,6 +557,7 @@
           <input type="checkbox" id="regNotify" checked>
           <span>新しい勉強会が公開されたときにメール通知を受け取る</span>
         </label>
+        <div id="recaptchaSection" style="margin-bottom:16px;"></div>
         <button class="btn-primary" style="width:100%;" id="registerBtn">会員登録する</button>
       </div>
 
@@ -743,6 +757,7 @@
       <label for="cpNewPasswordConfirm">新しいパスワード(確認)</label>
       <input type="password" id="cpNewPasswordConfirm" placeholder="••••••••" autocomplete="new-password">
     </div>
+    <div id="recaptchaChangePassword" style="margin-bottom:16px;"></div>
     <button class="btn-primary" style="width:100%;" id="changePasswordSubmitBtn">パスワードを変更する</button>
   </div>
 </div>
@@ -818,6 +833,7 @@
         <input type="checkbox" id="mmNotify" checked>
         <span>新しい勉強会が公開されたときにメール通知を受け取る</span>
       </label>
+      <div id="recaptchaModal" style="margin-bottom:16px;"></div>
       <button class="btn-primary" style="width:100%;" id="mmRegisterBtn">登録して続ける</button>
     </div>
 
@@ -1944,7 +1960,7 @@
     pendingOpenSessionId = afterSessionId || null;
     document.getElementById("memberModalOverlay").classList.add("open");
   }
-  async function completeRegistration(name, email, password, passwordConfirm, trainingDate, trainer, messengerName, notifyNewSessions){
+  async function completeRegistration(name, email, password, passwordConfirm, trainingDate, trainer, messengerName, notifyNewSessions, recaptchaWidgetId){
     if(!name || !email || !password){ toast("お名前・メールアドレス・パスワードを入力してください"); return false; }
     if(password.length < 6){ toast("パスワードは6文字以上にしてください"); return false; }
     if(password !== passwordConfirm){ toast("パスワード(確認)が一致しません"); return false; }
@@ -1952,19 +1968,32 @@
       toast("トレーニング時期とトレーナー名の入力は必須です");
       return false;
     }
+    // reCAPTCHAが有効な場合、チェックが済んでいるか確認する(サイトキー未設定時はスキップ)
+    let recaptchaToken = "";
+    const recaptchaConfigured = RECAPTCHA_SITE_KEY !== "6Le04aAtAAAAAN0rolJtNsb2dMQkd8x81P2aDS0p" && window.grecaptcha;
+    if(recaptchaConfigured){
+      recaptchaToken = grecaptcha.getResponse(recaptchaWidgetId);
+      if(!recaptchaToken){
+        toast("「私はロボットではありません」にチェックを入れてください");
+        return false;
+      }
+    }
     try{
       const res = await apiPost("register", {
         name, email, password,
         trainingDate, trainer,
         messengerName: messengerName || "",
-        notifyNewSessions: !!notifyNewSessions
+        notifyNewSessions: !!notifyNewSessions,
+        recaptchaToken
       });
+      if(recaptchaConfigured) grecaptcha.reset(recaptchaWidgetId); // トークンは1回限りのため、成否に関わらずリセットする
       if(!res.ok){
         toast(res.error || "会員登録に失敗しました。しばらくしてから再度お試しください");
         return false;
       }
     }catch(err){
       console.error(err);
+      if(recaptchaConfigured) grecaptcha.reset(recaptchaWidgetId);
       toast("通信エラーのため会員登録に失敗しました");
       return false;
     }
@@ -2184,11 +2213,22 @@
       if(!oldPassword || !newPassword){ toast("現在のパスワードと新しいパスワードを入力してください"); return; }
       if(newPassword.length < 6){ toast("新しいパスワードは6文字以上にしてください"); return; }
       if(newPassword !== newPasswordConfirm){ toast("新しいパスワード(確認)が一致しません"); return; }
+      // reCAPTCHAが有効な場合、チェックが済んでいるか確認する(サイトキー未設定時はスキップ)
+      let recaptchaToken = "";
+      const recaptchaConfigured = RECAPTCHA_SITE_KEY !== "6Le04aAtAAAAAN0rolJtNsb2dMQkd8x81P2aDS0p" && window.grecaptcha;
+      if(recaptchaConfigured){
+        recaptchaToken = grecaptcha.getResponse(window.recaptchaWidgetChangePassword);
+        if(!recaptchaToken){
+          toast("「私はロボットではありません」にチェックを入れてください");
+          return;
+        }
+      }
       submitBtn.disabled = true; submitBtn.textContent = "変更しています...";
       try{
         const res = await apiPost("changePassword", {
-          email: state.memberEmail, oldPassword, newPassword
+          email: state.memberEmail, oldPassword, newPassword, recaptchaToken
         });
+        if(recaptchaConfigured) grecaptcha.reset(window.recaptchaWidgetChangePassword); // トークンは1回限りのためリセット
         if(!res.ok){
           toast(res.error || "パスワードの変更に失敗しました");
         } else {
@@ -2197,6 +2237,7 @@
         }
       }catch(err){
         console.error(err);
+        if(recaptchaConfigured) grecaptcha.reset(window.recaptchaWidgetChangePassword);
         toast("通信エラーのためパスワードの変更に失敗しました");
       }finally{
         submitBtn.disabled = false; submitBtn.textContent = "パスワードを変更する";
@@ -2288,7 +2329,7 @@
       const notify = document.getElementById("regNotify").checked;
       const btn = document.getElementById("registerBtn");
       btn.disabled = true; btn.textContent = "登録しています...";
-      const ok = await completeRegistration(name, email, password, passwordConfirm, trainingDate, trainer, messengerName, notify);
+      const ok = await completeRegistration(name, email, password, passwordConfirm, trainingDate, trainer, messengerName, notify, window.recaptchaWidgetSection);
       btn.disabled = false; btn.textContent = "会員登録する";
       if(ok){
         document.getElementById("regName").value = "";
@@ -2329,7 +2370,7 @@
       const notify = document.getElementById("mmNotify").checked;
       const btn = document.getElementById("mmRegisterBtn");
       btn.disabled = true; btn.textContent = "登録しています...";
-      const ok = await completeRegistration(name, email, password, passwordConfirm, trainingDate, trainer, messengerName, notify);
+      const ok = await completeRegistration(name, email, password, passwordConfirm, trainingDate, trainer, messengerName, notify, window.recaptchaWidgetModal);
       btn.disabled = false; btn.textContent = "登録して続ける";
       if(ok){
         closeModal("memberModalOverlay");
