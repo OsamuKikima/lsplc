@@ -2,2529 +2,1513 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LSPラーニング・ガーデン</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>モデル観察ログ</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@400;500;600;800&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<script src="https://www.google.com/recaptcha/api.js?onload=onRecaptchaLoad&render=explicit" async defer></script>
 <style>
   :root{
-    --cream:#FFFDF7;
-    --ink:#232B3A;
-    --ink-soft:#5B6472;
-    --brick:#E8483C;
-    --brick-dark:#C63A2F;
-    --yellow:#FFC72C;
-    --yellow-dark:#E8AE0A;
-    --blue:#2E9CE0;
-    --blue-dark:#1F7CB8;
-    --green:#4CAF6D;
-    --green-dark:#3B9257;
-    --amber:#F2924A;
-    --amber-dark:#DC7A30;
-    --line:#EEE7D6;
-    --card:#FFFFFF;
-    --shadow: 0 6px 0 rgba(35,43,58,0.08);
-    --radius: 18px;
+    --bg:#f1efe6; --surface:#ffffff; --surface-alt:#e7e1d0; --border:#d6cdb6;
+    --text:#211e1a; --text-muted:#726a58;
+    --accent:#2e4e77; --accent-soft:#dde5ee; --accent-contrast:#ffffff;
+    --warm:#a9832e; --warm-soft:#f1e7cc;
+    --good:#4b7a52; --good-soft:#deecdf;
+    --danger:#a24438; --danger-soft:#f1dad5;
+    --shadow:0 1px 2px rgba(33,30,26,.07), 0 8px 20px rgba(33,30,26,.08);
+    --radius-s:7px; --radius-m:12px; --radius-l:18px;
+    --font-display:'Shippori Mincho B1', 'Hiragino Mincho ProN', serif;
+    --font-body:'Zen Kaku Gothic New', 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+    --font-mono:'IBM Plex Mono', ui-monospace, monospace;
   }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#1b1915; --surface:#242019; --surface-alt:#2d2820; --border:#443d30;
+      --text:#ece6d9; --text-muted:#aa9f89;
+      --accent:#8faad2; --accent-soft:#2a3a52; --accent-contrast:#12131a;
+      --warm:#e3ac6a; --warm-soft:#3a2f1c;
+      --good:#86bb8c; --good-soft:#213424;
+      --danger:#e0897d; --danger-soft:#3c2420;
+      --shadow:0 1px 2px rgba(0,0,0,.35), 0 8px 24px rgba(0,0,0,.4);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#1b1915; --surface:#242019; --surface-alt:#2d2820; --border:#443d30;
+    --text:#ece6d9; --text-muted:#aa9f89;
+    --accent:#8faad2; --accent-soft:#2a3a52; --accent-contrast:#12131a;
+    --warm:#e3ac6a; --warm-soft:#3a2f1c;
+    --good:#86bb8c; --good-soft:#213424;
+    --danger:#e0897d; --danger-soft:#3c2420;
+    --shadow:0 1px 2px rgba(0,0,0,.35), 0 8px 24px rgba(0,0,0,.4);
+  }
+
   *{box-sizing:border-box;}
-  html{scroll-behavior:smooth;overflow-x:hidden;width:100%;position:relative;}
-  .debug-overflow-outline{outline:3px solid #E8483C !important; outline-offset:-3px;}
+  html{background:var(--bg);}
   body{
-    margin:0;
-    overflow-x:hidden;
-    position:relative;
-    width:100%;
-    background:var(--cream);
-    color:var(--ink);
-    font-family:'Noto Sans JP', sans-serif;
-    line-height:1.7;
-    -webkit-font-smoothing:antialiased;
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:var(--font-body); line-height:1.6;
+    padding-inline:16px;
   }
-  h1,h2,h3,.display{
-    font-family:'Zen Maru Gothic', sans-serif;
-    font-weight:900;
-    color:var(--ink);
-    margin:0;
-  }
-  a{color:inherit;}
-  button{font-family:inherit;cursor:pointer;}
-  img{max-width:100%;}
-  .connect-row{
-    display:inline-flex;
-    align-items:center;
-    line-height:0;
-  }
-  .connect-row svg{display:block;}
+  h1,h2,h3,h4{font-family:var(--font-display); text-wrap:balance; margin:0;}
+  button{font-family:inherit; cursor:pointer;}
+  input,textarea,select{font-family:inherit; font-size:inherit; color:var(--text); background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-s);}
+  input:focus-visible,textarea:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid var(--accent); outline-offset:2px;}
+  ::selection{background:var(--accent-soft);}
 
-  /* Header */
-  header{
-    position:sticky; top:0; z-index:50;
-    background:rgba(255,253,247,0.92);
-    backdrop-filter: blur(6px);
-    border-bottom:2px solid var(--line);
-  }
-  .header-inner{
-    max-width:1180px;margin:0 auto;
-    display:flex;align-items:center;justify-content:space-between;
-    padding:14px 24px;
-    gap:16px;
-  }
-  .logo{display:flex;align-items:center;gap:10px;}
-  .logo-mark{display:flex;align-items:center;}
-  .logo-text{font-size:17px;line-height:1.25;}
-  .logo-text small{display:block;font-family:'Noto Sans JP';font-weight:500;font-size:11px;color:var(--ink-soft);}
-  nav{display:flex;gap:4px;align-items:center;}
-  .nav-link{
-    padding:9px 14px;border-radius:999px;font-weight:700;font-size:14px;
-    background:none;border:none;color:var(--ink-soft);
-    transition:.15s;
-  }
-  .nav-link:hover{background:#FFF3D6;color:var(--ink);}
-  .member-pill{
-    display:flex;align-items:center;gap:8px;
-    padding:7px 8px 7px 14px;border-radius:999px;
-    background:var(--ink);color:#fff;font-weight:700;font-size:13px;
-    border:none;
-  }
-  .member-pill .avatar{
-    width:26px;height:26px;border-radius:50%;background:var(--yellow);
-    display:flex;align-items:center;justify-content:center;color:var(--ink);font-size:12px;font-weight:900;
-  }
-  .btn-primary{
-    background:var(--brick);color:#fff;border:none;
-    padding:10px 20px;border-radius:999px;font-weight:700;font-size:14px;
-    box-shadow:0 4px 0 var(--brick-dark);
-    transition:.12s;
-  }
-  .btn-primary:hover{transform:translateY(1px);box-shadow:0 3px 0 var(--brick-dark);}
-  .btn-primary:active{transform:translateY(4px);box-shadow:0 0 0 var(--brick-dark);}
-  .hamburger{display:none;background:none;border:none;padding:8px;}
-  .hamburger span{display:block;width:22px;height:3px;background:var(--ink);margin:4px 0;border-radius:2px;}
+  #shell{max-width:920px; margin:0 auto; padding-block:20px 60px;}
 
-  /* Hero */
-  .hero{
-    max-width:800px;margin:0 auto;
-    padding:56px 24px 40px;
-    text-align:center;
-  }
-  .hero-eyebrow{
-    display:inline-flex;align-items:center;gap:8px;
-    background:#FFF3D6;color:var(--amber-dark);font-weight:700;font-size:13px;
-    padding:6px 14px;border-radius:999px;margin-bottom:18px;
-  }
-  .hero h1{font-size:clamp(30px,4.2vw,46px);line-height:1.3;}
-  .hero h1 .hi{color:var(--brick);}
-  .hero p.lead{margin:16px auto 0;color:var(--ink-soft);font-size:16px;max-width:46ch;}
-  .hero-cta{margin-top:26px;display:flex;gap:12px;flex-wrap:wrap;justify-content:center;}
-  .btn-ghost{
-    background:#fff;border:2px solid var(--ink);color:var(--ink);
-    padding:10px 20px;border-radius:999px;font-weight:700;font-size:14px;
-  }
+  .masthead{display:flex; align-items:baseline; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:18px;}
+  .masthead h1{font-size:clamp(22px,4vw,30px); font-weight:600; letter-spacing:.02em;}
+  .masthead .sub{font-family:var(--font-mono); font-size:12px; color:var(--text-muted); letter-spacing:.04em;}
+  .manual-link{display:inline-block; margin-top:6px; font-size:12.5px; font-weight:600; text-decoration:none; color:var(--accent);}
+  .manual-link:hover{text-decoration:underline;}
 
-  section{max-width:1180px;margin:0 auto;padding:36px 24px;}
-  .section-head{display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin-bottom:22px;flex-wrap:wrap;}
-  .section-head h2{font-size:26px;}
-  .section-head .count{color:var(--ink-soft);font-size:14px;font-weight:500;}
+  nav.tabs{display:flex; gap:6px; overflow-x:auto; padding-bottom:2px; margin-bottom:20px; border-bottom:1px solid var(--border);}
+  nav.tabs button{
+    background:none; border:none; padding:10px 14px; font-size:14px; color:var(--text-muted);
+    white-space:nowrap; border-bottom:2px solid transparent; margin-bottom:-1px; position:relative;
+    display:flex; align-items:center; gap:6px;
+  }
+  nav.tabs button.is-active{color:var(--text); border-bottom-color:var(--accent); font-weight:700;}
+  nav.tabs .badge{background:var(--danger); color:#fff; font-family:var(--font-mono); font-size:11px; padding:1px 6px; border-radius:99px;}
 
-  /* Announcements */
-  .ann-scroll{display:flex;gap:16px;overflow-x:auto;padding-bottom:8px;scroll-snap-type:x mandatory;}
-  .ann-card{
-    flex:none;width:300px;scroll-snap-align:start;
-    background:var(--card);border-radius:var(--radius);padding:20px;
-    border-top:6px solid var(--blue);box-shadow:var(--shadow);
-  }
-  .ann-card.type-info{border-top-color:var(--blue);}
-  .ann-card.type-alert{border-top-color:var(--brick);}
-  .ann-card.type-event{border-top-color:var(--green);}
-  .ann-card.type-created{border-top-color:var(--green);}
-  .ann-card.type-confirmed{border-top-color:var(--blue);}
-  .ann-card.type-full{border-top-color:var(--amber);}
-  .ann-card.type-cancelled{border-top-color:var(--brick);}
-  .ann-card.type-admin{border-top-color:var(--ink);}
-  .ann-date{font-size:12px;color:var(--ink-soft);font-weight:700;}
-  .ann-card h3{font-size:16px;margin-top:6px;}
-  .ann-card p{font-size:13.5px;color:var(--ink-soft);margin-top:8px;}
-  .ann-badge{
-    display:inline-block;font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;
-    margin-bottom:8px;
-  }
-  .ann-card.type-info .ann-badge{background:#E4F3FC;color:var(--blue-dark);}
-  .ann-card.type-alert .ann-badge{background:#FBE4E2;color:var(--brick-dark);}
-  .ann-card.type-event .ann-badge{background:#E4F5EA;color:var(--green-dark);}
-  .ann-card.type-created .ann-badge{background:#E4F5EA;color:var(--green-dark);}
-  .ann-card.type-confirmed .ann-badge{background:#E4F3FC;color:var(--blue-dark);}
-  .ann-card.type-full .ann-badge{background:#FCE9DC;color:var(--amber-dark);}
-  .ann-card.type-cancelled .ann-badge{background:#FBE4E2;color:var(--brick-dark);}
-  .ann-card.type-admin .ann-badge{background:#E9E7E0;color:var(--ink);}
+  .card{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-m); box-shadow:var(--shadow);}
+  .panel{padding:20px;}
+  .stack{display:flex; flex-direction:column; gap:16px;}
+  .row{display:flex; gap:12px; flex-wrap:wrap; align-items:center;}
+  .row.between{justify-content:space-between;}
 
-  /* Toolbar */
-  .toolbar{
-    background:var(--card);border-radius:var(--radius);
-    padding:18px 20px;box-shadow:var(--shadow);margin-bottom:26px;
-  }
-  .toolbar-row{display:flex;gap:12px;align-items:center;flex-wrap:wrap;}
-  .search-box{
-    flex:1;min-width:220px;display:flex;align-items:center;gap:10px;
-    background:var(--cream);border:2px solid var(--line);border-radius:999px;padding:10px 16px;
-  }
-  .search-box input{border:none;background:none;outline:none;font-size:14px;width:100%;font-family:inherit;color:var(--ink);}
-  .view-toggle{display:flex;background:var(--cream);border-radius:999px;padding:4px;border:2px solid var(--line);}
-  .view-toggle button{
-    border:none;background:none;padding:8px 16px;border-radius:999px;font-weight:700;font-size:13px;color:var(--ink-soft);
-  }
-  .view-toggle button.active{background:var(--ink);color:#fff;}
-  .filter-toggle-btn{
-    border:2px solid var(--line);background:#fff;border-radius:999px;padding:9px 16px;font-weight:700;font-size:13px;color:var(--ink);
-  }
-  .filter-panel{margin-top:16px;padding-top:16px;border-top:2px dashed var(--line);display:none;}
-  .filter-panel.open{display:block;}
-  .filter-group{margin-bottom:14px;}
-  .filter-group h4{font-size:12px;color:var(--ink-soft);font-weight:700;margin:0 0 8px;letter-spacing:.02em;}
-  .tag-pills{display:flex;flex-wrap:wrap;gap:8px;}
-  .tag-pill{
-    border:2px solid var(--line);background:#fff;padding:6px 14px;border-radius:999px;
-    font-size:12.5px;font-weight:700;color:var(--ink-soft);display:flex;align-items:center;gap:6px;
-  }
-  .tag-pill .dot{width:8px;height:8px;border-radius:50%;}
-  .tag-pill.online{--tagc:var(--blue);}
-  .tag-pill.venue{--tagc:var(--green);}
-  .tag-pill.theme{--tagc:var(--amber);}
-  .tag-pill .dot{background:var(--tagc,var(--ink-soft));}
-  .tag-pill.active{background:var(--tagc,var(--ink)); border-color:var(--tagc,var(--ink)); color:#fff;}
-  .tag-pill.active .dot{background:#fff;}
-  .clear-filters{border:none;background:none;color:var(--brick);font-weight:700;font-size:12.5px;text-decoration:underline;}
+  .btn{border-radius:var(--radius-s); padding:9px 16px; font-size:14px; font-weight:600; border:1px solid var(--border); background:var(--surface); color:var(--text);}
+  .btn:hover{border-color:var(--accent);}
+  .btn-primary{background:var(--accent); color:var(--accent-contrast); border-color:var(--accent);}
+  .btn-primary:hover{opacity:.92;}
+  .btn-secondary{background:transparent;}
+  .btn-danger-text{background:none; border:none; color:var(--danger); font-size:12px; text-decoration:underline; padding:2px 4px;}
+  .btn-danger{background:var(--danger); color:#fff; border-color:var(--danger);}
+  .btn-danger:hover{opacity:.9;}
+  .btn-danger-outline{background:transparent; color:var(--danger); border-color:var(--danger);}
+  .danger-zone{border-top:1px solid var(--border); padding-top:14px; margin-top:4px;}
+  .badge-private{display:inline-block; font-size:11px; font-weight:600; color:var(--text-muted); border:1px solid var(--border); border-radius:99px; padding:1px 8px; vertical-align:middle;}
+  .badge-theme{display:inline-block; font-size:11px; font-weight:600; color:var(--accent-contrast); background:var(--accent); border-radius:99px; padding:1px 8px; vertical-align:middle;}
+  .btn:disabled{opacity:.5; cursor:not-allowed;}
+  .chip-btn{border:1px solid var(--border); background:var(--surface); border-radius:99px; padding:6px 13px; font-size:13px; color:var(--text-muted);}
+  .chip-btn.is-active{background:var(--accent-soft); color:var(--accent); border-color:var(--accent); font-weight:700;}
+  .icon-btn{background:none; border:none; font-size:20px; line-height:1; color:var(--text-muted); padding:2px 6px;}
 
-  /* Session cards */
-  .session-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
-  .session-card{
-    background:var(--card);border-radius:var(--radius);overflow:hidden;
-    box-shadow:var(--shadow);display:flex;flex-direction:column;
-  }
-  .session-top{padding:16px 18px 0;}
-  .session-thumb{width:100%;aspect-ratio:16/9;overflow:hidden;background:var(--cream);}
-  .session-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
-  .session-top .connect-row{margin-bottom:10px;}
-  .session-body{padding:4px 18px 18px;flex:1;display:flex;flex-direction:column;}
-  .session-date-badge{
-    display:inline-flex;flex-direction:column;align-items:center;justify-content:center;
-    width:52px;height:52px;border-radius:12px;background:var(--cream);border:2px solid var(--line);
-    font-family:'Zen Maru Gothic';margin-bottom:12px;flex:none;
-  }
-  .session-date-badge .m{font-size:10px;font-weight:700;color:var(--brick);}
-  .session-date-badge .d{font-size:20px;font-weight:900;line-height:1;}
-  .session-card.is-cancelled{opacity:.72;}
-  .cancelled-badge{
-    display:inline-block;background:var(--brick);color:#fff;font-size:11px;font-weight:700;
-    padding:4px 12px;border-radius:999px;margin-bottom:10px;
-  }
-  .session-card h3{font-size:17px;margin-bottom:6px;}
-  .session-meta{font-size:13px;color:var(--ink-soft);display:flex;flex-direction:column;gap:4px;margin-bottom:10px;}
-  .session-meta span{display:flex;align-items:center;gap:6px;}
-  .session-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;}
-  .mini-tag{font-size:11px;font-weight:700;padding:4px 10px;border-radius:999px;}
-  .mini-tag.online{background:#E4F3FC;color:var(--blue-dark);}
-  .mini-tag.venue{background:#E4F5EA;color:var(--green-dark);}
-  .mini-tag.theme{background:#FCE9DC;color:var(--amber-dark);}
-  .capacity-info{margin-bottom:14px;}
-  .capacity-info-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;flex-wrap:wrap;}
-  .capacity-count{font-size:11.5px;color:var(--ink-soft);font-weight:700;}
-  .capacity-badge{font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;white-space:nowrap;}
-  .capacity-badge.confirmed{background:#E4F5EA;color:var(--green-dark);}
-  .capacity-badge.pending{background:#FCE9DC;color:var(--amber-dark);}
-  .capacity-badge.full{background:#FBE4E2;color:var(--brick-dark);}
-  .capacity-bar{position:relative;height:8px;border-radius:999px;background:var(--cream);border:1px solid var(--line);overflow:visible;}
-  .capacity-bar-fill{height:100%;border-radius:999px;background:var(--amber);transition:width .3s;}
-  .capacity-bar-fill.confirmed{background:var(--green);}
-  .capacity-bar-fill.full{background:var(--brick);}
-  .capacity-bar-min{
-    position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--ink);opacity:.4;
-  }
-  .session-footer{margin-top:auto;display:flex;align-items:center;justify-content:space-between;gap:10px;}
-  .fee{font-weight:900;font-family:'Zen Maru Gothic';font-size:15px;}
-  .fee.free{color:var(--green-dark);}
-  .reg-badge{font-size:11px;font-weight:700;color:var(--brick-dark);background:#FBE4E2;padding:4px 10px;border-radius:999px;}
-  .btn-detail{
-    background:var(--ink);color:#fff;border:none;padding:9px 16px;border-radius:999px;font-weight:700;font-size:13px;
-    white-space:nowrap;
-  }
-  .btn-detail:hover{background:var(--brick);}
-  .empty-state{
-    text-align:center;padding:60px 20px;color:var(--ink-soft);
-  }
-  .empty-state .connect-row{display:flex;justify-content:center;margin-bottom:16px;}
+  .notice{background:var(--warm-soft); border:1px solid var(--warm); color:var(--text); border-radius:var(--radius-m); padding:14px 16px; font-size:14px;}
+  .notice.error{background:var(--danger-soft); border-color:var(--danger);}
 
-  /* Calendar */
-  .calendar-wrap{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px;}
-  .cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
-  .cal-head h3{font-size:18px;}
-  .cal-nav{display:flex;gap:6px;}
-  .cal-nav button{border:2px solid var(--line);background:#fff;width:34px;height:34px;border-radius:50%;font-weight:900;font-size:15px;color:var(--ink);}
-  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;}
-  .cal-dow{text-align:center;font-size:12px;font-weight:700;color:var(--ink-soft);padding-bottom:6px;}
-  .cal-cell{
-    min-height:78px;border-radius:12px;background:var(--cream);border:2px solid var(--line);
-    padding:6px;position:relative;cursor:default;
-  }
-  .cal-cell.empty{background:transparent;border-color:transparent;}
-  .cal-cell .num{font-size:12px;font-weight:700;color:var(--ink-soft);}
-  .cal-cell.today .num{color:var(--brick);}
-  .cal-dots{display:flex;flex-wrap:wrap;gap:3px;margin-top:6px;}
-  .cal-dots .d{width:7px;height:7px;border-radius:50%;}
-  .cal-cell.has-events{cursor:pointer;border-color:var(--yellow);background:#FFFAEA;}
-  .cal-cell.selected{outline:3px solid var(--brick);outline-offset:-3px;}
-  .cal-day-list{margin-top:18px;border-top:2px dashed var(--line);padding-top:16px;}
-  .cal-day-list h4{font-size:14px;margin-bottom:12px;}
+  label.field{display:flex; flex-direction:column; gap:6px; font-size:13px; color:var(--text-muted); font-weight:500;}
+  label.field input, label.field textarea, label.field select{padding:9px 11px; font-size:14px; color:var(--text);}
+  label.field input:invalid{border-color:var(--danger);}
+  .field-grid{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+  @media (max-width:560px){ .field-grid{grid-template-columns:1fr;} }
 
-  /* Members section */
-  .members-cta{
-    background:linear-gradient(135deg,#FFF3D6,#FFE39B);
-    border-radius:24px;padding:40px 32px;
-    display:grid;grid-template-columns:1.1fr 0.9fr;gap:30px;align-items:center;
-  }
-  .members-cta h2{font-size:24px;}
-  .members-cta p{color:var(--ink-soft);margin-top:10px;font-size:14.5px;}
-  .members-form{background:#fff;border-radius:18px;padding:22px;box-shadow:var(--shadow);}
-  .field{margin-bottom:14px;}
-  .field label{display:block;font-size:12.5px;font-weight:700;color:var(--ink-soft);margin-bottom:6px;}
-  .field input,.field select,.field textarea{
-    width:100%;border:2px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px;font-family:inherit;
-    background:var(--cream);color:var(--ink);
-  }
-  .field input:focus,.field select:focus,.field textarea:focus{outline:2px solid var(--blue);border-color:var(--blue);}
-  .field input[readonly]{background:#EFEDE6;color:var(--ink-soft);cursor:not-allowed;}
-  .checkbox-field{
-    display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--ink-soft);
-    margin-bottom:16px;cursor:pointer;line-height:1.5;
-  }
-  .checkbox-field input{width:auto;margin-top:3px;flex:none;accent-color:var(--blue);}
-  .required-mark{color:var(--brick);font-size:11px;font-weight:700;margin-left:6px;}
-  .auth-tabs{display:flex;gap:6px;background:var(--cream);border:2px solid var(--line);border-radius:999px;padding:4px;margin-bottom:20px;}
-  .auth-tab{flex:1;border:none;background:none;padding:9px 12px;border-radius:999px;font-weight:700;font-size:13.5px;color:var(--ink-soft);}
-  .auth-tab.active{background:var(--ink);color:#fff;}
-  .link-btn{
-    background:none;border:none;color:var(--blue-dark);font-size:12.5px;font-weight:700;
-    text-decoration:underline;cursor:pointer;padding:0;display:block;
-  }
-  .field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-  @media (max-width:480px){.field-row{grid-template-columns:1fr;}}
-  .organizer-toolbar{margin-bottom:20px;}
-  .my-session-list{display:grid;gap:14px;}
-  .my-session-card{
-    background:var(--card);border-radius:16px;padding:16px 18px;box-shadow:var(--shadow);
-    display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;
-  }
-  .my-session-card .msc-main{flex:1;min-width:200px;overflow-wrap:break-word;word-break:break-word;}
-  .my-session-card h4{font-size:15.5px;margin-bottom:4px;overflow-wrap:break-word;word-break:break-word;}
-  .my-session-card .msc-meta{font-size:12.5px;color:var(--ink-soft);overflow-wrap:break-word;word-break:break-word;}
-  .my-session-card .msc-actions{display:flex;gap:8px;}
-  .my-session-card .msc-actions button{
-    border:2px solid var(--line);background:#fff;padding:7px 14px;border-radius:999px;font-weight:700;font-size:12.5px;color:var(--ink);
-  }
-  .my-session-card .msc-actions button.edit:hover{border-color:var(--blue);color:var(--blue-dark);}
-  .my-session-card .msc-actions button.delete:hover{border-color:var(--brick);color:var(--brick-dark);}
-  .my-session-card .msc-actions button.applicants:hover{border-color:var(--green);color:var(--green-dark);}
-  .applicants-table{width:100%;border-collapse:collapse;font-size:13px;}
-  .applicants-table th,.applicants-table td{
-    text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top;
-  }
-  .applicants-table th{color:var(--ink-soft);font-weight:700;font-size:11.5px;}
-  .applicants-table td{color:var(--ink);word-break:break-all;}
-  .cancel-applicant-btn{
-    border:2px solid var(--line);background:#fff;padding:5px 10px;border-radius:999px;
-    font-weight:700;font-size:11px;color:var(--brick-dark);white-space:nowrap;
-  }
-  .cancel-applicant-btn:hover{border-color:var(--brick);}
-  .empty-organizer{color:var(--ink-soft);font-size:13.5px;padding:30px;text-align:center;background:var(--card);border-radius:16px;}
-  .ticket-link{
-    display:inline-flex;align-items:center;gap:6px;background:var(--amber);color:var(--ink);
-    padding:8px 16px;border-radius:999px;font-weight:700;font-size:13px;text-decoration:none;margin-top:10px;
-  }
-  .ticket-link:hover{background:var(--amber-dark);}
-  .field-hint{font-size:11.5px;color:var(--ink-soft);margin-top:6px;}
-  .field-hint-inline{font-size:11px;color:var(--blue-dark);font-weight:700;margin-left:6px;}
-  input[type="file"]{
-    width:100%;border:2px dashed var(--line);border-radius:10px;padding:10px 12px;font-size:13px;
-    background:var(--cream);color:var(--ink-soft);font-family:inherit;
-  }
-  .se-image-preview-wrap{margin-top:10px;position:relative;display:inline-block;}
-  .se-image-preview-wrap img{
-    max-width:100%;max-height:160px;border-radius:12px;display:block;box-shadow:var(--shadow);
-  }
-  .se-image-preview-wrap button{
-    position:absolute;top:-8px;right:-8px;background:var(--brick);color:#fff;border:2px solid #fff;
-    width:24px;height:24px;border-radius:50%;font-size:11px;font-weight:900;line-height:1;cursor:pointer;
-  }
+  .section-title{font-size:15px; font-weight:700; color:var(--text); margin-bottom:2px;}
+  .section-hint{font-size:12.5px; color:var(--text-muted); margin-bottom:8px;}
 
-  footer{
-    background:var(--ink);color:#EDEFF3;padding:40px 24px 30px;margin-top:20px;
-  }
-  .footer-inner{max-width:1180px;margin:0 auto;}
-  footer .logo-text small{color:#9BA3B4;}
-  footer .connect-row{margin-bottom:16px;}
-  .footer-note{font-size:12px;color:#9BA3B4;margin-top:18px;line-height:1.8;}
+  .slot-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:12px;}
+  .slot-card{border:1.5px dashed var(--border); border-radius:var(--radius-m); overflow:hidden; background:var(--surface-alt); min-height:150px; display:flex; flex-direction:column;}
+  .slot-card.has-photo{border-style:solid; background:var(--surface);}
+  .slot-label{font-size:12px; font-weight:700; padding:7px 9px; color:var(--text-muted); font-family:var(--font-mono); letter-spacing:.03em;}
+  .slot-empty-btn{flex:1; background:none; border:none; color:var(--text-muted); font-size:13px; display:flex; align-items:center; justify-content:center; padding:16px;}
+  .slot-thumb-wrap{position:relative; aspect-ratio:4/3; overflow:hidden;}
+  .slot-thumb-wrap img{width:100%; height:100%; object-fit:cover; display:block;}
+  .slot-pin-count{position:absolute; bottom:6px; right:6px; background:rgba(0,0,0,.6); color:#fff; font-size:11px; padding:2px 7px; border-radius:99px; font-family:var(--font-mono);}
+  .slot-actions{display:flex; gap:6px; padding:7px 9px; border-top:1px solid var(--border);}
+  .slot-actions button{flex:1; font-size:12px; padding:6px 4px;}
 
-  /* Modal */
-  .modal-overlay{
-    position:fixed;inset:0;background:rgba(35,43,58,0.55);z-index:100;
-    display:none;align-items:center;justify-content:center;padding:20px;
-  }
-  .modal-overlay.open{display:flex;}
-  .modal{
-    background:#fff;border-radius:22px;max-width:480px;width:100%;max-height:88vh;overflow-y:auto;
-    padding:26px;position:relative;box-shadow:0 20px 0 rgba(35,43,58,0.08);
-  }
-  .modal-close{position:absolute;top:16px;right:16px;border:none;background:var(--cream);width:32px;height:32px;border-radius:50%;font-size:16px;font-weight:900;color:var(--ink-soft);}
-  .detail-image{margin:-26px -26px 14px;border-radius:22px 22px 0 0;overflow:hidden;aspect-ratio:16/9;background:var(--cream);}
-  .detail-image img{width:100%;height:100%;object-fit:cover;display:block;}
-  .detail-image-view-btn{width:100%;margin-bottom:18px;}
-  .modal h3{font-size:19px;margin-bottom:4px;}
-  .modal .modal-sub{font-size:13px;color:var(--ink-soft);margin-bottom:18px;}
-  .modal-summary{background:var(--cream);border-radius:14px;padding:14px 16px;margin-bottom:18px;font-size:13.5px;}
-  .modal-summary div{display:flex;justify-content:space-between;padding:4px 0;color:var(--ink-soft);}
-  .modal-summary div b{color:var(--ink);font-weight:700;}
-  .success-box{text-align:center;padding:10px 0;}
-  .success-box .connect-row{display:flex;justify-content:center;margin-bottom:14px;}
-  .success-box h3{margin-bottom:8px;}
-  .success-box p{color:var(--ink-soft);font-size:13.5px;margin-bottom:20px;}
-  .gcal-btn{
-    display:inline-flex;align-items:center;gap:8px;background:#fff;border:2px solid var(--ink);
-    padding:11px 20px;border-radius:999px;font-weight:700;font-size:14px;color:var(--ink);text-decoration:none;
-  }
-  .need-member{background:#FBE4E2;border-radius:14px;padding:16px;font-size:13.5px;color:var(--brick-dark);margin-bottom:16px;}
-  .board-section{margin-top:22px;padding-top:18px;border-top:2px dashed var(--line);}
-  .board-section h4{font-size:15px;margin-bottom:6px;}
-  .board-messages{display:flex;flex-direction:column;gap:10px;max-height:220px;overflow-y:auto;margin-bottom:4px;}
-  .board-message{background:var(--cream);border-radius:12px;padding:10px 14px;}
-  .board-message-head{font-size:12.5px;margin-bottom:4px;display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;}
-  .board-message-head b{color:var(--ink);}
-  .board-messenger{color:var(--ink-soft);font-size:11px;}
-  .board-message p{font-size:13.5px;color:var(--ink);white-space:pre-wrap;margin:0;}
-  .toast{
-    position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
-    background:var(--ink);color:#fff;padding:13px 24px;border-radius:999px;font-weight:700;font-size:14px;
-    z-index:200;box-shadow:0 8px 20px rgba(0,0,0,0.2);
-    opacity:0;pointer-events:none;transition:.25s;
-  }
-  .toast.show{opacity:1;transform:translateX(-50%) translateY(-6px);}
+  .action-rows{display:flex; flex-direction:column; gap:8px;}
+  .action-row{display:flex; gap:8px; align-items:center;}
+  .action-row input{flex:1;}
 
-  .lightbox-overlay{
-    position:fixed;inset:0;background:rgba(10,12,16,0.92);z-index:300;
-    display:none;align-items:center;justify-content:center;padding:24px;
-    cursor:zoom-out;
-  }
-  .lightbox-overlay.open{display:flex;}
-  .lightbox-overlay img{
-    max-width:100%;max-height:100%;object-fit:contain;border-radius:8px;
-    box-shadow:0 20px 60px rgba(0,0,0,0.5);cursor:default;
-  }
-  .lightbox-close{
-    position:fixed;top:20px;right:20px;background:rgba(255,255,255,0.15);color:#fff;
-    border:none;width:40px;height:40px;border-radius:50%;font-size:18px;font-weight:900;
-    cursor:pointer;
-  }
-  .lightbox-close:hover{background:rgba(255,255,255,0.28);}
+  /* photo stage (shared by annotate modal + detail view) */
+  .photo-stage{position:relative; width:100%; border-radius:var(--radius-m); overflow:hidden; background:var(--surface-alt); line-height:0;}
+  .photo-stage img{width:100%; display:block; user-select:none;}
+  .pin-layer{position:absolute; inset:0;}
+  .arrow-layer{position:absolute; inset:0; width:100%; height:100%; pointer-events:none;}
+  .rel-line{stroke:var(--accent); stroke-width:.6; fill:none; pointer-events:stroke; cursor:pointer;}
+  .pin-marker{position:absolute; transform:translate(-50%,-50%); width:22px; height:22px; border:none; background:none; padding:0; cursor:pointer;}
+  .pin-dot{display:block; width:100%; height:100%; border-radius:50% 50% 50% 0; background:var(--warm); border:2px solid var(--accent-contrast); transform:rotate(-45deg); box-shadow:0 1px 3px rgba(0,0,0,.35);}
+  .pin-marker.is-selected .pin-dot{background:var(--accent); outline:2px solid var(--accent-contrast);}
+  .pin-marker:hover .pin-dot{filter:brightness(1.1);}
 
-  @media (max-width: 900px){
-    .hero{padding-top:32px;}
-    nav{
-      display:none; /* 閉じている間は完全にレイアウトから除外する(iOS Safariの横スクロール誤検出バグ対策) */
-      position:fixed;top:64px;left:0;right:0;bottom:0;
-      background-color:#FFFFFF !important;
-      background:#FFFFFF !important;
-      opacity:1;
-      flex-direction:column;align-items:stretch;padding:20px;gap:8px;
-      z-index:9999;
-      box-shadow:-4px 0 24px rgba(0,0,0,0.15);
-    }
-    nav.open{
-      display:flex;
-    }
-    .nav-link{text-align:left;font-size:16px;padding:14px 16px;}
-    .hamburger{display:block;}
-    .session-grid{grid-template-columns:1fr;}
-    .members-cta{grid-template-columns:1fr;padding:26px 20px;}
-    .cal-cell{min-height:56px;}
-    .cal-dow{font-size:10px;}
-  }
-  @media (max-width:520px){
-    .header-inner{padding:12px 16px;}
-    .hero{padding:26px 16px 30px;}
-    section{padding:28px 16px;}
-    .ann-card{width:250px;}
-  }
+  .annotate-toolbar{display:flex; gap:8px; margin-bottom:6px; flex-wrap:wrap;}
+  .hint{font-size:12.5px; color:var(--text-muted); margin:0 0 10px;}
+  .annotate-lists{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:16px;}
+  @media (max-width:560px){ .annotate-lists{grid-template-columns:1fr;} }
+  .annotate-lists h4{font-size:12.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--text-muted); margin-bottom:6px;}
+  .rec-list{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:6px; max-height:160px; overflow-y:auto;}
+  .rec-list li{background:var(--surface-alt); border-radius:var(--radius-s); padding:7px 9px; font-size:13px; position:relative; padding-right:52px;}
+  .rec-list li b{display:block;}
+  .rec-list li span{color:var(--text-muted); font-size:12.5px;}
+  .rec-list li button{position:absolute; right:8px; top:8px;}
+  .rec-list li.empty{color:var(--text-muted); font-style:italic; padding-right:9px;}
 
-  @media (prefers-reduced-motion: reduce){
-    *{transition:none !important; scroll-behavior:auto !important;}
-  }
-  :focus-visible{outline:3px solid var(--blue);outline-offset:2px;}
+  /* modals */
+  .modal-overlay{position:fixed; inset:0; background:rgba(20,17,12,.5); display:flex; align-items:flex-start; justify-content:center; padding:min(6vh,40px) 16px; overflow-y:auto; z-index:50;}
+  .modal-overlay-top{z-index:60;}
+  .modal{background:var(--bg); border-radius:var(--radius-l); width:100%; max-width:640px; box-shadow:var(--shadow); padding:20px;}
+  .small-modal{max-width:400px;}
+  .modal-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;}
+  .modal-foot{display:flex; justify-content:flex-end; gap:8px; margin-top:16px;}
+  .form-body{display:flex; flex-direction:column; gap:12px;}
+  .field-checkbox{flex-direction:row; align-items:center; gap:8px;}
+  .field-checkbox input{width:auto;}
+
+  /* calendar */
+  .cal-head{display:flex; align-items:center; justify-content:center; gap:14px; margin-bottom:14px;}
+  .cal-head .cal-title{font-family:var(--font-display); font-size:19px; font-weight:600; min-width:130px; text-align:center;}
+  .cal-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:4px;}
+  .cal-dow{text-align:center; font-size:11px; color:var(--text-muted); font-weight:700; padding-bottom:4px;}
+  .cal-cell{aspect-ratio:1/1; border-radius:var(--radius-s); border:1px solid var(--border); background:var(--surface); padding:4px; font-size:12px; display:flex; flex-direction:column; gap:2px; overflow:hidden; text-align:left;}
+  .cal-cell.is-outside{opacity:.35; background:transparent; border-style:dashed;}
+  .cal-cell.is-today{border-color:var(--accent); border-width:2px;}
+  .cal-cell.is-selected{background:var(--accent-soft);}
+  .cal-daynum{font-family:var(--font-mono); font-weight:600;}
+  .cal-dot{width:6px; height:6px; border-radius:50%; background:var(--warm); display:inline-block; margin-right:3px;}
+  .cal-chip{font-size:10px; background:var(--warm-soft); color:var(--text); border-radius:4px; padding:0 3px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .cal-day-list{margin-top:16px;}
+
+  /* list & cards of models */
+  .model-card{display:flex; gap:14px; padding:14px; cursor:pointer;}
+  .model-card:hover{border-color:var(--accent);}
+  .model-thumb{width:88px; height:66px; border-radius:var(--radius-s); overflow:hidden; flex-shrink:0; background:var(--surface-alt); display:flex; align-items:center; justify-content:center; color:var(--text-muted); font-size:11px;}
+  .model-thumb img{width:100%; height:100%; object-fit:cover;}
+  .model-card .meta{font-size:12.5px; color:var(--text-muted); font-family:var(--font-mono);}
+  .model-card h3{font-size:16px; font-weight:600; margin-bottom:2px;}
+
+  .empty-state{text-align:center; padding:40px 16px; color:var(--text-muted);}
+
+  /* detail */
+  .detail-meta{display:flex; flex-wrap:wrap; gap:14px; font-size:13px; color:var(--text-muted); font-family:var(--font-mono);}
+  .toggle-row{display:flex; align-items:center; gap:8px; font-size:13px;}
+  .photo-gallery{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px;}
+  .photo-block figcaption{font-size:12px; color:var(--text-muted); margin-top:6px; display:flex; justify-content:space-between;}
+
+  /* cube viewer */
+  .cube-wrap{display:flex; flex-direction:column; align-items:center; gap:10px;}
+  .cube-scene{--size:min(66vw,300px); width:var(--size); height:var(--size); perspective:900px; touch-action:none; cursor:grab;}
+  .cube-scene:active{cursor:grabbing;}
+  .cube{position:relative; width:100%; height:100%; transform-style:preserve-3d;}
+  .cube-face{position:absolute; width:var(--size); height:var(--size); overflow:hidden; background:var(--surface-alt); border:1px solid var(--border);}
+  .cube-face .photo-stage{position:absolute; inset:0; border-radius:0;}
+  .cube-face .photo-stage img{width:100%; height:100%; object-fit:cover;}
+  .cube-face-label{position:absolute; top:6px; left:8px; z-index:2; font-size:11px; font-family:var(--font-mono); background:rgba(0,0,0,.55); color:#fff; padding:2px 7px; border-radius:99px; pointer-events:none;}
+  .cube-face-empty{display:flex; align-items:center; justify-content:center; height:100%; color:var(--text-muted); font-size:12px; text-align:center; padding:10px;}
+  .face-front{ transform: translateZ(calc(var(--size)/2)); }
+  .face-back{ transform: rotateY(180deg) translateZ(calc(var(--size)/2)); }
+  .face-right{ transform: rotateY(90deg) translateZ(calc(var(--size)/2)); }
+  .face-left{ transform: rotateY(-90deg) translateZ(calc(var(--size)/2)); }
+  .face-top{ transform: rotateX(90deg) translateZ(calc(var(--size)/2)); }
+  .cube-hint{font-size:12.5px; color:var(--text-muted);}
+  .slot-strip{display:flex; gap:10px; flex-wrap:wrap; justify-content:center;}
+  .slot-strip-item{display:flex; align-items:center; gap:8px; background:var(--surface-alt); border-radius:var(--radius-s); padding:6px 8px 6px 6px;}
+  .slot-strip-item img{width:34px; height:34px; object-fit:cover; border-radius:6px;}
+  .slot-strip-item span{font-size:12px; color:var(--text-muted);}
+  .slot-strip-item button{font-size:11.5px; padding:4px 8px;}
+
+  .action-card{border:1px solid var(--border); border-radius:var(--radius-m); padding:14px; background:var(--surface-alt);}
+  .action-card .action-text{font-weight:600; margin-bottom:2px;}
+  .action-card .meta{font-size:12px; color:var(--text-muted); font-family:var(--font-mono); margin-bottom:10px;}
+  .check-row{display:grid; grid-template-columns:repeat(4,1fr); gap:8px;}
+  @media (max-width:560px){ .check-row{grid-template-columns:repeat(2,1fr);} }
+  .check-chip{background:var(--surface); border-radius:var(--radius-s); padding:8px; font-size:12px; display:flex; flex-direction:column; gap:4px;}
+  .check-chip-label{font-weight:700; color:var(--text-muted); font-size:11px;}
+  .check-chip.good{background:var(--good-soft);}
+  .check-chip.danger{background:var(--danger-soft);}
+  .check-chip button{font-size:11px; padding:4px 6px; border-radius:6px;}
+  .check-comment{font-size:11.5px; color:var(--text-muted); margin:0;}
+
+  .due-item{display:flex; justify-content:space-between; align-items:center; gap:12px; padding:12px 14px; border-radius:var(--radius-m); background:var(--danger-soft); flex-wrap:wrap;}
+  .due-item .info{font-size:13px;}
+  .due-item .info b{display:block; font-size:14.5px;}
+  .upcoming-item{display:flex; justify-content:space-between; padding:9px 14px; font-size:13px; border-bottom:1px solid var(--border);}
+  .upcoming-item:last-child{border-bottom:none;}
+
+  .sync-note{font-family:var(--font-mono); font-size:11px; color:var(--text-muted); text-align:right; margin-bottom:6px;}
+  #globalNotice:empty{display:none;}
+  #globalNotice .notice{margin-bottom:16px;}
+  .user-bar{display:flex; align-items:center; gap:10px; font-size:13px; color:var(--text-muted);}
+  .user-bar b{color:var(--text);}
+  .user-bar button{font-size:12px; padding:5px 11px;}
+  .auth-card{max-width:420px; margin:32px auto;}
+  .auth-tabs{display:flex; justify-content:center; gap:6px;}
+  #recaptchaContainer{display:flex; justify-content:center;}
+
+  @media (max-width:480px){ .field-grid{grid-template-columns:1fr;} .annotate-lists{grid-template-columns:1fr;} }
 </style>
-<script>
-  /* reCAPTCHA v2(会員登録フォームのボット対策)
-     ここに、Google reCAPTCHA管理コンソール(https://www.google.com/recaptcha/admin)で
-     取得した「サイトキー」を設定してください。 */
-  const RECAPTCHA_SITE_KEY = "6Le04aAtAAAAAN0rolJtNsb2dMQkd8x81P2aDS0p";
-  function onRecaptchaLoad(){
-    if(!window.grecaptcha || RECAPTCHA_SITE_KEY === "YOUR_RECAPTCHA_SITE_KEY_HERE") return;
-    window.recaptchaWidgetSection = grecaptcha.render("recaptchaSection", { sitekey: RECAPTCHA_SITE_KEY });
-    window.recaptchaWidgetModal = grecaptcha.render("recaptchaModal", { sitekey: RECAPTCHA_SITE_KEY });
-    window.recaptchaWidgetChangePassword = grecaptcha.render("recaptchaChangePassword", { sitekey: RECAPTCHA_SITE_KEY });
-  }
-</script>
-<script src="https://www.google.com/recaptcha/api.js?onload=onRecaptchaLoad&render=explicit" async defer></script>
 </head>
 <body>
-
-<header>
-  <div class="header-inner">
-    <div class="logo">
-      <svg class="logo-mark" width="34" height="22" viewBox="0 0 34 22" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <path d="M4 16 Q11 4 17 11 T30 6" stroke="#D8D2C0" stroke-width="2" fill="none" stroke-linecap="round"/>
-        <circle cx="4" cy="16" r="4" fill="var(--brick)"/>
-        <circle cx="13" cy="8" r="4" fill="var(--amber)"/>
-        <circle cx="21" cy="13" r="4" fill="var(--blue)"/>
-        <circle cx="30" cy="6" r="4" fill="var(--green)"/>
-      </svg>
-      <div class="logo-text">LSPラーニング・ガーデン<small>LSPファシリテーターのための学び場</small></div>
-    </div>
-    <button class="hamburger" id="hamburgerBtn" aria-label="メニューを開く"><span></span><span></span><span></span></button>
-    <nav id="mainNav">
-      <button class="nav-link" data-scroll="#sessions">勉強会・交流会</button>
-      <a class="nav-link" href="past-events.html" style="text-decoration:none;display:inline-flex;align-items:center;">過去のイベント</a>
-      <button class="nav-link guest-only" data-scroll="#members">会員登録</button>
-      <button class="nav-link organizer-only" style="display:none;" id="changePasswordNavBtn">パスワード変更</button>
-      <button class="nav-link organizer-only" style="display:none;" data-scroll="#organizer">主催者MENU</button>
-      <button class="nav-link organizer-only" style="display:none;color:var(--brick-dark);" id="logoutNavBtn">ログアウト</button>
-    </nav>
-  </div>
-</header>
-
-<section class="hero">
-  <div>
-    <div class="hero-eyebrow">🤝 Certified Facilitators Only</div>
-    <h1>仲間とつながり、<br><span class="hi">学びを重ねていく。</span></h1>
-    <p class="lead">LEGO® SERIOUS PLAY®メソッドを学んだファシリテーターのための限定コミュニティ。勉強会の予定確認から事前登録まで、ここでまとめて完結します。</p>
-    <div class="hero-cta">
-      <button class="btn-primary" data-scroll="#sessions">勉強会をさがす</button>
-      <button class="btn-ghost" data-scroll="#members">会員登録・ログイン</button>
-    </div>
-  </div>
-</section>
-
-<section id="members" class="guest-only">
-  <div class="members-cta">
+<div id="shell">
+  <header class="masthead">
     <div>
-      <div class="hero-eyebrow">🎟️ Membership</div>
-      <h2 id="membersHeading">会員登録すれば、誰でも勉強会・交流会に申し込め、勉強会・交流会を登録できます</h2>
-      <p id="membersLead">お名前とメールアドレスを登録するだけ。登録後はすぐに勉強会への参加申し込みができるようになります。2回目以降はメールアドレスとパスワードでログインできます。</p>
+      <h1>モデル観察ログ</h1>
+      <div class="sub">LEGO&reg;SERIOUS PLAY&reg; モデル記録</div>
+      <a href="manual.html" target="_blank" rel="noopener" class="manual-link">使い方ガイド &rarr;</a>
     </div>
-    <div class="members-form">
-      <div class="auth-tabs">
-        <button type="button" class="auth-tab active" id="tabRegister" data-auth-tab="register">新規登録</button>
-        <button type="button" class="auth-tab" id="tabLogin" data-auth-tab="login">ログイン</button>
-      </div>
-
-      <div id="registerFormBlock">
-        <div class="field">
-          <label for="regName">お名前</label>
-          <input type="text" id="regName" placeholder="山田 花子">
-        </div>
-        <div class="field">
-          <label for="regEmail">メールアドレス</label>
-          <input type="email" id="regEmail" placeholder="you@example.com">
-        </div>
-        <div class="field">
-          <label for="regPassword">パスワード(6文字以上)</label>
-          <input type="password" id="regPassword" placeholder="••••••••" autocomplete="new-password">
-        </div>
-        <div class="field">
-          <label for="regPasswordConfirm">パスワード(確認)</label>
-          <input type="password" id="regPasswordConfirm" placeholder="••••••••" autocomplete="new-password">
-        </div>
-        <div class="field" id="regTrainingDateField">
-          <label for="regTrainingDate">トレーニング時期<span class="required-mark">*必須</span></label>
-          <input type="text" id="regTrainingDate" placeholder="例:2023年4月">
-        </div>
-        <div class="field" id="regTrainerField">
-          <label for="regTrainer">トレーナー名<span class="required-mark">*必須</span></label>
-          <input type="text" id="regTrainer" placeholder="">
-        </div>
-        <div class="field">
-          <label for="regMessenger">Messenger登録名(任意)</label>
-          <input type="text" id="regMessenger" placeholder="例:hanako.yamada">
-          <p class="field-hint">今後の連絡を取りやすくするためのものです。未入力でも登録できます。</p>
-        </div>
-        <label class="checkbox-field">
-          <input type="checkbox" id="regNotify" checked>
-          <span>新しい勉強会が公開されたときにメール通知を受け取る</span>
-        </label>
-        <div id="recaptchaSection" style="margin-bottom:16px;"></div>
-        <button class="btn-primary" style="width:100%;" id="registerBtn">会員登録する</button>
-      </div>
-
-      <div id="loginFormBlock" style="display:none;">
-        <div class="field">
-          <label for="loginEmail">メールアドレス</label>
-          <input type="email" id="loginEmail" placeholder="you@example.com">
-        </div>
-        <div class="field">
-          <label for="loginPassword">パスワード</label>
-          <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password">
-        </div>
-        <button class="btn-primary" style="width:100%;" id="loginBtn">ログインする</button>
-        <button type="button" class="link-btn" id="forgotPasswordToggle" style="margin-top:10px;">パスワードをお忘れですか?</button>
-        <div id="forgotPasswordBlock" style="display:none;margin-top:12px;padding-top:12px;border-top:2px dashed var(--line);">
-          <div class="field">
-            <label for="forgotEmail">登録済みのメールアドレス</label>
-            <input type="email" id="forgotEmail" placeholder="you@example.com">
-          </div>
-          <p class="field-hint" style="margin-top:-6px;">入力されたメールアドレス宛に、新しいパスワードをお送りします。</p>
-          <button class="btn-ghost" style="width:100%;" id="forgotSubmitBtn">新しいパスワードを送信する</button>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section id="announcements">
-  <div class="section-head">
-    <h2>お知らせ</h2>
-    <span class="count">コミュニティ運営より</span>
-  </div>
-  <div class="ann-scroll" id="annScroll"></div>
-</section>
-
-<section id="sessions">
-  <div class="section-head">
-    <h2>イベント一覧</h2>
-    <span class="count" id="sessionCount"></span>
-  </div>
-
-  <div class="toolbar">
-    <div class="toolbar-row">
-      <div class="search-box">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="#5B6472" stroke-width="2"/><path d="M21 21l-4.3-4.3" stroke="#5B6472" stroke-width="2" stroke-linecap="round"/></svg>
-        <input type="text" id="searchInput" placeholder="勉強会名・タグで検索(例:読書会、関西)">
-      </div>
-      <button class="filter-toggle-btn" id="filterToggleBtn">タグで絞り込み ▾</button>
-      <div class="view-toggle">
-        <button class="active" id="listViewBtn">リスト</button>
-        <button id="calViewBtn">カレンダー</button>
-      </div>
-    </div>
-    <div class="filter-panel" id="filterPanel">
-      <div class="filter-group">
-        <h4>開催形式</h4>
-        <div class="tag-pills" id="formatTags"></div>
-      </div>
-      <div class="filter-group">
-        <h4>テーマ</h4>
-        <div class="tag-pills" id="themeTags"></div>
-      </div>
-      <button class="clear-filters" id="clearFiltersBtn">絞り込みをリセット</button>
-    </div>
-  </div>
-
-  <div id="listView">
-    <div class="session-grid" id="sessionGrid"></div>
-  </div>
-
-  <div id="calView" style="display:none;">
-    <div class="calendar-wrap">
-      <div class="cal-head">
-        <h3 id="calMonthLabel"></h3>
-        <div class="cal-nav">
-          <button id="calPrevBtn" aria-label="前の月">‹</button>
-          <button id="calNextBtn" aria-label="次の月">›</button>
-        </div>
-      </div>
-      <div class="cal-grid" id="calGrid"></div>
-      <p class="field-hint" style="margin-top:12px;">※日付を固定しない「定期開催」の勉強会はカレンダーには表示されません。リスト表示でご確認ください。</p>
-      <div class="cal-day-list" id="calDayList" style="display:none;"></div>
-    </div>
-  </div>
-</section>
-
-
-
-<section id="myApplications" class="organizer-only" style="display:none;">
-  <div class="section-head">
-    <h2>申し込み済イベント</h2>
-    <span class="count">あなたが申込んだイベントの一覧です</span>
-  </div>
-  <p class="field-hint" style="margin-top:-10px;margin-bottom:18px;">キャンセルをご希望の場合は、お手数ですがこのサイト上ではなく、各イベントの主催者に直接ご連絡ください。開催日を過ぎたイベントへの申込みは、「過去のイベント」ページの「過去に申し込んだイベント」からご確認いただけます。</p>
-  <div id="myApplicationsList" class="my-session-list"></div>
-</section>
-
-<section id="organizer" class="organizer-only" style="display:none;">
-  <div class="section-head">
-    <h2>主催者MENU</h2>
-    <span class="count">認定ファシリテーターとして登録すると、勉強会を作成・編集・削除できます</span>
-  </div>
-  <div class="organizer-toolbar">
-    <button class="btn-primary" id="newSessionBtn">+ 新しい勉強会を作成</button>
-  </div>
-  <div id="mySessionsList" class="my-session-list"></div>
-</section>
-
-<!-- 勉強会 作成/編集モーダル -->
-<div class="modal-overlay" id="sessionEditorOverlay">
-  <div class="modal" style="max-width:560px;">
-    <button class="modal-close" id="sessionEditorClose">✕</button>
-    <h3 id="sessionEditorTitle">新しい勉強会を作成</h3>
-    <p class="modal-sub">入力後、「保存する」を押すとすぐにサイトに反映されます。</p>
-    <div class="field"><label for="seTitle">タイトル</label><input type="text" id="seTitle" placeholder="例:読書会 vol.5"></div>
-    <div class="field-row">
-      <div class="field">
-        <label for="seDate">開催日<span class="field-hint-inline" id="seDateHint"></span></label>
-        <input type="date" id="seDate">
-      </div>
-      <div class="field"><label for="seDeadline">申込締切(任意)</label><input type="date" id="seDeadline"></div>
-    </div>
-    <div class="field-row">
-      <div class="field"><label for="seStart">開始時刻</label><input type="time" id="seStart"></div>
-      <div class="field"><label for="seEnd">終了時刻</label><input type="time" id="seEnd"></div>
-    </div>
-    <div class="field"><label for="seLocation">開催場所</label><input type="text" id="seLocation" placeholder="例:オンライン(Zoom) / 東京都渋谷区〇〇"></div>
-    <div class="field">
-      <label>タグ</label>
-      <div class="tag-pills" id="seTagPills"></div>
-    </div>
-    <div class="field-row">
-      <div class="field"><label for="seFee">参加費(円・0で無料)</label><input type="number" id="seFee" value="0" min="0"></div>
-      <div class="field"><label for="seCapacity">定員(任意)</label><input type="number" id="seCapacity" min="1"></div>
-    </div>
-    <div class="field-row">
-      <div class="field"><label for="seMinCapacity">最低遂行人数(任意)</label><input type="number" id="seMinCapacity" min="1"></div>
-      <div class="field">
-        <label class="checkbox-field" style="margin-bottom:0;margin-top:22px;">
-          <input type="checkbox" id="seRequiresRegistration" checked>
-          <span>事前登録制にする</span>
-        </label>
-      </div>
-    </div>
-    <div class="field" id="seTicketUrlField" style="display:none;">
-      <label for="seTicketUrl">チケット購入・お支払いページのURL(任意)</label>
-      <input type="text" id="seTicketUrl" placeholder="https://...(Peatix、Stripeなど外部サイトのリンク)">
-    </div>
-    <div class="field">
-      <label for="seRelatedUrl">関連ページのURL(任意)</label>
-      <input type="text" id="seRelatedUrl" placeholder="https://...(告知SNS投稿、Zoomリンク、詳細ページなど)">
-      <p class="field-hint">参加費の有無に関わらず設定できます。詳細ページにリンクとして表示されます。</p>
-    </div>
-    <div class="field">
-      <label for="seImageFile">イベント画像・チラシ(任意)</label>
-      <input type="file" id="seImageFile" accept="image/png,image/jpeg,image/webp,image/gif">
-      <div class="se-image-preview-wrap" id="seImagePreviewWrap" style="display:none;">
-        <img id="seImagePreview" alt="アップロードした画像のプレビュー">
-        <button type="button" id="seImageRemoveBtn">✕ 画像を削除</button>
-      </div>
-      <p class="field-hint">一覧のサムネイルと、詳細ページの上部に表示されます(5MBまで)</p>
-    </div>
-    <div class="field"><label for="seDescription">詳細説明</label><textarea id="seDescription" rows="5" placeholder="勉強会の内容、持ち物、当日の流れなどを詳しく記入してください。ここに書いた内容が詳細ページに表示されます。"></textarea></div>
-    <button type="button" class="btn-ghost" id="sessionEditorCancelEventBtn" style="display:none;width:100%;margin-bottom:10px;">イベント中止にする</button>
-    <div style="display:flex; gap:10px;">
-      <button class="btn-primary" style="flex:1;" id="sessionEditorSaveBtn">保存する</button>
-      <button class="btn-ghost" id="sessionEditorDeleteBtn" style="display:none;color:var(--brick);border-color:var(--brick);">削除する</button>
-    </div>
-  </div>
+    <div id="userBar" class="user-bar"></div>
+  </header>
+  <div class="sync-note" id="syncNote"></div>
+  <div id="globalNotice"></div>
+  <nav class="tabs" id="tabs"></nav>
+  <main id="view"></main>
 </div>
-
-<!-- 申込み者一覧モーダル(作成者本人のみ) -->
-<div class="modal-overlay" id="applicantsModalOverlay">
-  <div class="modal" style="max-width:560px;">
-    <button class="modal-close" id="applicantsModalClose">✕</button>
-    <h3 id="applicantsModalTitle">申込み者一覧</h3>
-    <p class="modal-sub">この一覧は、あなたが作成したイベントの申込み者のみ表示され、他の人には公開されません。</p>
-    <div id="applicantsModalBody"></div>
-  </div>
-</div>
-
-<!-- 参加者への一斉メール送信モーダル -->
-<div class="modal-overlay" id="bulkEmailModalOverlay">
-  <div class="modal" style="max-width:520px;">
-    <button class="modal-close" id="bulkEmailModalClose">✕</button>
-    <h3 id="bulkEmailModalTitle">参加者へメールを送る</h3>
-    <p class="modal-sub" id="bulkEmailModalSub"></p>
-    <div class="field">
-      <label for="bulkEmailSubject">件名(任意)</label>
-      <input type="text" id="bulkEmailSubject" placeholder="例:【〇〇】当日の持ち物について">
-      <p class="field-hint">空欄の場合は「【イベント名】主催者からのお知らせ」という件名で送信されます。</p>
-    </div>
-    <div class="field">
-      <label for="bulkEmailMessage">本文</label>
-      <textarea id="bulkEmailMessage" rows="6" placeholder="申込み者の皆さまへお伝えしたい内容をご記入ください"></textarea>
-    </div>
-    <p class="field-hint">送信元は自動的にコミュニティのメールアドレスになりますが、本文に「返信は主催者へ」という案内が自動で付き、受信者が返信すると主催者(あなた)のメールアドレスに届くようになっています。</p>
-    <button class="btn-primary" style="width:100%;" id="bulkEmailSendBtn">送信する</button>
-  </div>
-</div>
-
-<!-- パスワード変更モーダル -->
-<div class="modal-overlay" id="changePasswordModalOverlay">
-  <div class="modal">
-    <button class="modal-close" id="changePasswordModalClose">✕</button>
-    <h3>パスワード変更</h3>
-    <p class="modal-sub">現在のパスワードを確認の上、新しいパスワードに変更します。</p>
-    <div class="field">
-      <label for="cpOldPassword">現在のパスワード</label>
-      <input type="password" id="cpOldPassword" placeholder="••••••••" autocomplete="current-password">
-    </div>
-    <div class="field">
-      <label for="cpNewPassword">新しいパスワード(6文字以上)</label>
-      <input type="password" id="cpNewPassword" placeholder="••••••••" autocomplete="new-password">
-    </div>
-    <div class="field">
-      <label for="cpNewPasswordConfirm">新しいパスワード(確認)</label>
-      <input type="password" id="cpNewPasswordConfirm" placeholder="••••••••" autocomplete="new-password">
-    </div>
-    <div id="recaptchaChangePassword" style="margin-bottom:16px;"></div>
-    <button class="btn-primary" style="width:100%;" id="changePasswordSubmitBtn">パスワードを変更する</button>
-  </div>
-</div>
-
-<footer>
-  <div class="footer-inner">
-    <div class="connect-row">
-      <svg width="140" height="34" viewBox="0 0 140 34" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <path d="M6 26 Q28 4 46 20 T88 10 T134 22" stroke="rgba(255,255,255,0.25)" stroke-width="2" fill="none" stroke-linecap="round"/>
-        <circle cx="6" cy="26" r="5" fill="var(--brick)"/>
-        <circle cx="46" cy="20" r="5" fill="var(--amber)"/>
-        <circle cx="88" cy="10" r="5" fill="var(--blue)"/>
-        <circle cx="134" cy="22" r="5" fill="var(--green)"/>
-      </svg>
-    </div>
-    <div class="logo-text">LSPラーニング・ガーデン<small>LSPファシリテーターのための学び場</small></div>
-    <p class="footer-note">
-      本サイトはLEGO® SERIOUS PLAY®メソッドを学んだファシリテーターの学び合いを目的とした非公式のコミュニティサイトです。LEGO、LEGO SERIOUS PLAYはThe LEGO Groupの商標であり、本サイトはLEGO Groupと提携するものではありません。
-    </p>
-  </div>
-</footer>
-
-<!-- 詳細・申し込みモーダル -->
-<div class="modal-overlay" id="detailModalOverlay">
-  <div class="modal">
-    <button class="modal-close" id="detailModalClose">✕</button>
-    <div id="detailModalBody"></div>
-  </div>
-</div>
-
-<!-- 会員登録モーダル(ナビからの導線用) -->
-<div class="modal-overlay" id="memberModalOverlay">
-  <div class="modal">
-    <button class="modal-close" id="memberModalClose">✕</button>
-    <h3>会員登録・ログイン</h3>
-    <p class="modal-sub">登録・ログインすると勉強会への申し込みができるようになります。</p>
-    <div class="auth-tabs">
-      <button type="button" class="auth-tab active" id="mmTabRegister" data-auth-tab="register">新規登録</button>
-      <button type="button" class="auth-tab" id="mmTabLogin" data-auth-tab="login">ログイン</button>
-    </div>
-
-    <div id="mmRegisterFormBlock">
-      <div class="field">
-        <label for="mmName">お名前</label>
-        <input type="text" id="mmName" placeholder="山田 花子">
-      </div>
-      <div class="field">
-        <label for="mmEmail">メールアドレス</label>
-        <input type="email" id="mmEmail" placeholder="you@example.com">
-      </div>
-      <div class="field">
-        <label for="mmPassword">パスワード(6文字以上)</label>
-        <input type="password" id="mmPassword" placeholder="••••••••" autocomplete="new-password">
-      </div>
-      <div class="field">
-        <label for="mmPasswordConfirm">パスワード(確認)</label>
-        <input type="password" id="mmPasswordConfirm" placeholder="••••••••" autocomplete="new-password">
-      </div>
-      <div class="field" id="mmTrainingDateField">
-        <label for="mmTrainingDate">トレーニング時期<span class="required-mark">*必須</span></label>
-        <input type="text" id="mmTrainingDate" placeholder="例:2023年4月">
-      </div>
-      <div class="field" id="mmTrainerField">
-        <label for="mmTrainer">トレーナー名<span class="required-mark">*必須</span></label>
-        <input type="text" id="mmTrainer" placeholder="">
-      </div>
-      <div class="field">
-        <label for="mmMessenger">Messenger登録名(任意)</label>
-        <input type="text" id="mmMessenger" placeholder="例:hanako.yamada">
-        <p class="field-hint">今後の連絡を取りやすくするためのものです。未入力でも登録できます。</p>
-      </div>
-      <label class="checkbox-field">
-        <input type="checkbox" id="mmNotify" checked>
-        <span>新しい勉強会が公開されたときにメール通知を受け取る</span>
-      </label>
-      <div id="recaptchaModal" style="margin-bottom:16px;"></div>
-      <button class="btn-primary" style="width:100%;" id="mmRegisterBtn">登録して続ける</button>
-    </div>
-
-    <div id="mmLoginFormBlock" style="display:none;">
-      <div class="field">
-        <label for="mmLoginEmail">メールアドレス</label>
-        <input type="email" id="mmLoginEmail" placeholder="you@example.com">
-      </div>
-      <div class="field">
-        <label for="mmLoginPassword">パスワード</label>
-        <input type="password" id="mmLoginPassword" placeholder="••••••••" autocomplete="current-password">
-      </div>
-      <button class="btn-primary" style="width:100%;" id="mmLoginBtn">ログインする</button>
-      <button type="button" class="link-btn" id="mmForgotPasswordToggle" style="margin-top:10px;">パスワードをお忘れですか?</button>
-      <div id="mmForgotPasswordBlock" style="display:none;margin-top:12px;padding-top:12px;border-top:2px dashed var(--line);">
-        <div class="field">
-          <label for="mmForgotEmail">登録済みのメールアドレス</label>
-          <input type="email" id="mmForgotEmail" placeholder="you@example.com">
-        </div>
-        <p class="field-hint" style="margin-top:-6px;">入力されたメールアドレス宛に、新しいパスワードをお送りします。</p>
-        <button class="btn-ghost" style="width:100%;" id="mmForgotSubmitBtn">新しいパスワードを送信する</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- 画像の拡大表示(ライトボックス) -->
-<div class="lightbox-overlay" id="imageLightboxOverlay">
-  <button class="lightbox-close" id="imageLightboxClose" aria-label="閉じる">✕</button>
-  <img id="imageLightboxImg" src="" alt="">
-</div>
-
-<div class="toast" id="toast"></div>
 
 <script>
 (function(){
   "use strict";
 
-  /* ---------- バックエンドAPI(Google Apps Script) ---------- */
-  const API_BASE_URL = "https://script.google.com/macros/s/AKfycbyBCQyOW8kKA5n568uBAlw-K3plg_E7Ch0YBjn1nm3nyA1NfVLD1Ex68Ci8ZzLxmmXgZw/exec";
+  /* =========================================================
+     API_URL: デプロイしたGoogle Apps ScriptウェブアプリのURLを
+     ここに貼り付けてください（例: https://script.google.com/macros/s/XXXX/exec）。
+     セットアップ手順.md を参照してください。
+     ========================================================= */
+  var API_URL = 'https://script.google.com/macros/s/AKfycbyfHEflH6kAP1dVNQ3cqCNJFalamvMnDBBkGyEO18Kpj2XvPu-DZXE0El-d-F3ncsGhFA/exec'; // ← ここにデプロイURLを設定
 
-  /* text/plain で送ることでCORSのプリフライトを避ける(Apps Script側は本文をJSONとして解析) */
-  async function apiPost(action, payload){
-    const res = await fetch(API_BASE_URL, {
-      method: "POST",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify({ action, ...payload }),
-      cache: "no-store"
-    });
-    return res.json();
-  }
-  async function apiGet(action, params){
-    // ブラウザによるGETリクエストのキャッシュを防ぐため、no-storeに加えて
-    // 呼び出しごとに変わるダミーパラメータ(_)を付与し、常に最新データを取得する
-    const qs = new URLSearchParams({ action, ...(params||{}), _: Date.now() }).toString();
-    const res = await fetch(`${API_BASE_URL}?${qs}`, { cache: "no-store" });
-    return res.json();
-  }
-  /* スプレッドシートの列名(SessionID, Title...)を、サイト内部で使う形に変換 */
-  function normalizeSessionFromApi(raw){
-    const toBool = v => v === true || v === "TRUE" || v === "true" || v === 1;
-    const toNumOrNull = v => (v === "" || v === null || v === undefined) ? null : Number(v);
+  /* =========================================================
+     RECAPTCHA_SITE_KEY: reCAPTCHA v2(チェックボックス)のサイトキー。
+     https://www.google.com/recaptcha/admin で取得し、公開URL(GitHub Pages
+     のドメイン)を登録したうえで設定してください。対になる「シークレットキー」は
+     Code.gs 側の RECAPTCHA_SECRET_KEY に設定します(サイトキーと違い、絶対に
+     index.htmlには書かないでください)。
+     ========================================================= */
+  var RECAPTCHA_SITE_KEY = '6LetrLctAAAAAFtDlJwVJ9HGOnoPdoKq4N5W_VYQ'; // ← ここにサイトキーを設定
+
+  /* ---------- constants ---------- */
+  var SLOTS = [
+    {key:'front', label:'正面から'},
+    {key:'right', label:'右から'},
+    {key:'left',  label:'左から'},
+    {key:'top',   label:'上から'},
+    {key:'back',  label:'背面から'}
+  ];
+  var CHECK_ORDER = ['d3','w1','m1','m3'];
+  var CHECK_LABELS = {d3:'3日後', w1:'1週間後', m1:'1ヶ月後', m3:'3ヶ月後'};
+  var POLL_INTERVAL_MS = 25000;
+
+  /* お題モード用のお題プールのフォールバック。本来はサーバー(Themesシート)から
+     取得したものを使うが、まだ同期が済んでいない起動直後などのために、最低限の
+     初期セットをここに残しておく。お題の追加・修正は管理者がお題モード画面から行う。 */
+  var THEME_FALLBACK = [
+    '今のあなたを表すモデル',
+    '理想のチームを表すモデル',
+    '最近乗り越えた壁を表すモデル',
+    '3年後になりたい自分を表すモデル',
+    'あなたにとっての「安心」を表すモデル',
+    '今のチームの雰囲気を表すモデル',
+    'あなたを支えているものを表すモデル',
+    '今抱えている課題を表すモデル',
+    'あなたの強みを表すモデル',
+    '理想の職場を表すモデル',
+    'これまでの人生で大切な転機を表すモデル',
+    'あなたにとっての「成長」を表すモデル',
+    '今のあなたのエネルギー源を表すモデル',
+    'チームに足りないものを表すモデル',
+    'あなたが大切にしている価値観を表すモデル',
+    '今の自分の一番の悩みを表すモデル',
+    '理想のリーダー像を表すモデル',
+    'あなたにとっての「挑戦」を表すモデル',
+    '今の自分を動物や生き物で表すなら？を表すモデル',
+    '半年後にどうなっていたいかを表すモデル',
+    'あなたの原点を表すモデル',
+    '今のあなたに必要な休息を表すモデル',
+    'あなたが乗り越えたい恐れを表すモデル',
+    '理想のコミュニティを表すモデル'
+  ];
+
+  /* ---------- state ---------- */
+  var currentView = 'list';
+  var currentDetailId = null;
+  var currentTheme = '';
+  var themesList = []; // サーバー(Themesシート)から取得したお題一覧 [{id,text}, ...]
+  var isAdmin = false; // お題の追加・修正ができる管理者かどうか(サーバーがセッションから判定)
+  var editingThemeId = null;
+  var themeAdminBusy = false;
+  var themeAdminError = '';
+  var pinsVisible = true;
+  var today = new Date();
+  var monthYear = today.getFullYear(), monthMonth = today.getMonth(); // 「月ごとの記録一覧」で表示する年月
+  var deleteConfirmId = null;
+  var modelsList = [], photosList = [], actionsList = [];
+  var saving = false;
+  var formError = '';
+  var lastSyncAt = null;
+
+  /* ---------- auth state ---------- */
+  var session = null; // {token, username, displayName}
+  var authMode = 'login';
+  var authError = '';
+  var authSuccess = '';
+  var authBusy = false;
+  var recaptchaWidgetId = null;
+  var recaptchaApiReady = false;
+  var resetToken = ''; // メール内のパスワード再設定リンク(?reset=...)から読み取ったトークン
+  try{
+    var savedSession = localStorage.getItem('mol_session');
+    if(savedSession) session = JSON.parse(savedSession);
+  }catch(e){ session = null; }
+  try{
+    var urlParams = new URLSearchParams(window.location.search);
+    var resetParam = urlParams.get('reset');
+    if(resetParam){ resetToken = resetParam; authMode = 'reset'; }
+  }catch(e){ /* URLSearchParams非対応の古いブラウザでは無視 */ }
+
+  function freshDraft(){
     return {
-      id: String(raw.SessionID),
-      title: raw.Title,
-      date: formatDateValue_(raw.Date),
-      startTime: raw.StartTime,
-      endTime: raw.EndTime,
-      location: raw.Location,
-      tags: String(raw.Tags || "").split(",").map(t=>t.trim()).filter(Boolean),
-      fee: Number(raw.Fee) || 0,
-      requiresRegistration: toBool(raw.RequiresRegistration),
-      capacity: toNumOrNull(raw.Capacity),
-      minCapacity: toNumOrNull(raw.MinCapacity),
-      appliedCount: Number(raw.AppliedCount) || 0,
-      deadline: raw.Deadline ? formatDateValue_(raw.Deadline) : null,
-      organizer: raw.Organizer || "",
-      organizerEmail: raw.OrganizerEmail || "",
-      description: raw.Description || "",
-      ticketUrl: raw.TicketUrl || "",
-      relatedUrl: raw.RelatedUrl || "",
-      imageUrl: raw.ImageUrl || "",
-      status: raw.Status === "cancelled" ? "cancelled" : "active"
+      title:'', date:todayStr(), place:'', noticed:'', story:'', isPublic:true, theme:'',
+      photos:{front:null,right:null,left:null,top:null,back:null},
+      actions:['']
     };
   }
-  /* Apps Scriptから返る日付(ISO文字列 or Dateオブジェクト文字列)を YYYY-MM-DD に揃える */
-  function formatDateValue_(v){
-    if(!v) return v;
-    const d = new Date(v);
-    if(isNaN(d.getTime())) return v;
-    return d.toISOString().slice(0,10);
+  var draft = freshDraft();
+
+  /* ---------- utils ---------- */
+  function pad(n){ return String(n).padStart(2,'0'); }
+  function todayStr(){ var d=new Date(); return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
+  function addDays(dateStr,n){ var d=new Date(dateStr+'T00:00:00'); d.setDate(d.getDate()+n); return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
+  function addMonths(dateStr,n){ var d=new Date(dateStr+'T00:00:00'); d.setMonth(d.getMonth()+n); return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
+  function uid(){ return 'id'+Math.random().toString(36).slice(2,9)+Date.now().toString(36); }
+  function escapeHtml(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+  function blobUrl(id){ return id ? ('https://drive.google.com/thumbnail?id='+id+'&sz=w1600') : ''; }
+  function computeChecks(registeredAt){
+    return {
+      d3:{due:addDays(registeredAt,3), done:false, score:null, comment:'', checkedAt:null},
+      w1:{due:addDays(registeredAt,7), done:false, score:null, comment:'', checkedAt:null},
+      m1:{due:addMonths(registeredAt,1), done:false, score:null, comment:'', checkedAt:null},
+      m3:{due:addMonths(registeredAt,3), done:false, score:null, comment:'', checkedAt:null}
+    };
   }
-  async function loadSessionsFromApi(){
-    try{
-      const res = await apiGet("listSessions");
-      if(res.ok && Array.isArray(res.sessions)){
-        // 0件(登録なし)でも必ず反映する。表示するダミーデータは持たない。
-        sessions = res.sessions.map(normalizeSessionFromApi);
-        return true;
-      }
-    }catch(err){
-      console.warn("勉強会データの取得に失敗しました。", err);
-    }
-    return false;
+  function checkStatus(action, key){
+    var c = action.checks[key];
+    if(c.done) return {text:'済 ('+c.score+'点)', cls:'good'};
+    if(action.stopped) return {text:'対象外', cls:''};
+    if(c.due <= todayStr()) return {text:'要チェック', cls:'danger'};
+    return {text:c.due+'〜', cls:''};
+  }
+  function dueChecksFor(action){
+    if(action.stopped) return [];
+    var out = [];
+    CHECK_ORDER.forEach(function(key){
+      var c = action.checks[key];
+      if(!c.done && c.due <= todayStr()) out.push({key:key, due:c.due});
+    });
+    return out;
+  }
+  function computeDueCount(){
+    var n = 0;
+    actionsList.forEach(function(a){ n += dueChecksFor(a).length; });
+    return n;
   }
 
-  /* ---------- 主催者MENU(認定ファシリテーターのみ) ---------- */
-  async function loadMySessions_(){
-    if(!state.memberEmail) return;
-    try{
-      const res = await apiGet("listMySessions", { email: state.memberEmail });
-      if(res.ok){
-        state.mySessions = (res.sessions || []).map(normalizeSessionFromApi);
-        renderMySessions_();
-      } else {
-        console.warn(res.error);
-      }
-    }catch(err){
-      console.error("自分の勉強会一覧の取得に失敗しました", err);
+  /* ---------- API layer (Google Apps Script backend) ----------
+     注意: Google Apps ScriptのウェブアプリはCORSヘッダーを返さないため、
+     通常のfetch()では外部ドメイン(GitHub Pagesなど)から呼び出せない
+     (ブラウザのCORSポリシーでブロックされる)。そのため、隠しiframe+
+     隠しフォームでPOST送信し、Code.gs側からはHTML内のpostMessageで
+     結果を返す方式を使う(フォーム送信・postMessageはどちらもCORSの
+     対象外なので、これで確実に動く)。
+     ========================================================= */
+  // 実測したところ、この隠しiframe+フォーム方式は複数のAPI呼び出しを同時に
+  // (Promise.allなどで並行して)実行すると、呼び出しごとに別々のiframeを
+  // 使っていても応答が届かず全滅する(Apps Script側のexec URLラッパーが
+  // 同時多重読み込みを想定していない模様)。1件ずつ順番に実行すれば確実に
+  // 動くため、apiCall自体の中でリクエストを直列化するキューを持たせ、
+  // 呼び出し側(Promise.allで複数書き込みをまとめて投げる箇所など)を
+  // 直す必要がないようにする。
+  var apiCallQueueTail = Promise.resolve();
+  function apiCall(action, payload){
+    if(!API_URL){
+      return Promise.reject(new Error('API_URLが設定されていません。index.html先頭のAPI_URLにApps ScriptウェブアプリのURLを設定してください。'));
     }
-    loadMyApplications_();
+    var run = function(){ return apiCallSingle(action, payload); };
+    var result = apiCallQueueTail.then(run, run);
+    apiCallQueueTail = result.then(function(){}, function(){});
+    return result;
   }
-  /* ---------- 申し込み済イベント(マイページ) ---------- */
-  async function loadMyApplications_(){
-    const wrap = document.getElementById("myApplicationsList");
-    if(!state.memberEmail || !wrap) return;
-    wrap.innerHTML = `<p class="field-hint">読み込み中...</p>`;
-    try{
-      const res = await apiGet("listMyApplications", { email: state.memberEmail });
-      if(!res.ok){
-        wrap.innerHTML = `<p class="field-hint">${escapeHtml_(res.error || "取得に失敗しました")}</p>`;
-        return;
+  function apiCallSingle(action, payload){
+    var body = Object.assign({action:action, token: session ? session.token : ''}, payload || {});
+    var requestId = 'r' + Date.now() + '_' + Math.random().toString(36).slice(2);
+    return new Promise(function(resolve, reject){
+      var iframeName = 'apiFrame_' + requestId;
+      var iframe = document.createElement('iframe');
+      iframe.name = iframeName;
+      iframe.style.display = 'none';
+      document.body.appendChild(iframe);
+
+      var form = document.createElement('form');
+      form.method = 'POST';
+      form.target = iframeName;
+      form.action = API_URL;
+      form.style.display = 'none';
+      var inputPayload = document.createElement('input');
+      inputPayload.type = 'hidden'; inputPayload.name = 'payload'; inputPayload.value = JSON.stringify(body);
+      var inputReqId = document.createElement('input');
+      inputReqId.type = 'hidden'; inputReqId.name = 'requestId'; inputReqId.value = requestId;
+      form.appendChild(inputPayload);
+      form.appendChild(inputReqId);
+      document.body.appendChild(form);
+
+      var settled = false;
+      var timer = null;
+      function cleanup(){
+        window.removeEventListener('message', handler);
+        if(timer) clearTimeout(timer);
+        if(form.parentNode) form.parentNode.removeChild(form);
+        if(iframe.parentNode) iframe.parentNode.removeChild(iframe);
       }
-      // 開催日を過ぎた申込みは、ここには表示しない(「過去のイベント」ページに表示される)
-      const upcoming = (res.applications || []).filter(a => !isPast_(a));
-      renderMyApplications_(upcoming);
-    }catch(err){
-      console.error(err);
-      wrap.innerHTML = `<p class="field-hint">通信エラーのため取得に失敗しました</p>`;
-    }
-  }
-  function renderMyApplications_(applications){
-    const wrap = document.getElementById("myApplicationsList");
-    if(!wrap) return;
-    if(applications.length === 0){
-      wrap.innerHTML = `<div class="empty-organizer">まだ申込んだイベントがありません。「イベント一覧」からお気に入りを見つけましょう。開催日を過ぎたイベントへの申込みは「過去のイベント」ページでご確認いただけます。</div>`;
-      return;
-    }
-    wrap.innerHTML = applications.map(a => `
-      <div class="my-session-card">
-        <div class="msc-main">
-          <h4>${a.status === "cancelled" ? '<span class="cancelled-badge" style="margin-right:8px;">主催者により中止</span>' : ""}${escapeHtml_(a.title)}</h4>
-          <div class="msc-meta">${a.date ? fmtDateLong(a.date) : "定期開催(日程未定)"}${a.startTime ? ` ・ ${a.startTime}-${a.endTime}` : ""} ・ ${escapeHtml_(a.location || "")} ・ 参加${a.count}名</div>
-          ${a.note ? `<div class="msc-meta">備考:${escapeHtml_(a.note)}</div>` : ""}
-        </div>
-      </div>
-    `).join("");
-  }
-  function renderMySessions_(){
-    const wrap = document.getElementById("mySessionsList");
-    if(!wrap) return;
-    // 開催日を過ぎたイベントはここには表示しない(「過去のイベント」ページの主催者MENUに表示される)
-    const upcoming = state.mySessions.filter(s => !isPast_(s));
-    if(upcoming.length === 0){
-      wrap.innerHTML = `<div class="empty-organizer">開催予定の勉強会がありません。「+ 新しい勉強会を作成」から始めましょう。過去に作成した勉強会は「過去のイベント」ページの主催者MENUからご確認いただけます。</div>`;
-      return;
-    }
-    wrap.innerHTML = upcoming
-      .slice()
-      .sort((a,b)=> (a.date||"").localeCompare(b.date||""))
-      .map(s => `
-        <div class="my-session-card">
-          <div class="msc-main">
-            <h4>${s.status === "cancelled" ? '<span class="cancelled-badge" style="margin-right:8px;">中止</span>' : ""}${s.title}</h4>
-            <div class="msc-meta">${s.date ? fmtDateLong(s.date) : "定期開催(日程未定)"} ・ ${s.startTime}-${s.endTime} ・ 申込み${s.appliedCount||0}名${s.capacity!=null ? `/定員${s.capacity}名` : ""}</div>
-          </div>
-          <div class="msc-actions">
-            ${s.requiresRegistration ? `<button class="applicants" data-applicants-session="${s.id}" data-applicants-title="${escapeHtml_(s.title)}">申込み者を見る</button>` : ""}
-            <button class="edit" data-edit-session="${s.id}">編集</button>
-            <button class="delete" data-delete-session="${s.id}">削除</button>
-          </div>
-        </div>
-      `).join("");
-    wrap.querySelectorAll("[data-applicants-session]").forEach(btn=>{
-      btn.addEventListener("click", ()=>{
-        openApplicantsModal_(btn.dataset.applicantsSession, btn.dataset.applicantsTitle);
-      });
-    });
-    wrap.querySelectorAll("[data-edit-session]").forEach(btn=>{
-      btn.addEventListener("click", ()=>{
-        const s = state.mySessions.find(x=>x.id === btn.dataset.editSession);
-        if(s) openSessionEditor_(s);
-      });
-    });
-    wrap.querySelectorAll("[data-delete-session]").forEach(btn=>{
-      btn.addEventListener("click", async ()=>{
-        if(!confirm("この勉強会を削除します。よろしいですか?(申込み履歴は残りますが、勉強会自体は表示されなくなります)")) return;
-        const res = await apiPost("deleteSession", { email: state.memberEmail, sessionId: btn.dataset.deleteSession });
-        if(!res.ok){ toast(res.error || "削除に失敗しました"); return; }
-        toast("勉強会を削除しました");
-        await loadMySessions_();
-        await loadSessionsFromApi();
-        renderSessions();
-        renderCalendar();
-      });
-    });
-  }
-  /* ---------- 申込み者一覧(作成者本人のみ) ---------- */
-  let applicantsModalContext_ = { sessionId: null, title: "" };
-  async function openApplicantsModal_(sessionId, title){
-    applicantsModalContext_ = { sessionId, title };
-    const overlay = document.getElementById("applicantsModalOverlay");
-    const body = document.getElementById("applicantsModalBody");
-    document.getElementById("applicantsModalTitle").textContent = `「${title}」の申込み者一覧`;
-    body.innerHTML = `<p class="field-hint">読み込み中...</p>`;
-    overlay.classList.add("open");
-    await renderApplicantsList_(sessionId);
-  }
-  async function renderApplicantsList_(sessionId){
-    const body = document.getElementById("applicantsModalBody");
-    try{
-      const res = await apiGet("listApplicants", { sessionId, email: state.memberEmail });
-      if(!res.ok){
-        body.innerHTML = `<p class="field-hint">${escapeHtml_(res.error || "取得に失敗しました")}</p>`;
-        return;
-      }
-      if(!res.applicants || res.applicants.length === 0){
-        body.innerHTML = `<p class="field-hint">まだ申込みはありません。</p>`;
-        return;
-      }
-      body.innerHTML = `
-        <button class="btn-ghost" style="width:100%;margin-bottom:16px;" id="openBulkEmailBtn">📧 参加者全員にメールを送る(${res.applicants.length}名)</button>
-        <table class="applicants-table">
-          <thead><tr><th>お名前</th><th>メールアドレス</th><th>人数</th><th>備考</th><th></th></tr></thead>
-          <tbody>
-            ${res.applicants.map(a => `
-              <tr>
-                <td>${escapeHtml_(a.name)}</td>
-                <td>${escapeHtml_(a.email)}</td>
-                <td>${a.count}名</td>
-                <td>${escapeHtml_(a.note || "")}</td>
-                <td><button class="cancel-applicant-btn" data-cancel-application="${a.applicationId}" data-cancel-session="${sessionId}">キャンセル</button></td>
-              </tr>
-            `).join("")}
-          </tbody>
-        </table>
-      `;
-      document.getElementById("openBulkEmailBtn").addEventListener("click", ()=>{
-        openBulkEmailModal_(applicantsModalContext_.sessionId, applicantsModalContext_.title);
-      });
-      body.querySelectorAll("[data-cancel-application]").forEach(btn=>{
-        btn.addEventListener("click", async ()=>{
-          if(!confirm("この申込みをキャンセルします。よろしいですか?(参加者本人には別途ご連絡ください)")) return;
-          btn.disabled = true; btn.textContent = "処理中...";
-          try{
-            const res = await apiPost("cancelApplication", {
-              email: state.memberEmail,
-              sessionId: btn.dataset.cancelSession,
-              applicationId: btn.dataset.cancelApplication
-            });
-            if(!res.ok){
-              toast(res.error || "キャンセルに失敗しました");
-              btn.disabled = false; btn.textContent = "キャンセル";
-              return;
-            }
-            toast("申込みをキャンセルしました");
-            await renderApplicantsList_(btn.dataset.cancelSession);
-            await loadMySessions_();
-            await loadSessionsFromApi();
-            renderSessions();
-            renderCalendar();
-          }catch(err){
-            console.error(err);
-            toast("通信エラーのためキャンセルに失敗しました");
-            btn.disabled = false; btn.textContent = "キャンセル";
+      function handler(ev){
+        var data = ev.data;
+        if(!data || typeof data !== 'object' || data.requestId !== requestId) return;
+        if(settled) return;
+        settled = true;
+        cleanup();
+        var json = data.result;
+        if(!json || json.ok !== true){
+          var msg = (json && json.error) || 'APIエラーが発生しました。';
+          if(msg.indexOf('AUTH_REQUIRED:') === 0){
+            forceLogout();
+            msg = msg.slice('AUTH_REQUIRED:'.length);
           }
-        });
-      });
-    }catch(err){
-      console.error(err);
-      body.innerHTML = `<p class="field-hint">通信エラーのため取得に失敗しました</p>`;
-    }
-  }
-  /* ---------- 参加者への一斉メール送信 ---------- */
-  function openBulkEmailModal_(sessionId, title){
-    applicantsModalContext_ = { sessionId, title };
-    document.getElementById("bulkEmailModalSub").textContent = `「${title}」の申込み者全員に、以下の内容でメールが送信されます。`;
-    document.getElementById("bulkEmailSubject").value = "";
-    document.getElementById("bulkEmailMessage").value = "";
-    document.getElementById("bulkEmailModalOverlay").classList.add("open");
-  }
-  function bindBulkEmailModal_(){
-    const overlay = document.getElementById("bulkEmailModalOverlay");
-    const closeBtn = document.getElementById("bulkEmailModalClose");
-    const sendBtn = document.getElementById("bulkEmailSendBtn");
-    if(!overlay || !closeBtn || !sendBtn) return;
-    closeBtn.addEventListener("click", ()=> closeModal("bulkEmailModalOverlay"));
-    overlay.addEventListener("click", (e)=>{
-      if(e.target.id === "bulkEmailModalOverlay") closeModal("bulkEmailModalOverlay");
-    });
-    sendBtn.addEventListener("click", async ()=>{
-      const sessionId = applicantsModalContext_.sessionId;
-      const subject = document.getElementById("bulkEmailSubject").value.trim();
-      const message = document.getElementById("bulkEmailMessage").value.trim();
-      if(!message){ toast("本文を入力してください"); return; }
-      if(!confirm("この内容で、申込み者全員にメールを送信します。よろしいですか?")) return;
-      sendBtn.disabled = true; sendBtn.textContent = "送信しています...";
-      try{
-        const res = await apiPost("sendBulkEmailToApplicants", {
-          email: state.memberEmail, sessionId, subject, message
-        });
-        if(!res.ok){
-          toast(res.error || "送信に失敗しました");
-        } else {
-          toast(`${res.count}名にメールを送信しました`);
-          closeModal("bulkEmailModalOverlay");
+          reject(new Error(msg));
+          return;
         }
+        resolve(json.data);
+      }
+      window.addEventListener('message', handler);
+      timer = setTimeout(function(){
+        if(settled) return;
+        settled = true;
+        cleanup();
+        reject(new Error('サーバーからの応答がありませんでした。しばらくしてから再度お試しください。'));
+      }, 45000);
+
+      try{
+        form.submit();
       }catch(err){
-        console.error(err);
-        toast("通信エラーのため送信に失敗しました");
-      }finally{
-        sendBtn.disabled = false; sendBtn.textContent = "送信する";
+        if(!settled){ settled = true; cleanup(); reject(err); }
       }
     });
   }
-  let editingSessionId = null;
-  let currentEditorImageUrl = "";
-  let currentEditorStatus = "active";
-  function openSessionEditor_(session){
-    editingSessionId = session ? session.id : null;
-    currentEditorImageUrl = session ? (session.imageUrl || "") : "";
-    currentEditorStatus = session ? (session.status || "active") : "active";
-    document.getElementById("sessionEditorTitle").textContent = session ? "勉強会を編集" : "新しい勉強会を作成";
-    document.getElementById("seTitle").value = session ? session.title : "";
-    document.getElementById("seDate").value = session ? (session.date || "") : "";
-    document.getElementById("seDeadline").value = session && session.deadline ? session.deadline : "";
-    document.getElementById("seStart").value = session ? session.startTime : "";
-    document.getElementById("seEnd").value = session ? session.endTime : "";
-    document.getElementById("seLocation").value = session ? session.location : "";
-    document.getElementById("seFee").value = session ? session.fee : 0;
-    document.getElementById("seCapacity").value = session && session.capacity != null ? session.capacity : "";
-    document.getElementById("seMinCapacity").value = session && session.minCapacity != null ? session.minCapacity : "";
-    document.getElementById("seRequiresRegistration").checked = session ? !!session.requiresRegistration : true;
-    document.getElementById("seTicketUrl").value = session ? (session.ticketUrl || "") : "";
-    document.getElementById("seRelatedUrl").value = session ? (session.relatedUrl || "") : "";
-    document.getElementById("seDescription").value = session ? session.description : "";
-    document.getElementById("seImageFile").value = "";
-    renderSessionEditorTagPills_(session ? session.tags : []);
-    toggleTicketUrlField_();
-    updateImagePreviewUI_();
-    document.getElementById("sessionEditorDeleteBtn").style.display = session ? "" : "none";
-    updateCancelButtonUI_();
-    document.getElementById("sessionEditorOverlay").classList.add("open");
+  function forceLogout(){
+    session = null;
+    try{ localStorage.removeItem('mol_session'); }catch(e){}
+    currentView = 'list';
+    authMode = 'login';
+    authError = 'セッションの有効期限が切れました。再度ログインしてください。';
+    renderApp();
   }
-  function updateCancelButtonUI_(){
-    const btn = document.getElementById("sessionEditorCancelEventBtn");
-    if(!editingSessionId){ btn.style.display = "none"; return; }
-    btn.style.display = "";
-    btn.textContent = currentEditorStatus === "cancelled" ? "中止を解除する" : "イベント中止にする";
-  }
-  function updateImagePreviewUI_(){
-    const wrap = document.getElementById("seImagePreviewWrap");
-    const img = document.getElementById("seImagePreview");
-    if(currentEditorImageUrl){
-      img.src = currentEditorImageUrl;
-      wrap.style.display = "inline-block";
-    } else {
-      img.src = "";
-      wrap.style.display = "none";
-    }
-  }
-  function readFileAsBase64_(file){
-    return new Promise((resolve, reject)=>{
-      const reader = new FileReader();
-      reader.onload = ()=> resolve(reader.result.split(",")[1]);
-      reader.onerror = reject;
+  function fileToBase64(file){
+    return new Promise(function(resolve, reject){
+      var reader = new FileReader();
+      reader.onload = function(){
+        var result = String(reader.result);
+        resolve(result.substring(result.indexOf(',')+1));
+      };
+      reader.onerror = function(){ reject(reader.error); };
       reader.readAsDataURL(file);
     });
   }
-  function renderSessionEditorTagPills_(selectedTags){
-    const wrap = document.getElementById("seTagPills");
-    const all = [...FORMAT_TAGS, ...THEME_TAGS];
-    wrap.innerHTML = all.map(tag => {
-      const cls = tagClass(tag);
-      const active = selectedTags.includes(tag) ? "active" : "";
-      return `<button type="button" class="tag-pill ${cls} ${active}" data-se-tag="${tag}"><span class="dot"></span>${tag}</button>`;
-    }).join("");
-    wrap.querySelectorAll("[data-se-tag]").forEach(btn=>{
-      btn.addEventListener("click", ()=>{
-        btn.classList.toggle("active");
-        updateDateHint_();
+  async function apiUploadImage(file){
+    var base64 = await fileToBase64(file);
+    return apiCall('uploadImage', {base64:base64, filename:file.name, mimeType:file.type || 'image/jpeg'});
+  }
+
+  /* ---------- auth: reCAPTCHA + login/register ---------- */
+  window.onRecaptchaLoad = function(){ recaptchaApiReady = true; renderRecaptchaIfNeeded(); };
+  function renderRecaptchaIfNeeded(){
+    var el = document.getElementById('recaptchaContainer');
+    if(el && recaptchaApiReady && window.grecaptcha && recaptchaWidgetId===null && RECAPTCHA_SITE_KEY){
+      recaptchaWidgetId = grecaptcha.render('recaptchaContainer', {sitekey:RECAPTCHA_SITE_KEY});
+    }
+  }
+  function persistSession(){ try{ localStorage.setItem('mol_session', JSON.stringify(session)); }catch(e){} }
+  function authHtml(){
+    var html = '<div class="card panel stack auth-card">';
+    if(authMode === 'reset'){
+      html += '<h2 class="section-title">パスワードの再設定</h2>';
+      if(authError) html += '<div class="notice error">'+escapeHtml(authError)+'</div>';
+      if(authSuccess) html += '<div class="notice">'+escapeHtml(authSuccess)+'</div>';
+      html += '<label class="field"><span>新しいパスワード（6文字以上）</span><input type="password" id="auth-newpassword" autocomplete="new-password" /></label>';
+      html += '<label class="field"><span>新しいパスワード（確認）</span><input type="password" id="auth-newpassword2" autocomplete="new-password" /></label>';
+      html += '<button type="button" class="btn btn-primary" data-action="do-reset-password" '+(authBusy?'disabled':'')+'>'+(authBusy?'処理中…':'パスワードを再設定する')+'</button>';
+      html += '<button type="button" class="btn-danger-text" data-action="auth-mode" data-mode="login" style="align-self:flex-start;">ログイン画面に戻る</button>';
+      html += '</div>';
+      return html;
+    }
+    html += '<div class="auth-tabs"><button type="button" class="chip-btn'+(authMode==='login'?' is-active':'')+'" data-action="auth-mode" data-mode="login">ログイン</button>';
+    html += '<button type="button" class="chip-btn'+(authMode==='register'?' is-active':'')+'" data-action="auth-mode" data-mode="register">新規登録</button></div>';
+    if(authError) html += '<div class="notice error">'+escapeHtml(authError)+'</div>';
+    if(authSuccess) html += '<div class="notice">'+escapeHtml(authSuccess)+'</div>';
+    if(authMode === 'login'){
+      html += '<label class="field"><span>メールアドレス</span><input type="email" id="auth-username" autocomplete="username" /></label>';
+      html += '<label class="field"><span>パスワード</span><input type="password" id="auth-password" autocomplete="current-password" /></label>';
+      html += '<button type="button" class="btn btn-primary" data-action="do-login" '+(authBusy?'disabled':'')+'>'+(authBusy?'処理中…':'ログイン')+'</button>';
+      html += '<button type="button" class="btn-danger-text" data-action="auth-mode" data-mode="forgot" style="align-self:flex-start;">パスワードをお忘れですか？</button>';
+    } else if(authMode === 'forgot'){
+      html += '<p class="section-hint">登録済みのメールアドレスを入力してください。パスワード再設定用のリンクをお送りします。</p>';
+      html += '<label class="field"><span>メールアドレス</span><input type="email" id="auth-forgot-email" autocomplete="username" /></label>';
+      html += '<button type="button" class="btn btn-primary" data-action="do-request-reset" '+(authBusy?'disabled':'')+'>'+(authBusy?'送信中…':'再設定用のリンクを送る')+'</button>';
+      html += '<button type="button" class="btn-danger-text" data-action="auth-mode" data-mode="login" style="align-self:flex-start;">ログイン画面に戻る</button>';
+    } else {
+      html += '<label class="field"><span>メールアドレス</span><input type="email" id="auth-username" autocomplete="username" /></label>';
+      html += '<label class="field"><span>表示名</span><input type="text" id="auth-displayname" placeholder="記録に表示される名前" /></label>';
+      html += '<label class="field"><span>パスワード（6文字以上）</span><input type="password" id="auth-password" autocomplete="new-password" /></label>';
+      html += '<label class="field"><span>パスワード（確認）</span><input type="password" id="auth-password2" autocomplete="new-password" /></label>';
+      html += '<div id="recaptchaContainer"></div>';
+      if(!RECAPTCHA_SITE_KEY) html += '<p class="section-hint">RECAPTCHA_SITE_KEYが未設定のため、ロボット確認は現在スキップされています。</p>';
+      html += '<button type="button" class="btn btn-primary" data-action="do-register" '+(authBusy?'disabled':'')+'>'+(authBusy?'処理中…':'登録する')+'</button>';
+    }
+    html += '</div>';
+    return html;
+  }
+  function afterAuthRender(){
+    var focusEl = document.getElementById('auth-username') || document.getElementById('auth-forgot-email') || document.getElementById('auth-newpassword');
+    if(focusEl) focusEl.focus();
+    Array.prototype.forEach.call(document.querySelectorAll('#view input'), function(el){
+      el.addEventListener('keydown', function(e){
+        if(e.key !== 'Enter') return;
+        e.preventDefault();
+        if(authMode==='login') doLogin();
+        else if(authMode==='register') doRegister();
+        else if(authMode==='forgot') doRequestPasswordReset();
+        else if(authMode==='reset') doResetPassword();
       });
     });
-    updateDateHint_();
+    if(authMode === 'register'){
+      recaptchaWidgetId = null;
+      renderRecaptchaIfNeeded();
+    }
   }
-  function getSelectedEditorTags_(){
-    return Array.from(document.querySelectorAll("#seTagPills .tag-pill.active")).map(b=>b.dataset.seTag);
+  var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  async function doLogin(){
+    var username = document.getElementById('auth-username').value.trim();
+    var password = document.getElementById('auth-password').value;
+    if(!username || !password){ authError='メールアドレスとパスワードを入力してください。'; renderApp(); return; }
+    authBusy = true; authError=''; authSuccess=''; renderApp();
+    try{
+      var data = await apiCall('login', {username:username, password:password});
+      session = data; persistSession();
+      authBusy = false; currentView = 'list';
+      renderApp();
+      refreshData(false);
+    }catch(e){
+      authBusy = false; authError = e.message; renderApp();
+    }
   }
-  /* 「定期開催(メンバー募集)」タグが選ばれている間は、開催日が任意であることを表示する */
-  function updateDateHint_(){
-    const isRecurring = getSelectedEditorTags_().includes(RECURRING_TAG);
-    document.getElementById("seDateHint").textContent = isRecurring ? "(定期開催のため任意)" : "";
+  async function doRegister(){
+    var username = document.getElementById('auth-username').value.trim();
+    var displayName = document.getElementById('auth-displayname').value.trim();
+    var password = document.getElementById('auth-password').value;
+    var password2 = document.getElementById('auth-password2').value;
+    if(!username || !password){ authError='メールアドレスとパスワードを入力してください。'; renderApp(); return; }
+    if(!EMAIL_RE.test(username)){ authError='メールアドレスの形式で入力してください。'; renderApp(); return; }
+    if(password.length < 6){ authError='パスワードは6文字以上にしてください。'; renderApp(); return; }
+    if(password !== password2){ authError='パスワードが一致しません。'; renderApp(); return; }
+    var token = (window.grecaptcha && recaptchaWidgetId!==null) ? grecaptcha.getResponse(recaptchaWidgetId) : '';
+    if(RECAPTCHA_SITE_KEY && !token){ authError='「ロボットではありません」にチェックを入れてください。'; renderApp(); return; }
+    authBusy = true; authError=''; authSuccess=''; renderApp();
+    try{
+      var data = await apiCall('register', {username:username, password:password, displayName:displayName, recaptchaToken:token});
+      session = data; persistSession();
+      authBusy = false; currentView = 'list';
+      renderApp();
+      refreshData(false);
+    }catch(e){
+      authBusy = false; authError = e.message;
+      if(window.grecaptcha && recaptchaWidgetId!==null) grecaptcha.reset(recaptchaWidgetId);
+      renderApp();
+    }
   }
-  function toggleTicketUrlField_(){
-    const fee = Number(document.getElementById("seFee").value) || 0;
-    document.getElementById("seTicketUrlField").style.display = fee > 0 ? "" : "none";
+  async function doRequestPasswordReset(){
+    var emailEl = document.getElementById('auth-forgot-email');
+    var email = emailEl ? emailEl.value.trim() : '';
+    if(!email){ authError='メールアドレスを入力してください。'; renderApp(); return; }
+    authBusy = true; authError=''; authSuccess=''; renderApp();
+    try{
+      await apiCall('requestPasswordReset', {email:email});
+      authBusy = false;
+      authSuccess = '入力されたメールアドレス宛にパスワード再設定用のリンクを送信しました（該当するアカウントが無い場合はメールは届きません）。メールをご確認ください。';
+      renderApp();
+    }catch(e){
+      authBusy = false; authError = e.message; renderApp();
+    }
   }
-  function bindOrganizerDashboardEvents_(){
-    const newBtn = document.getElementById("newSessionBtn");
-    if(newBtn) newBtn.addEventListener("click", ()=> openSessionEditor_(null));
-
-    const applicantsCloseBtn = document.getElementById("applicantsModalClose");
-    if(applicantsCloseBtn) applicantsCloseBtn.addEventListener("click", ()=> closeModal("applicantsModalOverlay"));
-    const applicantsOverlay = document.getElementById("applicantsModalOverlay");
-    if(applicantsOverlay) applicantsOverlay.addEventListener("click", (e)=>{ if(e.target.id === "applicantsModalOverlay") closeModal("applicantsModalOverlay"); });
-
-    const feeInput = document.getElementById("seFee");
-    if(feeInput) feeInput.addEventListener("input", toggleTicketUrlField_);
-
-    const imageFileInput = document.getElementById("seImageFile");
-    if(imageFileInput) imageFileInput.addEventListener("change", async ()=>{
-      const file = imageFileInput.files[0];
-      if(!file) return;
-      if(file.size > 5 * 1024 * 1024){
-        toast("画像サイズは5MBまでです");
-        imageFileInput.value = "";
-        return;
-      }
-      toast("画像をアップロードしています...");
+  async function doResetPassword(){
+    var pw = document.getElementById('auth-newpassword').value;
+    var pw2 = document.getElementById('auth-newpassword2').value;
+    if(!pw || !pw2){ authError='新しいパスワードを入力してください。'; renderApp(); return; }
+    if(pw.length < 6){ authError='パスワードは6文字以上にしてください。'; renderApp(); return; }
+    if(pw !== pw2){ authError='パスワードが一致しません。'; renderApp(); return; }
+    authBusy = true; authError=''; authSuccess=''; renderApp();
+    try{
+      await apiCall('resetPassword', {token:resetToken, newPassword:pw});
+      authBusy = false;
+      resetToken = '';
       try{
-        const dataBase64 = await readFileAsBase64_(file);
-        const res = await apiPost("uploadImage", {
-          email: state.memberEmail, filename: file.name, mimeType: file.type, dataBase64
-        });
-        if(!res.ok){ toast(res.error || "画像のアップロードに失敗しました"); imageFileInput.value = ""; return; }
-        currentEditorImageUrl = res.url;
-        updateImagePreviewUI_();
-        toast("画像をアップロードしました");
-      }catch(err){
-        console.error(err);
-        toast("画像のアップロードに失敗しました");
-      }
-      imageFileInput.value = "";
-    });
-    const imageRemoveBtn = document.getElementById("seImageRemoveBtn");
-    if(imageRemoveBtn) imageRemoveBtn.addEventListener("click", ()=>{
-      currentEditorImageUrl = "";
-      updateImagePreviewUI_();
-    });
-
-    const closeBtn = document.getElementById("sessionEditorClose");
-    if(closeBtn) closeBtn.addEventListener("click", ()=> closeModal("sessionEditorOverlay"));
-    const overlay = document.getElementById("sessionEditorOverlay");
-    if(overlay) overlay.addEventListener("click", (e)=>{ if(e.target.id === "sessionEditorOverlay") closeModal("sessionEditorOverlay"); });
-
-    const saveBtn = document.getElementById("sessionEditorSaveBtn");
-    if(saveBtn) saveBtn.addEventListener("click", async ()=>{
-      const payload = {
-        email: state.memberEmail,
-        title: document.getElementById("seTitle").value.trim(),
-        date: document.getElementById("seDate").value,
-        deadline: document.getElementById("seDeadline").value || "",
-        startTime: document.getElementById("seStart").value,
-        endTime: document.getElementById("seEnd").value,
-        location: document.getElementById("seLocation").value.trim(),
-        tags: getSelectedEditorTags_(),
-        fee: Number(document.getElementById("seFee").value) || 0,
-        capacity: document.getElementById("seCapacity").value || "",
-        minCapacity: document.getElementById("seMinCapacity").value || "",
-        requiresRegistration: document.getElementById("seRequiresRegistration").checked,
-        ticketUrl: document.getElementById("seTicketUrl").value.trim(),
-        relatedUrl: document.getElementById("seRelatedUrl").value.trim(),
-        imageUrl: currentEditorImageUrl,
-        description: document.getElementById("seDescription").value.trim()
-      };
-      const isRecurring = payload.tags.includes(RECURRING_TAG);
-      if(!payload.title || (!payload.date && !isRecurring) || !payload.startTime || !payload.endTime || !payload.location){
-        toast(isRecurring ? "タイトル・時刻・場所は必須です" : "タイトル・開催日・時刻・場所は必須です");
-        return;
-      }
-      saveBtn.disabled = true; saveBtn.textContent = "保存しています...";
-      const res = editingSessionId
-        ? await apiPost("updateSession", { ...payload, sessionId: editingSessionId })
-        : await apiPost("createSession", payload);
-      saveBtn.disabled = false; saveBtn.textContent = "保存する";
-      if(!res.ok){ toast(res.error || "保存に失敗しました"); return; }
-      toast(editingSessionId ? "勉強会を更新しました" : "勉強会を作成しました");
-      closeModal("sessionEditorOverlay");
-      await loadMySessions_();
-      await loadSessionsFromApi();
-      renderSessions();
-      renderCalendar();
-    });
-
-    const deleteBtn = document.getElementById("sessionEditorDeleteBtn");
-    if(deleteBtn) deleteBtn.addEventListener("click", async ()=>{
-      if(!editingSessionId) return;
-      if(!confirm("この勉強会を削除します。よろしいですか?")) return;
-      const res = await apiPost("deleteSession", { email: state.memberEmail, sessionId: editingSessionId });
-      if(!res.ok){ toast(res.error || "削除に失敗しました"); return; }
-      toast("勉強会を削除しました");
-      closeModal("sessionEditorOverlay");
-      await loadMySessions_();
-      await loadSessionsFromApi();
-      renderSessions();
-      renderCalendar();
-    });
-
-    const cancelEventBtn = document.getElementById("sessionEditorCancelEventBtn");
-    if(cancelEventBtn) cancelEventBtn.addEventListener("click", async ()=>{
-      if(!editingSessionId) return;
-      const willCancel = currentEditorStatus !== "cancelled";
-      const confirmMsg = willCancel
-        ? "このイベントを中止にします。参加者から見えなくはなりませんが、「中止」と表示され、新たな申込みができなくなります。よろしいですか?"
-        : "中止を解除して、通常の受付状態に戻します。よろしいですか?";
-      if(!confirm(confirmMsg)) return;
-      cancelEventBtn.disabled = true;
-      const res = await apiPost("setSessionStatus", {
-        email: state.memberEmail,
-        sessionId: editingSessionId,
-        status: willCancel ? "cancelled" : "active"
-      });
-      cancelEventBtn.disabled = false;
-      if(!res.ok){ toast(res.error || "更新に失敗しました"); return; }
-      currentEditorStatus = willCancel ? "cancelled" : "active";
-      updateCancelButtonUI_();
-      toast(willCancel ? "イベントを中止にしました" : "中止を解除しました");
-      await loadMySessions_();
-      await loadSessionsFromApi();
-      renderSessions();
-      renderCalendar();
-    });
-  }
-
-  /* ---------- タグ定義 ---------- */
-  const FORMAT_TAGS = ["オンライン","対面(関東)","対面(北海道)","対面(関西)","対面(東海)","対面(北陸)","対面(四国)","対面(中国)","対面(九州)","対面(沖縄)"];
-  const THEME_TAGS = ["読書会","事例共有","実践練習","懇親会","定期開催(メンバー募集)"];
-  const RECURRING_TAG = "定期開催(メンバー募集)";
-  function tagClass(tag){
-    if(tag === "オンライン") return "online";
-    if(FORMAT_TAGS.includes(tag)) return "venue";
-    return "theme";
-  }
-
-  /* イベント・お知らせはすべてスプレッドシート(Apps Script API)から取得する。
-     取得できない場合やまだ何も登録されていない場合は、ダミーデータを表示せず空のまま扱う。 */
-  let sessions = [];
-  let announcements = [];
-
-
-  /* 自動お知らせ(created/confirmed/full/cancelled)を、表示用のtitle/bodyへ変換する */
-  function normalizeAnnouncementFromApi(raw){
-    const title = raw.sessionTitle || "";
-    // 管理者がスプレッドシートに直接書き込むお知らせは、SessionTitle=タイトル、Detail=本文をそのまま使う
-    if(raw.type === "admin"){
-      return {
-        type: "admin",
-        date: formatAnnouncementDate_(raw.timestamp),
-        title: title || "運営からのお知らせ",
-        body: raw.detail || ""
-      };
+        var url = new URL(window.location.href);
+        url.searchParams.delete('reset');
+        window.history.replaceState({}, '', url.toString());
+      }catch(e){}
+      authMode = 'login';
+      authSuccess = 'パスワードを再設定しました。新しいパスワードでログインしてください。';
+      renderApp();
+    }catch(e){
+      authBusy = false; authError = e.message; renderApp();
     }
-    const textByType = {
-      created:  { title: `「${title}」を公開しました`, body: "新しい勉強会が登録されました。詳細をチェックしてみましょう。" },
-      confirmed:{ title: `「${title}」の開催が決定しました`, body: "最低遂行人数に達したため、開催が確定しました。" },
-      full:     { title: `「${title}」が満席になりました`, body: "定員に達したため、ただいま新規のお申し込みを締め切っています。" },
-      cancelled:{ title: `「${title}」が中止になりました`, body: "大変申し訳ございませんが、このイベントは中止となりました。" }
-    };
-    const text = textByType[raw.type] || { title, body: "" };
-    return {
-      type: raw.type,
-      date: formatAnnouncementDate_(raw.timestamp),
-      title: text.title,
-      body: text.body
-    };
   }
-  function formatAnnouncementDate_(v){
-    const d = new Date(v);
-    if(isNaN(d.getTime())) return "";
-    return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,"0")}.${String(d.getDate()).padStart(2,"0")}`;
+  function doLogout(){
+    var tok = session && session.token;
+    session = null;
+    try{ localStorage.removeItem('mol_session'); }catch(e){}
+    currentView = 'list';
+    renderApp();
+    if(tok) apiCall('logout', {token:tok}).catch(function(){});
   }
-  async function loadAnnouncementsFromApi(){
+  function updateUserBar(){
+    var el = document.getElementById('userBar');
+    if(!el) return;
+    el.innerHTML = session ? ('<span>ようこそ、<b>'+escapeHtml(session.displayName)+'</b>さん</span><button type="button" class="btn btn-secondary" data-action="logout">ログアウト</button>') : '';
+  }
+
+  async function refreshData(silent){
     try{
-      const res = await apiGet("listAnnouncements");
-      if(res.ok && Array.isArray(res.announcements)){
-        // 0件(お知らせなし)でも必ず反映する。表示するダミーデータは持たない。
-        announcements = res.announcements.map(normalizeAnnouncementFromApi);
-        return true;
+      var data = await apiCall('listAll', {});
+      modelsList = data.models || [];
+      photosList = data.photos || [];
+      actionsList = data.actions || [];
+      themesList = data.themes || [];
+      isAdmin = !!data.isAdmin;
+      lastSyncAt = new Date();
+      renderApp();
+    }catch(e){
+      console.error(e);
+      if(!silent){ formError = '記録の読み込みに失敗しました: '+e.message; renderView(); }
+      updateSyncNote(true);
+    }
+  }
+  function updateSyncNote(failed){
+    var el = document.getElementById('syncNote');
+    if(!el) return;
+    if(!API_URL){ el.textContent = 'API_URL未設定'; return; }
+    if(failed){ el.textContent = '同期エラー'; return; }
+    el.textContent = lastSyncAt ? ('最終更新 '+lastSyncAt.toLocaleTimeString('ja-JP')) : '';
+  }
+
+  /* ---------- generic form dialog ---------- */
+  function openFormDialog(opts){
+    var fields = opts.fields || [];
+    var ov = document.createElement('div');
+    ov.className = 'modal-overlay modal-overlay-top';
+    var fieldsHtml = fields.map(function(f){
+      if(f.type === 'checkbox'){
+        return '<label class="field field-checkbox"><input type="checkbox" name="'+f.key+'" '+(f.value?'checked':'')+' /><span>'+escapeHtml(f.label)+'</span></label>';
       }
-    }catch(err){
-      console.warn("お知らせの取得に失敗しました。", err);
-    }
-    return false;
-  }
-
-  /* ---------- 状態 ---------- */
-  const state = {
-    query:"",
-    activeTags: new Set(),
-    view: "list",
-    calYear: 2026,
-    calMonth: 9, // 1-12
-    selectedDay: null,
-    isMember: false,
-    trainingDate: "",
-    trainer: "",
-    messengerName: "",
-    memberName: "",
-    memberEmail: "",
-    mySessions: [],
-    filterOpen:false
-  };
-
-  /* ---------- ユーティリティ ---------- */
-  function fmtDateShort(iso){
-    const d = new Date(iso+"T00:00:00");
-    const months = ["1月","2月","3月","4月","5月","6月","7月","8月","9月","10月","11月","12月"];
-    const dows = ["日","月","火","水","木","金","土"];
-    return {month: months[d.getMonth()], day: d.getDate(), dow: dows[d.getDay()]};
-  }
-  function fmtDateLong(iso){
-    const d = new Date(iso+"T00:00:00");
-    const dows = ["日","月","火","水","木","金","土"];
-    return `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日(${dows[d.getDay()]})`;
-  }
-  function toast(msg){
-    const el = document.getElementById("toast");
-    el.textContent = msg;
-    el.classList.add("show");
-    clearTimeout(toast._t);
-    toast._t = setTimeout(()=>el.classList.remove("show"), 2600);
-  }
-
-  /* ---------- お知らせ描画 ---------- */
-  function renderAnnouncements(){
-    const wrap = document.getElementById("annScroll");
-    const labels = {
-      info:"お知らせ", alert:"重要", event:"新支部",
-      created:"新着", confirmed:"開催決定", full:"満席", cancelled:"中止",
-      admin:"運営より"
-    };
-    wrap.innerHTML = announcements.map(a => `
-      <div class="ann-card type-${a.type}">
-        <span class="ann-badge">${labels[a.type] || "お知らせ"}</span>
-        <div class="ann-date">${a.date}</div>
-        <h3>${a.title}</h3>
-        <p>${a.body}</p>
-      </div>
-    `).join("");
-  }
-
-  /* ---------- タグフィルターUI描画 ---------- */
-  function renderTagFilters(){
-    const formatWrap = document.getElementById("formatTags");
-    const themeWrap = document.getElementById("themeTags");
-    formatWrap.innerHTML = FORMAT_TAGS.map(t => pillHtml(t)).join("");
-    themeWrap.innerHTML = THEME_TAGS.map(t => pillHtml(t)).join("");
-    document.querySelectorAll(".tag-pill").forEach(btn=>{
-      btn.addEventListener("click", ()=>{
-        const tag = btn.dataset.tag;
-        if(state.activeTags.has(tag)) state.activeTags.delete(tag);
-        else state.activeTags.add(tag);
-        renderTagFilters();
-        renderSessions();
-        renderCalendar();
-      });
-    });
-  }
-  function pillHtml(tag){
-    const cls = tagClass(tag);
-    const active = state.activeTags.has(tag) ? "active" : "";
-    return `<button class="tag-pill ${cls} ${active}" data-tag="${tag}"><span class="dot"></span>${tag}</button>`;
-  }
-
-  /* ---------- フィルタリング ---------- */
-  /* 実施日を過ぎたイベントは、即座に「勉強会一覧」から除外する
-     (データそのものは削除されないので、「過去のイベント」ページでは引き続き確認できます) */
-  function isPast_(s){
-    if(!s.date) return false; // 定期開催(日付なし)は「過去」にならない
-    return new Date() > new Date(s.date + "T23:59:59");
-  }
-  function matchesSearchAndTags_(s){
-    if(state.activeTags.size>0){
-      const hasAll = [...state.activeTags].every(t=>s.tags.includes(t));
-      if(!hasAll) return false;
-    }
-    const q = state.query.trim().toLowerCase();
-    if(q){
-      const hay = (s.title + " " + s.tags.join(" ") + " " + s.location).toLowerCase();
-      if(!hay.includes(q)) return false;
-    }
-    return true;
-  }
-  function getFilteredSessions(){
-    return sessions
-      .filter(s=> !isPast_(s) && matchesSearchAndTags_(s))
-      .sort((a,b)=> (a.date||"").localeCompare(b.date||"") || a.title.localeCompare(b.title));
-  }
-
-  /* ---------- セッション一覧描画 ---------- */
-  function renderSessions(){
-    const list = getFilteredSessions();
-    document.getElementById("sessionCount").textContent = `全${sessions.length}件中 ${list.length}件を表示`;
-    const grid = document.getElementById("sessionGrid");
-    if(list.length === 0){
-      grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;">
-        <div class="connect-row">${connectDotsSvg(["var(--brick)","var(--amber)","var(--blue)"],7)}</div>
-        <p>条件に一致する勉強会が見つかりませんでした。<br>キーワードやタグの絞り込みを変えてみてください。</p>
-      </div>`;
-      return;
-    }
-    grid.innerHTML = list.map(sessionCardHtml).join("");
-    grid.querySelectorAll("[data-open-detail]").forEach(btn=>{
-      btn.addEventListener("click", ()=> openDetailModal(btn.dataset.openDetail));
-    });
-  }
-  function sessionCardHtml(s){
-    const feeLabel = s.fee === 0 ? "無料" : `¥${s.fee.toLocaleString()}`;
-    const isCancelled = s.status === "cancelled";
-    const dateBadgeHtml = s.date
-      ? (()=>{ const d = fmtDateShort(s.date); return `<div class="m">${d.month}</div><div class="d">${d.day}</div>`; })()
-      : `<div class="m">定期</div><div class="d">開催</div>`;
-    return `
-    <div class="session-card ${isCancelled ? 'is-cancelled' : ''}">
-      ${s.imageUrl
-        ? `<div class="session-thumb"><img src="${s.imageUrl}" alt="${s.title}のイメージ画像" loading="lazy" onerror="this.closest('.session-thumb').style.display='none'"></div>`
-        : `<div class="session-top"><div class="connect-row">${connectDotsSvg(cardAccentColors(s))}</div></div>`
+      if(f.type === 'select'){
+        var opts2 = (f.options||[]).map(function(o){ return '<option value="'+o+'" '+(String(o)===String(f.value)?'selected':'')+'>'+o+'</option>'; }).join('');
+        return '<label class="field"><span>'+escapeHtml(f.label)+'</span><select name="'+f.key+'">'+opts2+'</select></label>';
       }
-      <div class="session-body">
-        ${isCancelled ? `<div class="cancelled-badge">中止</div>` : ""}
-        <div class="session-date-badge">${dateBadgeHtml}</div>
-        <h3>${s.title}</h3>
-        <div class="session-meta">
-          <span>🕐 ${s.startTime} - ${s.endTime}</span>
-          <span>📍 ${s.location}</span>
-          ${s.deadline ? `<span>🗓 申込締切:${fmtDateShort(s.deadline).month}${fmtDateShort(s.deadline).day}日</span>` : ""}
-        </div>
-        <div class="session-tags">
-          ${s.tags.map(t=>`<span class="mini-tag ${tagClass(t)}">${t}</span>`).join("")}
-        </div>
-        ${capacityInfoHtml(s)}
-        <div class="session-footer">
-          <div>
-            <div class="fee ${s.fee===0?'free':''}">${feeLabel}</div>
-            ${s.requiresRegistration ? '<div class="reg-badge">事前登録制</div>' : ''}
-          </div>
-          <button class="btn-detail" data-open-detail="${s.id}">詳細・申し込む</button>
-        </div>
-      </div>
-    </div>`;
-  }
-  function isDeadlinePassed(s){
-    if(!s.deadline) return false;
-    const now = new Date();
-    const dl = new Date(s.deadline + "T23:59:59");
-    return now > dl;
-  }
-  function capacityStatus(s){
-    if(isDeadlinePassed(s)){
-      return {label:"募集締切", cls:"full"};
-    }
-    if(s.capacity == null) return null;
-    const applied = s.appliedCount || 0;
-    if(applied >= s.capacity){
-      return {label:"満席", cls:"full"};
-    }
-    if(s.minCapacity != null){
-      if(applied >= s.minCapacity){
-        return {label:"開催決定", cls:"confirmed"};
+      if(f.type === 'textarea'){
+        return '<label class="field"><span>'+escapeHtml(f.label)+'</span><textarea name="'+f.key+'" rows="3" '+(opts.readonly?'readonly':'')+'>'+escapeHtml(f.value||'')+'</textarea></label>';
       }
-      return {label:`開催決定まであと${s.minCapacity - applied}名`, cls:"pending"};
-    }
-    return {label:"申込み受付中", cls:"pending"};
-  }
-  function capacityInfoHtml(s){
-    if(s.capacity == null) return "";
-    const applied = s.appliedCount || 0;
-    const status = capacityStatus(s);
-    const pct = Math.min(100, Math.round((applied / s.capacity) * 100));
-    const minPct = s.minCapacity != null ? Math.min(100, Math.round((s.minCapacity / s.capacity) * 100)) : null;
-    return `
-      <div class="capacity-info">
-        <div class="capacity-info-row">
-          <span class="capacity-count">申込み ${applied}名 / 定員${s.capacity}名${s.minCapacity != null ? `(最低遂行 ${s.minCapacity}名)` : ""}</span>
-          <span class="capacity-badge ${status.cls}">${status.label}</span>
-        </div>
-        <div class="capacity-bar">
-          ${minPct != null ? `<div class="capacity-bar-min" style="left:${minPct}%"></div>` : ""}
-          <div class="capacity-bar-fill ${status.cls}" style="width:${pct}%"></div>
-        </div>
-      </div>`;
-  }
-  function cardAccentColors(s){
-    const colors = [];
-    if(s.tags.includes("オンライン")) colors.push("var(--blue)");
-    if(s.tags.some(t=>t.startsWith("対面"))) colors.push("var(--green)");
-    if(s.tags.some(t=>THEME_TAGS.includes(t))) colors.push("var(--amber)");
-    if(colors.length === 0) colors.push("var(--brick)");
-    while(colors.length < 3) colors.push(colors[colors.length % colors.length]);
-    return colors.slice(0,3);
-  }
-  /* つながり・共創をイメージした、線で結ばれたドットのSVGを生成 */
-  function connectDotsSvg(colors, r){
-    r = r || 6;
-    const gap = 24;
-    const w = gap*(colors.length-1) + r*2 + 4;
-    const h = r*2 + 16;
-    const pts = colors.map((c,i)=>({x:r+2+i*gap, y: (i%2===0) ? h-r-2 : r+2}));
-    let d = `M ${pts[0].x} ${pts[0].y}`;
-    for(let i=1;i<pts.length;i++){
-      const mx = (pts[i-1].x+pts[i].x)/2;
-      d += ` Q ${mx} ${pts[i-1].y} ${pts[i].x} ${pts[i].y}`;
-    }
-    const circles = pts.map((p,i)=>`<circle cx="${p.x}" cy="${p.y}" r="${r}" fill="${colors[i]}"/>`).join("");
-    return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <path d="${d}" stroke="rgba(35,43,58,0.15)" stroke-width="2" fill="none" stroke-linecap="round"/>
-      ${circles}
-    </svg>`;
-  }
-
-  /* ---------- カレンダー ---------- */
-  function renderCalendar(){
-    const y = state.calYear, m = state.calMonth;
-    const monthLabel = `${y}年${m}月`;
-    document.getElementById("calMonthLabel").textContent = monthLabel;
-
-    const firstDow = new Date(y, m-1, 1).getDay();
-    const daysInMonth = new Date(y, m, 0).getDate();
-    const list = getFilteredSessions();
-    const byDay = {};
-    list.forEach(s=>{
-      const sd = new Date(s.date+"T00:00:00");
-      if(sd.getFullYear()===y && sd.getMonth()+1===m){
-        (byDay[sd.getDate()] = byDay[sd.getDate()] || []).push(s);
-      }
-    });
-
-    const dows = ["日","月","火","水","木","金","土"];
-    let html = dows.map(d=>`<div class="cal-dow">${d}</div>`).join("");
-    for(let i=0;i<firstDow;i++) html += `<div class="cal-cell empty"></div>`;
-    const todayStr = new Date().toISOString().slice(0,10);
-    for(let day=1; day<=daysInMonth; day++){
-      const iso = `${y}-${String(m).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
-      const evs = byDay[day] || [];
-      const isToday = iso === todayStr;
-      const hasEvents = evs.length>0;
-      const isSelected = state.selectedDay === iso;
-      html += `<div class="cal-cell ${isToday?'today':''} ${hasEvents?'has-events':''} ${isSelected?'selected':''}" data-day="${iso}">
-        <div class="num">${day}</div>
-        <div class="cal-dots">${evs.slice(0,4).map(e=>`<div class="d" style="background:${dotColor(e)}"></div>`).join("")}</div>
-      </div>`;
-    }
-    const grid = document.getElementById("calGrid");
-    grid.innerHTML = html;
-    grid.querySelectorAll(".cal-cell.has-events").forEach(cell=>{
-      cell.addEventListener("click", ()=>{
-        state.selectedDay = (state.selectedDay === cell.dataset.day) ? null : cell.dataset.day;
-        renderCalendar();
-      });
-    });
-
-    const dayListEl = document.getElementById("calDayList");
-    if(state.selectedDay && byDay[Number(state.selectedDay.slice(-2))]){
-      const evs = byDay[Number(state.selectedDay.slice(-2))];
-      dayListEl.style.display = "block";
-      dayListEl.innerHTML = `<h4>${fmtDateLong(state.selectedDay)}の勉強会</h4>
-        <div class="session-grid" style="grid-template-columns:1fr;">${evs.map(sessionCardHtml).join("")}</div>`;
-      dayListEl.querySelectorAll("[data-open-detail]").forEach(btn=>{
-        btn.addEventListener("click", ()=> openDetailModal(btn.dataset.openDetail));
-      });
-    } else {
-      dayListEl.style.display = "none";
-      dayListEl.innerHTML = "";
-    }
-  }
-  function dotColor(s){
-    if(s.tags.includes("オンライン")) return "var(--blue)";
-    if(s.tags.some(t=>t.startsWith("対面"))) return "var(--green)";
-    return "var(--amber)";
-  }
-
-  /* ---------- 詳細・申し込みモーダル ---------- */
-  function dateTimeLabelHtml(s){
-    const dateLabel = s.date ? fmtDateLong(s.date) : "定期開催(日程はお問い合わせください)";
-    return `${dateLabel}・${s.startTime}-${s.endTime}`;
-  }
-  function openDetailModal(id){
-    const s = sessions.find(x=>x.id===id);
-    if(!s) return;
-    const body = document.getElementById("detailModalBody");
-    const feeLabel = s.fee===0 ? "無料" : `¥${s.fee.toLocaleString()}`;
-    const isCancelled = s.status === "cancelled";
-    const isPast = isPast_(s);
-
-    if(!state.isMember){
-      body.innerHTML = `
-        ${detailImageHtml(s)}
-        ${isCancelled ? `<div class="cancelled-badge">中止</div>` : ""}
-        <h3>${s.title}</h3>
-        <p class="modal-sub">${dateTimeLabelHtml(s)}</p>
-        <div class="modal-summary">
-          <div><span>開催場所</span><b>${s.location}</b></div>
-          <div><span>参加費</span><b>${feeLabel}</b></div>
-        </div>
-        <div class="need-member">申し込みには会員登録が必要です。会員登録は無料で、どなたでも登録いただけます。</div>
-        <button class="btn-primary" style="width:100%;" id="goRegisterFromDetail">会員登録して申し込みへ進む</button>
-      `;
-      document.getElementById("goRegisterFromDetail").addEventListener("click", ()=>{
-        closeModal("detailModalOverlay");
-        openMemberModal(id);
-      });
-    } else if(!s.requiresRegistration){
-      body.innerHTML = `
-        ${detailImageHtml(s)}
-        ${isCancelled ? `<div class="cancelled-badge">中止</div>` : ""}
-        <h3>${s.title}</h3>
-        <p class="modal-sub">${dateTimeLabelHtml(s)}</p>
-        <div class="modal-summary">
-          <div><span>開催場所</span><b>${s.location}</b></div>
-          <div><span>参加費</span><b>${feeLabel}</b></div>
-          ${s.organizer ? `<div><span>作成者</span><b>${escapeHtml_(s.organizer)}</b></div>` : ""}
-        </div>
-        <p style="font-size:13.5px;color:var(--ink-soft);margin-bottom:16px;white-space:pre-wrap;">${escapeHtml_(s.description)}</p>
-        ${ticketLinkHtml(s)}${relatedLinkHtml(s)}
-        ${isCancelled ? `
-          <div class="need-member">このイベントは中止になりました。</div>
-        ` : isPast ? `
-          <div class="need-member" style="background:#EFEDE6;color:var(--ink-soft);">このイベントはすでに開催日を終えています。</div>
-        ` : `
-          <div class="need-member" style="background:#E4F5EA;color:var(--green-dark);">この勉強会は事前登録不要です。当日は直接会場・オンラインURLへどうぞ。カレンダーへの追加だけしておくと安心です。</div>
-          ${s.date ? `<a class="gcal-btn" style="width:100%;justify-content:center;" href="${googleCalUrl(s)}" target="_blank" rel="noopener">📅 Googleカレンダーに追加</a>` : ""}
-        `}
-        ${boardSectionHtml()}
-      `;
-      initBoard_(s);
-    } else {
-      const remaining = s.capacity != null ? Math.max(0, s.capacity - (s.appliedCount||0)) : null;
-      const isFull = remaining !== null && remaining <= 0;
-      const canApply = !isFull && !isCancelled && !isPast;
-      body.innerHTML = `
-        ${detailImageHtml(s)}
-        ${isCancelled ? `<div class="cancelled-badge">中止</div>` : ""}
-        <h3>${s.title}</h3>
-        <p class="modal-sub">${dateTimeLabelHtml(s)}</p>
-        <div class="modal-summary">
-          <div><span>開催場所</span><b>${s.location}</b></div>
-          <div><span>参加費</span><b>${feeLabel}</b></div>
-          ${s.capacity != null ? `<div><span>定員</span><b>${s.capacity}名</b></div>` : ""}
-          ${s.minCapacity != null ? `<div><span>最低遂行人数</span><b>${s.minCapacity}名</b></div>` : ""}
-          ${s.capacity != null ? `<div><span>現在の申込み</span><b>${s.appliedCount||0}名</b></div>` : ""}
-          ${s.organizer ? `<div><span>作成者</span><b>${escapeHtml_(s.organizer)}</b></div>` : ""}
-        </div>
-        ${capacityInfoHtml(s)}
-        <p style="font-size:13.5px;color:var(--ink-soft);margin-bottom:18px;white-space:pre-wrap;">${escapeHtml_(s.description)}</p>
-        ${ticketLinkHtml(s)}${relatedLinkHtml(s)}
-        ${isCancelled ? `
-          <div class="need-member">このイベントは中止になりました。お申し込みはできません。</div>
-        ` : isPast ? `
-          <div class="need-member" style="background:#EFEDE6;color:var(--ink-soft);">このイベントは開催日を過ぎているため、お申し込みは締め切られています。</div>
-        ` : isFull ? `
-          <div class="need-member">この勉強会は定員に達したため、お申し込みを締め切りました。</div>
-        ` : `
-          <p class="field-hint" style="margin-top:0;">お申し込みはご本人1名分のみです。ご友人・ご家族の代理申込みはできません。</p>
-          <div class="field"><label for="appName">お名前</label><input type="text" id="appName" value="${state.memberName}" readonly></div>
-          <div class="field"><label for="appNote">備考(任意)</label><textarea id="appNote" rows="2" placeholder="ご質問やご要望があればご記入ください"></textarea></div>
-          <p class="field-hint" style="margin-top:-6px;">※キャンセルをご希望の場合は、お手数ですが主催者に直接ご連絡ください。このサイト上からご自身で取り消すことはできません。</p>
-          <button class="btn-primary" style="width:100%;" id="submitApplyBtn">この内容で申し込む</button>
-        `}
-        ${boardSectionHtml()}
-      `;
-      initBoard_(s);
-      if(canApply){
-        document.getElementById("submitApplyBtn").addEventListener("click", async ()=>{
-          const name = document.getElementById("appName").value.trim();
-          if(!name){ toast("お名前を入力してください"); return; }
-          const count = 1; // 申込みは会員本人1名のみ
-          const note = document.getElementById("appNote").value.trim();
-          const btn = document.getElementById("submitApplyBtn");
-          btn.disabled = true; btn.textContent = "送信しています...";
-          try{
-            const res = await apiPost("apply", {
-              sessionId: s.id, name, email: state.memberEmail, count, note
-            });
-            if(!res.ok){
-              toast(res.error || "申込みに失敗しました");
-              btn.disabled = false; btn.textContent = "この内容で申し込む";
-              return;
-            }
-            s.appliedCount = res.appliedCount != null ? res.appliedCount : (s.appliedCount||0) + count;
-            showApplySuccess(s);
-            renderSessions();
-            renderCalendar();
-          }catch(err){
-            console.error(err);
-            toast("通信エラーのため申込みに失敗しました");
-            btn.disabled = false; btn.textContent = "この内容で申し込む";
-          }
+      return '<label class="field"><span>'+escapeHtml(f.label)+'</span><input type="text" name="'+f.key+'" value="'+escapeHtml(f.value||'')+'" '+(opts.readonly?'readonly':'')+'/></label>';
+    }).join('');
+    ov.innerHTML =
+      '<div class="modal small-modal">'+
+        '<div class="modal-head"><h3>'+escapeHtml(opts.title||'')+'</h3><button class="icon-btn" data-x>&times;</button></div>'+
+        '<form class="form-body">'+ fieldsHtml +
+          '<div class="modal-foot">'+
+            (opts.readonly ? '<button type="button" class="btn btn-secondary" data-close>閉じる</button>' : '<button type="submit" class="btn btn-primary">保存</button>')+
+          '</div>'+
+        '</form>'+
+      '</div>';
+    document.body.appendChild(ov);
+    ov.querySelector('[data-x]').onclick = function(){ ov.remove(); };
+    var closeBtn = ov.querySelector('[data-close]');
+    if(closeBtn) closeBtn.onclick = function(){ ov.remove(); };
+    ov.addEventListener('click', function(e){ if(e.target === ov) ov.remove(); });
+    var form = ov.querySelector('form');
+    if(!opts.readonly){
+      form.onsubmit = function(e){
+        e.preventDefault();
+        var vals = {};
+        fields.forEach(function(f){
+          var el = form.elements[f.key];
+          vals[f.key] = f.type === 'checkbox' ? el.checked : el.value;
         });
-      }
-    }
-    document.getElementById("detailModalOverlay").classList.add("open");
-    const imageEl = body.querySelector("[data-open-lightbox]");
-    if(imageEl){
-      imageEl.addEventListener("click", ()=>{
-        openImageLightbox_(imageEl.dataset.openLightbox, imageEl.dataset.lightboxAlt || "");
-      });
+        ov.remove();
+        opts.onSubmit && opts.onSubmit(vals);
+      };
+      var firstInput = form.querySelector('input[type=text],textarea');
+      if(firstInput) firstInput.focus();
     }
   }
-  /* ---------- 画像の拡大表示(ライトボックス) ---------- */
-  function openImageLightbox_(url, alt){
-    const overlay = document.getElementById("imageLightboxOverlay");
-    const img = document.getElementById("imageLightboxImg");
-    img.src = url;
-    img.alt = alt || "";
-    overlay.classList.add("open");
-  }
-  function closeImageLightbox_(){
-    const overlay = document.getElementById("imageLightboxOverlay");
-    overlay.classList.remove("open");
-    document.getElementById("imageLightboxImg").src = "";
-  }
-  /* モバイル表示(900px以下)では<nav>を<header>の外側(headerの直後、bodyの直下)へ、
-     デスクトップ表示では<header>内側の元の位置(.header-inner内、ハンバーガーボタンの後ろ)へ戻す。
-     Safari(iOS)のposition:sticky祖先+position:fixed子要素の描画バグを回避するための処理。 */
-  function relocateNavForViewport_(){
-    const header = document.querySelector("header");
-    const headerInner = document.querySelector(".header-inner");
-    const nav = document.getElementById("mainNav");
-    if(!header || !headerInner || !nav) return;
-    const isMobile = window.matchMedia("(max-width: 900px)").matches;
-    if(isMobile){
-      if(nav.parentElement !== document.body){
-        header.insertAdjacentElement("afterend", nav);
-      }
-    } else {
-      if(nav.parentElement !== headerInner){
-        headerInner.appendChild(nav);
-      }
+
+  /* ---------- annotate modal ---------- */
+  function openAnnotateModal(cfg){
+    var localPins = JSON.parse(JSON.stringify(cfg.pins || []));
+    var localRelations = JSON.parse(JSON.stringify(cfg.relations || []));
+    var mode = 'view';
+    var relFirstId = null;
+    var editable = !!cfg.editable;
+
+    var ov = document.createElement('div');
+    ov.className = 'modal-overlay';
+    document.body.appendChild(ov);
+
+    function modeHint(){
+      if(mode === 'pin') return '写真の中をクリックして「部分」を登録します。既存のピンをクリックすると編集できます。';
+      if(mode === 'relation') return relFirstId ? 'もう一方の部分（ピン）をクリックして関係を作成します。' : '関係の起点となる部分（ピン）をクリックしてください。';
+      return 'ピンをクリックすると、その部分の名称と意味を確認できます。';
     }
-  }
-  /* ---------- 簡易掲示板 ---------- */
-  function boardSectionHtml(){
-    return `
-      <div class="board-section">
-        <h4>💬 質問掲示板</h4>
-        <p class="field-hint" style="margin-top:0;margin-bottom:12px;">この勉強会について作成者に質問できます。書き込むと作成者にメールで通知が届きます(あなたのメールアドレスは他の参加者には表示されません)。</p>
-        <div id="boardMessagesList" class="board-messages"><p class="field-hint">読み込み中...</p></div>
-        <div class="field" style="margin-top:14px;">
-          <textarea id="boardMessageInput" rows="2" placeholder="質問やコメントを入力してください"></textarea>
-        </div>
-        <button class="btn-ghost" id="boardPostBtn" style="width:100%;">書き込む</button>
-      </div>
-    `;
-  }
-  async function initBoard_(s){
-    const listEl = document.getElementById("boardMessagesList");
-    const postBtn = document.getElementById("boardPostBtn");
-    if(!listEl || !postBtn) return;
-    try{
-      const res = await apiGet("listMessages", { sessionId: s.id });
-      if(res.ok){
-        renderBoardMessages_(res.messages || []);
+
+    function pinMarkerHtml(p){
+      return '<button type="button" class="pin-marker'+(relFirstId===p.id?' is-selected':'')+'" data-pin-id="'+p.id+'" style="left:'+p.x+'%;top:'+p.y+'%" title="'+escapeHtml(p.name)+'"><span class="pin-dot"></span></button>';
+    }
+    function svgHtml(){
+      var lines = localRelations.map(function(r){
+        var a = localPins.filter(function(p){return p.id===r.fromPinId;})[0];
+        var b = localPins.filter(function(p){return p.id===r.toPinId;})[0];
+        if(!a || !b) return '';
+        return '<line class="rel-line" data-rel-id="'+r.id+'" x1="'+a.x+'" y1="'+a.y+'" x2="'+b.x+'" y2="'+b.y+'" marker-end="url(#arrow-'+cfg.slot+')"></line>';
+      }).join('');
+      return '<defs><marker id="arrow-'+cfg.slot+'" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"></path></marker></defs>'+lines;
+    }
+
+    function render(){
+      ov.innerHTML =
+        '<div class="modal">'+
+          '<div class="modal-head"><h3>'+escapeHtml(cfg.label)+'の注釈</h3><button class="icon-btn" data-x>&times;</button></div>'+
+          (editable ?
+            '<div class="annotate-toolbar">'+
+              '<button type="button" class="chip-btn'+(mode==='pin'?' is-active':'')+'" data-mode="pin">部分を追加</button>'+
+              '<button type="button" class="chip-btn'+(mode==='relation'?' is-active':'')+'" data-mode="relation">関係を追加</button>'+
+              '<button type="button" class="chip-btn'+(mode==='view'?' is-active':'')+'" data-mode="view">選択解除</button>'+
+            '</div><p class="hint">'+modeHint()+'</p>' : '<p class="hint">'+modeHint()+'</p>') +
+          '<div class="photo-stage" data-stage>'+
+            '<img src="'+cfg.imgSrc+'" alt="'+escapeHtml(cfg.label)+'" draggable="false" />'+
+            '<div class="pin-layer">'+localPins.map(pinMarkerHtml).join('')+'</div>'+
+            '<svg class="arrow-layer" viewBox="0 0 100 100" preserveAspectRatio="none">'+svgHtml()+'</svg>'+
+          '</div>'+
+          '<div class="annotate-lists">'+
+            '<div><h4>部分 ('+localPins.length+')</h4><ul class="rec-list">'+
+              (localPins.length ? localPins.map(function(p){
+                return '<li><b>'+escapeHtml(p.name)+'</b><span>'+escapeHtml(p.meaning)+'</span>'+(editable?'<button data-del-pin="'+p.id+'" class="btn-danger-text">削除</button>':'')+'</li>';
+              }).join('') : '<li class="empty">まだありません</li>')+
+            '</ul></div>'+
+            '<div><h4>関係 ('+localRelations.length+')</h4><ul class="rec-list">'+
+              (localRelations.length ? localRelations.map(function(r){
+                var a = localPins.filter(function(p){return p.id===r.fromPinId;})[0];
+                var b = localPins.filter(function(p){return p.id===r.toPinId;})[0];
+                return '<li><b>'+escapeHtml(a?a.name:'?')+' → '+escapeHtml(b?b.name:'?')+'</b><span>'+escapeHtml(r.meaning)+'</span>'+(editable?'<button data-del-rel="'+r.id+'" class="btn-danger-text">削除</button>':'')+'</li>';
+              }).join('') : '<li class="empty">まだありません</li>')+
+            '</ul></div>'+
+          '</div>'+
+          '<div class="modal-foot"><button type="button" class="btn btn-primary" data-done>完了</button></div>'+
+        '</div>';
+      wire();
+    }
+
+    function commit(){ cfg.onChange && cfg.onChange(localPins, localRelations); }
+
+    function wire(){
+      ov.querySelector('[data-x]').onclick = close;
+      ov.querySelector('[data-done]').onclick = close;
+      if(editable){
+        var mp = ov.querySelector('[data-mode="pin"]'); if(mp) mp.onclick = function(){ mode='pin'; relFirstId=null; render(); };
+        var mr = ov.querySelector('[data-mode="relation"]'); if(mr) mr.onclick = function(){ mode='relation'; relFirstId=null; render(); };
+        var mv = ov.querySelector('[data-mode="view"]'); if(mv) mv.onclick = function(){ mode='view'; relFirstId=null; render(); };
+        Array.prototype.forEach.call(ov.querySelectorAll('[data-del-pin]'), function(b){
+          b.onclick = function(){
+            var id = b.getAttribute('data-del-pin');
+            localPins = localPins.filter(function(p){ return p.id!==id; });
+            localRelations = localRelations.filter(function(r){ return r.fromPinId!==id && r.toPinId!==id; });
+            commit(); render();
+          };
+        });
+        Array.prototype.forEach.call(ov.querySelectorAll('[data-del-rel]'), function(b){
+          b.onclick = function(){
+            var id = b.getAttribute('data-del-rel');
+            localRelations = localRelations.filter(function(r){ return r.id!==id; });
+            commit(); render();
+          };
+        });
+        var stage = ov.querySelector('[data-stage]');
+        stage.addEventListener('click', onStageClick);
       } else {
-        listEl.innerHTML = `<p class="field-hint">掲示板の読み込みに失敗しました</p>`;
-      }
-    }catch(err){
-      console.error(err);
-      listEl.innerHTML = `<p class="field-hint">掲示板の読み込みに失敗しました</p>`;
-    }
-    postBtn.addEventListener("click", async ()=>{
-      const input = document.getElementById("boardMessageInput");
-      const message = input.value.trim();
-      if(!message){ toast("メッセージを入力してください"); return; }
-      postBtn.disabled = true; postBtn.textContent = "送信しています...";
-      try{
-        const res = await apiPost("postMessage", {
-          sessionId: s.id, email: state.memberEmail, name: state.memberName,
-          messengerName: state.messengerName, message
+        Array.prototype.forEach.call(ov.querySelectorAll('.pin-marker'), function(btn){
+          btn.onclick = function(){
+            var p = localPins.filter(function(pp){ return pp.id === btn.getAttribute('data-pin-id'); })[0];
+            if(p) openFormDialog({title:p.name, readonly:true, fields:[{key:'meaning', label:'意味するもの', type:'textarea', value:p.meaning}]});
+          };
         });
-        if(!res.ok){ toast(res.error || "書き込みに失敗しました"); return; }
-        input.value = "";
-        toast("書き込みました");
-        const listRes = await apiGet("listMessages", { sessionId: s.id });
-        if(listRes.ok) renderBoardMessages_(listRes.messages || []);
-      }catch(err){
-        console.error(err);
-        toast("通信エラーのため書き込みに失敗しました");
-      }finally{
-        postBtn.disabled = false; postBtn.textContent = "書き込む";
+        Array.prototype.forEach.call(ov.querySelectorAll('.rel-line'), function(line){
+          line.onclick = function(){
+            var r = localRelations.filter(function(rr){ return rr.id === line.getAttribute('data-rel-id'); })[0];
+            if(r) openFormDialog({title:'関係', readonly:true, fields:[{key:'meaning', label:'その矢印が意味するもの', type:'textarea', value:r.meaning}]});
+          };
+        });
+      }
+    }
+
+    function onStageClick(e){
+      var markerBtn = e.target.closest('.pin-marker');
+      if(mode === 'pin'){
+        if(markerBtn){
+          var p = localPins.filter(function(pp){ return pp.id === markerBtn.getAttribute('data-pin-id'); })[0];
+          if(p) openFormDialog({
+            title:'部分を編集',
+            fields:[{key:'name', label:'どのブロック・表現を指している？', value:p.name},{key:'meaning', label:'その部分の意味するもの', type:'textarea', value:p.meaning}],
+            onSubmit:function(vals){ if(!vals.name.trim()) return; p.name=vals.name.trim(); p.meaning=vals.meaning.trim(); commit(); render(); }
+          });
+        } else {
+          var rect = e.currentTarget.getBoundingClientRect();
+          var x = Math.min(100, Math.max(0, (e.clientX-rect.left)/rect.width*100));
+          var y = Math.min(100, Math.max(0, (e.clientY-rect.top)/rect.height*100));
+          openFormDialog({
+            title:'部分の意味を記録する',
+            fields:[{key:'name', label:'どのブロック・表現を指している？'},{key:'meaning', label:'その部分の意味するもの', type:'textarea'}],
+            onSubmit:function(vals){ if(!vals.name.trim()) return; localPins.push({id:uid(), x:x, y:y, name:vals.name.trim(), meaning:vals.meaning.trim()}); commit(); render(); }
+          });
+        }
+      } else if(mode === 'relation'){
+        if(!markerBtn) return;
+        var id = markerBtn.getAttribute('data-pin-id');
+        if(!relFirstId){ relFirstId = id; render(); }
+        else if(relFirstId === id){ relFirstId = null; render(); }
+        else {
+          var fromId = relFirstId, toId = id;
+          relFirstId = null;
+          openFormDialog({
+            title:'関係を登録',
+            fields:[{key:'meaning', label:'その矢印が意味するもの', type:'textarea'}],
+            onSubmit:function(vals){ localRelations.push({id:uid(), fromPinId:fromId, toPinId:toId, meaning:vals.meaning.trim()}); commit(); render(); }
+          });
+          render();
+        }
+      }
+    }
+
+    function close(){ ov.remove(); cfg.onClose && cfg.onClose(); }
+    render();
+  }
+
+  function openAnnotateForSlot(slotKey, mode, modelId){
+    var label = SLOTS.filter(function(s){ return s.key===slotKey; })[0].label;
+    if(mode === 'draft'){
+      var p = draft.photos[slotKey];
+      if(!p) return;
+      openAnnotateModal({
+        slot:slotKey, label:label, imgSrc:p.previewUrl, pins:p.pins, relations:p.relations, editable:true,
+        onChange:function(pins, relations){ p.pins = pins; p.relations = relations; },
+        onClose:function(){ renderView(); }
+      });
+    } else {
+      var photoDoc = photosList.filter(function(ph){ return ph.modelId===modelId && ph.slot===slotKey; })[0];
+      if(!photoDoc) return;
+      openAnnotateModal({
+        slot:slotKey, label:label, imgSrc:blobUrl(photoDoc.assetId), pins:photoDoc.pins||[], relations:photoDoc.relations||[], editable:true,
+        onChange:function(pins, relations){
+          photoDoc.pins = pins; photoDoc.relations = relations; // optimistic local update
+          apiCall('updatePhotoAnnotations', {id:photoDoc.id, pins:pins, relations:relations}).catch(function(e){ console.error(e); });
+        },
+        onClose:function(){ renderView(); refreshData(true); }
+      });
+    }
+  }
+
+  function openCheckForm(actionId, key){
+    var action = actionsList.filter(function(a){ return a.id===actionId; })[0];
+    if(!action) return;
+    openFormDialog({
+      title:'アクションチェック ('+CHECK_LABELS[key]+')',
+      fields:[
+        {key:'score', label:'実施できましたか（5点満点）', type:'select', options:[1,2,3,4,5], value:3},
+        {key:'comment', label:'感想', type:'textarea'},
+        {key:'stop', label:'今後はアクションチェックをしない', type:'checkbox'}
+      ],
+      onSubmit:function(vals){
+        apiCall('recordActionCheck', {id:actionId, key:key, score:Number(vals.score), comment:vals.comment.trim(), stop:!!vals.stop})
+          .then(function(){ return refreshData(true); })
+          .catch(function(e){ console.error(e); formError='チェックの保存に失敗しました。'; renderView(); });
       }
     });
   }
-  function renderBoardMessages_(messages){
-    const listEl = document.getElementById("boardMessagesList");
-    if(!listEl) return;
-    if(messages.length === 0){
-      listEl.innerHTML = `<p class="field-hint">まだ書き込みはありません。最初の質問をしてみましょう。</p>`;
+
+  /* ---------- rendering: nav ---------- */
+  function renderNav(){
+    var due = computeDueCount();
+    var tabs = [
+      {key:'list', label:'記録一覧'},
+      {key:'new', label:'新規記録'},
+      {key:'theme', label:'お題モード'},
+      {key:'checks', label:'アクションチェック', badge:due}
+    ];
+    document.getElementById('tabs').innerHTML = tabs.map(function(t){
+      return '<button data-action="nav" data-view="'+t.key+'" class="'+(currentView===t.key?'is-active':'')+'">'+t.label+(t.badge ? '<span class="badge">'+t.badge+'</span>' : '')+'</button>';
+    }).join('');
+    var notice = document.getElementById('globalNotice');
+    if(notice) notice.innerHTML = API_URL ? '' : '<div class="notice">API_URLが未設定です。「セットアップ手順.md」に沿ってApps ScriptウェブアプリのURLをこのページ(index.html)先頭のAPI_URLに設定してください。</div>';
+    updateSyncNote(false);
+  }
+
+  /* ---------- rendering: お題モード ---------- */
+  function viewThemeHtml(){
+    var html = '<div class="stack">';
+    html += '<div class="card panel stack">';
+    html += '<h2 class="section-title">お題モード</h2>';
+    html += '<p class="section-hint">ランダムなお題を引いて、そのお題に沿ってモデルを作り、写真で記録していくモードです。</p>';
+    if(currentTheme){
+      html += '<div class="notice"><div style="font-size:12px; color:var(--text-muted); margin-bottom:4px;">今回のお題</div><div style="font-size:18px; font-weight:700;">'+escapeHtml(currentTheme)+'</div></div>';
+      html += '<div class="row">';
+      html += '<button type="button" class="btn btn-primary" data-action="theme-start-record">このお題でモデルを記録する</button>';
+      html += '<button type="button" class="btn btn-secondary" data-action="theme-draw">お題を引き直す</button>';
+      html += '</div>';
+    } else {
+      html += '<button type="button" class="btn btn-primary" data-action="theme-draw" style="align-self:flex-start;">お題を引く</button>';
+    }
+    html += '</div>';
+
+    var themeModels = modelsList.filter(function(m){ return !!m.theme; }).sort(function(a,b){ return a.date < b.date ? 1 : -1; });
+    html += '<div><div class="section-title">これまでのお題モードの記録</div>';
+    if(themeModels.length===0){ html += '<div class="card panel empty-state">まだお題モードの記録はありません。</div>'; }
+    else { html += themeModels.map(modelCardHtml).join(''); }
+    html += '</div>';
+
+    if(isAdmin){ html += themeAdminHtml(); }
+
+    html += '</div>';
+    return html;
+  }
+
+  /* お題の追加・修正は管理者(kikimaosamu@gmail.com)のみ。isAdminはサーバー側が
+     セッションから判定した結果であり、この管理パネルの表示/非表示はあくまで見た目の
+     制御に過ぎない。実際の操作可否はCode.gs側のrequireAdminで必ず検証している。 */
+  function themeAdminHtml(){
+    var html = '<div class="card panel stack">';
+    html += '<h3 class="section-title">お題を管理する（管理者のみ）</h3>';
+    html += '<p class="section-hint">ここで追加・編集・削除したお題が、全員の「お題を引く」に反映されます。</p>';
+    if(themeAdminError) html += '<div class="notice error">'+escapeHtml(themeAdminError)+'</div>';
+    html += '<div class="stack">';
+    if(themesList.length===0){ html += '<p class="section-hint">お題が登録されていません。</p>'; }
+    themesList.forEach(function(t){
+      if(editingThemeId === t.id){
+        html += '<div class="row" style="align-items:center;">'+
+          '<input type="text" id="theme-edit-input" value="'+escapeHtml(t.text)+'" style="flex:1;" />'+
+          '<button type="button" class="btn btn-primary" data-action="theme-save-edit" data-id="'+t.id+'" '+(themeAdminBusy?'disabled':'')+'>保存</button>'+
+          '<button type="button" class="btn btn-secondary" data-action="theme-cancel-edit" '+(themeAdminBusy?'disabled':'')+'>キャンセル</button>'+
+        '</div>';
+      } else {
+        html += '<div class="row" style="justify-content:space-between; align-items:center;">'+
+          '<span>'+escapeHtml(t.text)+'</span>'+
+          '<span class="row">'+
+            '<button type="button" class="btn btn-secondary" data-action="theme-edit-start" data-id="'+t.id+'">編集</button>'+
+            '<button type="button" class="btn-danger-text" data-action="theme-delete" data-id="'+t.id+'">削除</button>'+
+          '</span>'+
+        '</div>';
+      }
+    });
+    html += '</div>';
+    html += '<div class="row" style="align-items:center;">'+
+      '<input type="text" id="theme-new-input" placeholder="新しいお題を入力（例：理想の休日を表すモデル）" style="flex:1;" />'+
+      '<button type="button" class="btn btn-primary" data-action="theme-add" '+(themeAdminBusy?'disabled':'')+'>追加する</button>'+
+    '</div>';
+    html += '</div>';
+    return html;
+  }
+
+  /* ---------- rendering: 月ごとの記録一覧(記録詳細のリンクから遷移) ---------- */
+  function viewMonthHtml(){
+    var items = modelsList.filter(function(m){
+      var d = new Date(m.date);
+      return d.getFullYear()===monthYear && d.getMonth()===monthMonth;
+    }).sort(function(a,b){ return a.date < b.date ? 1 : -1; });
+    var html = '<div class="stack">';
+    html += '<div class="cal-head"><button class="btn" data-action="month-prev">&lsaquo; 前の月</button><span class="cal-title">'+monthYear+'年 '+(monthMonth+1)+'月の記録</span><button class="btn" data-action="month-next">次の月 &rsaquo;</button></div>';
+    if(items.length===0){ html += '<div class="card panel empty-state">この月の記録はまだありません。</div>'; }
+    else { items.forEach(function(m){ html += modelCardHtml(m); }); }
+    html += '</div>';
+    return html;
+  }
+
+  /* ---------- rendering: list ---------- */
+  function modelCardHtml(m){
+    var thumb = m.coverAssetId ? '<img src="'+blobUrl(m.coverAssetId)+'" alt="" />' : 'no photo';
+    return '<div class="card model-card" data-action="open-detail" data-id="'+m.id+'">'+
+      '<div class="model-thumb">'+thumb+'</div>'+
+      '<div><h3>'+escapeHtml(m.title)+(m.isPublic===false?' <span class="badge-private">非公開</span>':'')+(m.theme?' <span class="badge-theme">お題</span>':'')+'</h3>'+
+      '<div class="meta">'+m.date+(m.place?' ・ '+escapeHtml(m.place):'')+'</div>'+
+      '<div class="meta">記録者: '+escapeHtml(m.createdBy||'匿名')+'</div></div>'+
+    '</div>';
+  }
+  function viewListHtml(){
+    var sorted = modelsList.slice().sort(function(a,b){ return a.date < b.date ? 1 : -1; });
+    var html = '<div class="stack">';
+    if(sorted.length===0){ html += '<div class="card panel empty-state">まだ記録がありません。「新規記録」から最初のモデルを登録しましょう。</div>'; }
+    else { sorted.forEach(function(m){ html += modelCardHtml(m); }); }
+    html += '</div>';
+    return html;
+  }
+
+  /* ---------- rendering: new record form ---------- */
+  function slotCardHtml(slot){
+    var p = draft.photos[slot.key];
+    if(!p){
+      return '<div class="slot-card"><div class="slot-label">'+slot.label+'</div>'+
+        '<button type="button" class="slot-empty-btn" data-action="photo-upload-slot" data-slot="'+slot.key+'">＋ 写真を追加</button>'+
+        '<input type="file" accept="image/*" id="file-'+slot.key+'" style="display:none" />'+
+      '</div>';
+    }
+    return '<div class="slot-card has-photo"><div class="slot-label">'+slot.label+'</div>'+
+      '<div class="slot-thumb-wrap"><img src="'+p.previewUrl+'" alt="" />'+ (p.pins.length ? '<span class="slot-pin-count">ピン '+p.pins.length+'</span>' : '')+'</div>'+
+      '<div class="slot-actions"><button type="button" class="btn" data-action="annotate-open" data-slot="'+slot.key+'" data-mode="draft">注釈を編集</button>'+
+      '<button type="button" class="btn btn-secondary" data-action="photo-remove" data-slot="'+slot.key+'">削除</button></div>'+
+    '</div>';
+  }
+  function viewNewHtml(){
+    var html = '<div class="card panel stack">';
+    html += '<h2 class="section-title">新規モデル記録</h2>';
+    if(!API_URL) html += '<div class="notice">API_URLが未設定です。保存するにはindex.html内のAPI_URLにApps ScriptウェブアプリのURLを設定してください。</div>';
+    if(formError) html += '<div class="notice error">'+escapeHtml(formError)+'</div>';
+    if(draft.theme){ html += '<div class="notice">お題モードで記録中です。お題: <strong>'+escapeHtml(draft.theme)+'</strong></div>'; }
+    html += '<div class="field-grid">';
+    html += '<label class="field"><span>タイトル</span><input type="text" id="f-title" value="'+escapeHtml(draft.title)+'" placeholder="例）チームの未来像モデル" /></label>';
+    html += '<label class="field"><span>日付</span><input type="date" id="f-date" value="'+draft.date+'" /></label>';
+    html += '<label class="field"><span>場所・イベント</span><input type="text" id="f-place" value="'+escapeHtml(draft.place)+'" placeholder="例）第3回LSPワークショップ" /></label>';
+    html += '</div>';
+    html += '<p class="section-hint">記録者: '+escapeHtml(session.displayName)+'</p>';
+
+    html += '<label class="field"><span>モデルが示すストーリー（全体の概要）</span><textarea id="f-story" rows="3" placeholder="このモデル全体で表現しているストーリーや世界観を書きます">'+escapeHtml(draft.story)+'</textarea></label>';
+
+    html += '<label class="toggle-row"><input type="checkbox" id="f-ispublic" '+(draft.isPublic?'checked':'')+' /> この記録を他の人にも公開する（チェックを外すと自分だけに表示されます）</label>';
+
+    html += '<div><div class="section-title">写真（最低1枚・最大5方向）</div><div class="section-hint">正面・右・左・上・背面のうち、撮影した角度だけ登録すれば構いません。</div>';
+    html += '<div class="slot-grid">' + SLOTS.map(slotCardHtml).join('') + '</div></div>';
+
+    html += '<label class="field"><span>そのときに気づいたこと</span><textarea id="f-noticed" rows="3" placeholder="モデルを作りながら気づいたことを書き留めます">'+escapeHtml(draft.noticed)+'</textarea></label>';
+
+    html += '<div><div class="section-title">明日からのアクション</div><div class="section-hint">3日後・1週間後・1ヶ月後・3ヶ月後にチェックを行います。</div>';
+    html += '<div class="action-rows" id="actionRows">';
+    draft.actions.forEach(function(a, i){
+      html += '<div class="action-row"><input type="text" class="action-row-input" data-idx="'+i+'" value="'+escapeHtml(a)+'" placeholder="例）毎朝チームに一言共有する" />'+
+        (draft.actions.length>1 ? '<button type="button" class="btn btn-secondary" data-action="action-remove-row" data-idx="'+i+'">削除</button>' : '')+
+      '</div>';
+    });
+    html += '</div><button type="button" class="btn" data-action="action-add-row" style="margin-top:8px;">＋ アクションを追加</button></div>';
+
+    html += '<div class="row" style="justify-content:flex-end;"><button type="button" class="btn btn-primary" data-action="save-new-model" '+(saving?'disabled':'')+'>'+(saving?'保存中…':'この記録を保存')+'</button></div>';
+    html += '</div>';
+    return html;
+  }
+  function afterNewRender(){
+    var t = document.getElementById('f-title'); if(t) t.oninput = function(e){ draft.title = e.target.value; };
+    var dt = document.getElementById('f-date'); if(dt) dt.oninput = function(e){ draft.date = e.target.value; };
+    var pl = document.getElementById('f-place'); if(pl) pl.oninput = function(e){ draft.place = e.target.value; };
+    var nt = document.getElementById('f-noticed'); if(nt) nt.oninput = function(e){ draft.noticed = e.target.value; };
+    var st = document.getElementById('f-story'); if(st) st.oninput = function(e){ draft.story = e.target.value; };
+    var ispub = document.getElementById('f-ispublic'); if(ispub) ispub.onchange = function(e){ draft.isPublic = e.target.checked; };
+    Array.prototype.forEach.call(document.querySelectorAll('.action-row-input'), function(el){
+      el.oninput = function(e){ draft.actions[Number(el.getAttribute('data-idx'))] = e.target.value; };
+    });
+    SLOTS.forEach(function(slot){
+      var input = document.getElementById('file-'+slot.key);
+      if(!input) return;
+      input.onchange = function(e){
+        var file = e.target.files[0];
+        if(!file) return;
+        formError = '';
+        apiUploadImage(file).then(function(res){
+          draft.photos[slot.key] = {assetId:res.id, previewUrl:res.url, pins:[], relations:[]};
+          renderView();
+        }).catch(function(err){
+          formError = '写真のアップロードに失敗しました: '+err.message;
+          renderView();
+        });
+      };
+    });
+  }
+
+  async function doSaveNewModel(){
+    var title = draft.title.trim();
+    var date = draft.date;
+    var hasPhoto = SLOTS.some(function(s){ return !!draft.photos[s.key]; });
+    if(!title){ formError='タイトルを入力してください。'; renderView(); return; }
+    if(!date){ formError='日付を入力してください。'; renderView(); return; }
+    if(!hasPhoto){ formError='写真を少なくとも1枚登録してください。'; renderView(); return; }
+    formError=''; saving=true; renderView();
+    try{
+      var coverSlot = SLOTS.filter(function(s){ return !!draft.photos[s.key]; })[0];
+      var cover = coverSlot ? draft.photos[coverSlot.key] : null;
+      var modelRes = await apiCall('createModel', {model:{
+        title:title, date:date, place:draft.place.trim(), noticed:draft.noticed.trim(),
+        story:draft.story.trim(), coverAssetId: cover ? cover.assetId : '', isPublic: draft.isPublic !== false,
+        theme: draft.theme || ''
+      }});
+      var modelId = modelRes.id;
+      var writes = [];
+      SLOTS.forEach(function(s){
+        var p = draft.photos[s.key];
+        if(!p) return;
+        writes.push(apiCall('createPhoto', {photo:{
+          modelId:modelId, slot:s.key, assetId:p.assetId, pins:p.pins||[], relations:p.relations||[]
+        }}));
+      });
+      draft.actions.filter(function(a){ return a.trim(); }).forEach(function(text){
+        writes.push(apiCall('createAction', {actionItem:{
+          modelId:modelId, modelTitle:title, text:text.trim(), registeredAt:date, checks:computeChecks(date)
+        }}));
+      });
+      await Promise.all(writes);
+      draft = freshDraft();
+      saving = false;
+      currentView = 'detail'; currentDetailId = modelId;
+      await refreshData(true);
+    }catch(e){
+      console.error(e);
+      saving = false;
+      formError = '保存に失敗しました: '+e.message;
+      renderView();
+    }
+  }
+
+  var deleteBusy = false;
+  var deleteError = '';
+  async function doDeleteModel(id){
+    deleteBusy = true; deleteError=''; renderView();
+    try{
+      await apiCall('deleteModel', {id:id});
+      deleteConfirmId = null; deleteBusy = false;
+      currentView = 'list'; currentDetailId = null;
+      await refreshData(true);
+    }catch(e){
+      console.error(e);
+      deleteBusy = false;
+      deleteError = '削除に失敗しました: '+e.message;
+      renderView();
+    }
+  }
+
+  /* ---------- お題の管理(管理者のみ。サーバー側でも必ずrequireAdminで検証される) ---------- */
+  async function doAddTheme(){
+    var input = document.getElementById('theme-new-input');
+    var text = input ? input.value.trim() : '';
+    if(!text){ themeAdminError='お題の内容を入力してください。'; renderView(); return; }
+    themeAdminBusy = true; themeAdminError=''; renderView();
+    try{
+      await apiCall('createTheme', {text:text});
+      themeAdminBusy = false;
+      await refreshData(true);
+    }catch(e){
+      console.error(e);
+      themeAdminBusy = false;
+      themeAdminError = '追加に失敗しました: '+e.message;
+      renderView();
+    }
+  }
+  async function doSaveThemeEdit(id){
+    var input = document.getElementById('theme-edit-input');
+    var text = input ? input.value.trim() : '';
+    if(!text){ themeAdminError='お題の内容を入力してください。'; renderView(); return; }
+    themeAdminBusy = true; themeAdminError=''; renderView();
+    try{
+      await apiCall('updateTheme', {id:id, text:text});
+      themeAdminBusy = false; editingThemeId = null;
+      await refreshData(true);
+    }catch(e){
+      console.error(e);
+      themeAdminBusy = false;
+      themeAdminError = '更新に失敗しました: '+e.message;
+      renderView();
+    }
+  }
+  async function doDeleteTheme(id){
+    themeAdminBusy = true; themeAdminError=''; renderView();
+    try{
+      await apiCall('deleteTheme', {id:id});
+      themeAdminBusy = false;
+      await refreshData(true);
+    }catch(e){
+      console.error(e);
+      themeAdminBusy = false;
+      themeAdminError = '削除に失敗しました: '+e.message;
+      renderView();
+    }
+  }
+
+  /* ---------- rendering: detail ---------- */
+  function photoStageInnerHtml(photoDoc){
+    var pins = photoDoc.pins || [], relations = photoDoc.relations || [];
+    var pinsHtml = pinsVisible ? pins.map(function(p){
+      return '<button type="button" class="pin-marker" data-pin-id="'+p.id+'" style="left:'+p.x+'%;top:'+p.y+'%" title="'+escapeHtml(p.name)+'"><span class="pin-dot"></span></button>';
+    }).join('') : '';
+    var linesHtml = pinsVisible ? relations.map(function(r){
+      var a = pins.filter(function(p){return p.id===r.fromPinId;})[0];
+      var b = pins.filter(function(p){return p.id===r.toPinId;})[0];
+      if(!a||!b) return '';
+      return '<line class="rel-line" data-rel-id="'+r.id+'" x1="'+a.x+'" y1="'+a.y+'" x2="'+b.x+'" y2="'+b.y+'" marker-end="url(#arrow-d-'+photoDoc.slot+')"></line>';
+    }).join('') : '';
+    var defs = '<defs><marker id="arrow-d-'+photoDoc.slot+'" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"></path></marker></defs>';
+    var pinsAttr = escapeHtml(JSON.stringify(pins));
+    var relsAttr = escapeHtml(JSON.stringify(relations));
+    var slotLabel = SLOTS.filter(function(s){ return s.key===photoDoc.slot; })[0];
+    slotLabel = slotLabel ? slotLabel.label : photoDoc.slot;
+    return '<div class="photo-stage" data-readonly data-pins="'+pinsAttr+'" data-relations="'+relsAttr+'">'+
+        '<img src="'+blobUrl(photoDoc.assetId)+'" alt="'+escapeHtml(slotLabel)+'" />'+
+        '<div class="pin-layer">'+pinsHtml+'</div>'+
+        '<svg class="arrow-layer" viewBox="0 0 100 100" preserveAspectRatio="none">'+defs+linesHtml+'</svg>'+
+      '</div>';
+  }
+  function cubeHtml(m, photos){
+    var byKey = {};
+    photos.forEach(function(p){ byKey[p.slot] = p; });
+    function face(slotKey, cls){
+      var slotDef = SLOTS.filter(function(s){ return s.key===slotKey; })[0];
+      var p = byKey[slotKey];
+      var inner = p ? photoStageInnerHtml(p) : '<div class="cube-face-empty">'+escapeHtml(slotDef.label)+'<br>未撮影</div>';
+      return '<div class="cube-face '+cls+'"><span class="cube-face-label">'+escapeHtml(slotDef.label)+'</span>'+inner+'</div>';
+    }
+    return '<div class="cube-wrap">'+
+      '<div class="cube-scene" data-cube>'+
+        '<div class="cube" data-cube-inner>'+
+          face('front','face-front')+face('back','face-back')+face('right','face-right')+face('left','face-left')+face('top','face-top')+
+        '</div>'+
+      '</div>'+
+      '<p class="cube-hint">ドラッグして回転できます（底面は表示されません）</p>'+
+    '</div>';
+  }
+  function viewDetailHtml(){
+    var m = modelsList.filter(function(x){ return x.id===currentDetailId; })[0];
+    if(!m){
+      return '<div class="card panel empty-state">記録が見つかりません。<br><button class="btn" style="margin-top:10px;" data-action="nav" data-view="list">記録一覧に戻る</button></div>';
+    }
+    var photos = SLOTS.map(function(s){ return photosList.filter(function(p){ return p.modelId===m.id && p.slot===s.key; })[0]; }).filter(Boolean);
+    var actions = actionsList.filter(function(a){ return a.modelId===m.id; });
+
+    var mDate = new Date(m.date);
+    var monthLinkY = mDate.getFullYear(), monthLinkM = mDate.getMonth();
+
+    var html = '<div class="stack">';
+    html += '<div class="row" style="justify-content:space-between; align-items:center;">';
+    html += '<button class="btn btn-secondary" data-action="nav" data-view="list" style="align-self:flex-start;">&larr; 一覧へ戻る</button>';
+    html += '<button class="btn btn-secondary" data-action="open-month" data-year="'+monthLinkY+'" data-month="'+monthLinkM+'">'+monthLinkY+'年'+(monthLinkM+1)+'月の記録一覧</button>';
+    html += '</div>';
+    html += '<div class="card panel stack">';
+    html += '<div><h2 class="section-title" style="font-size:20px;">'+escapeHtml(m.title)+(m.isPublic===false?' <span class="badge-private">非公開</span>':'')+'</h2>';
+    html += '<div class="detail-meta"><span>'+m.date+'</span>'+(m.place?'<span>'+escapeHtml(m.place)+'</span>':'')+'<span>記録者: '+escapeHtml(m.createdBy||'匿名')+'</span></div>';
+    if(m.isPublic===false){ html += '<p class="section-hint">この記録は非公開に設定されています。あなた以外には表示されません。</p>'; }
+    html += '</div>';
+
+    if(m.theme){ html += '<div class="notice">お題モードの記録です。お題: <strong>'+escapeHtml(m.theme)+'</strong></div>'; }
+
+    html += '<label class="toggle-row"><input type="checkbox" id="pinToggle" '+(pinsVisible?'checked':'')+' /> ピン・関係の表示</label>';
+
+    html += photos.length ? cubeHtml(m, photos) : '<p class="section-hint">写真が登録されていません。</p>';
+
+    if(photos.length){
+      html += '<div class="slot-strip">' + photos.map(function(p){
+        var slotDef = SLOTS.filter(function(s){ return s.key===p.slot; })[0];
+        return '<div class="slot-strip-item"><img src="'+blobUrl(p.assetId)+'" alt="" /><span>'+escapeHtml(slotDef.label)+'</span>'+
+          '<button class="btn btn-secondary" data-action="annotate-open" data-slot="'+p.slot+'" data-mode="existing" data-model-id="'+m.id+'">注釈を編集</button>'+
+        '</div>';
+      }).join('') + '</div>';
+    }
+
+    if(m.story){ html += '<div><div class="section-title">モデルが示すストーリー(全体の概要)</div><p>'+escapeHtml(m.story).replace(/\n/g,'<br>')+'</p></div>'; }
+
+    if(m.noticed){ html += '<div><div class="section-title">そのときに気づいたこと</div><p>'+escapeHtml(m.noticed).replace(/\n/g,'<br>')+'</p></div>'; }
+
+    html += '<div><div class="section-title">明日からのアクション</div>';
+    if(actions.length===0){ html += '<p class="section-hint">登録されたアクションはありません。</p>'; }
+    html += '<div class="stack">';
+    actions.forEach(function(a){
+      html += '<div class="action-card"><p class="action-text">'+escapeHtml(a.text)+'</p>';
+      html += '<p class="meta">登録日 '+a.registeredAt+(a.stopped?' ・ 以降のチェックは停止済み':'')+'</p>';
+      html += '<div class="check-row">';
+      CHECK_ORDER.forEach(function(key){
+        var st = checkStatus(a, key);
+        var c = a.checks[key];
+        var canCheck = !c.done && !a.stopped && c.due<=todayStr();
+        html += '<div class="check-chip '+st.cls+'"><span class="check-chip-label">'+CHECK_LABELS[key]+'</span><span>'+st.text+'</span>';
+        if(c.done && c.comment) html += '<p class="check-comment">'+escapeHtml(c.comment)+'</p>';
+        if(canCheck) html += '<button class="btn" data-action="open-check" data-action-id="'+a.id+'" data-key="'+key+'">記録する</button>';
+        html += '</div>';
+      });
+      html += '</div></div>';
+    });
+    html += '</div></div>';
+
+    html += '<div class="danger-zone">';
+    if(deleteError){ html += '<div class="notice error">'+escapeHtml(deleteError)+'</div>'; }
+    if(deleteConfirmId === m.id){
+      html += '<p class="section-hint">この記録(写真・アクションを含む)を削除します。この操作は取り消せません。本当によろしいですか？</p>';
+      html += '<div class="row">';
+      html += '<button class="btn btn-danger" data-action="delete-model-confirm" data-id="'+m.id+'" '+(deleteBusy?'disabled':'')+'>'+(deleteBusy?'削除中…':'削除する')+'</button>';
+      html += '<button class="btn btn-secondary" data-action="delete-model-cancel">キャンセル</button>';
+      html += '</div>';
+    } else {
+      html += '<button class="btn btn-danger-outline" data-action="delete-model" data-id="'+m.id+'">この記録を削除する</button>';
+    }
+    html += '</div>';
+
+    html += '</div></div>';
+    return html;
+  }
+  function wireCube(){
+    var scene = document.querySelector('[data-cube]');
+    if(!scene) return;
+    var inner = scene.querySelector('[data-cube-inner]');
+    var state = {rx:-16, ry:-30};
+    inner.style.transform = 'rotateX('+state.rx+'deg) rotateY('+state.ry+'deg)';
+    var dragging = false, moved = false, lastX = 0, lastY = 0;
+    function pos(e){ return {x:e.clientX, y:e.clientY}; }
+    function onDown(e){ dragging = true; moved = false; var p = pos(e); lastX = p.x; lastY = p.y; }
+    function onMove(e){
+      if(!dragging) return;
+      var p = pos(e);
+      var dx = p.x - lastX, dy = p.y - lastY;
+      if(Math.abs(dx) > 3 || Math.abs(dy) > 3) moved = true;
+      lastX = p.x; lastY = p.y;
+      state.ry += dx * 0.4;
+      state.rx -= dy * 0.4;
+      state.rx = Math.max(-89, Math.min(89, state.rx));
+      inner.style.transform = 'rotateX('+state.rx+'deg) rotateY('+state.ry+'deg)';
+      if(moved) e.preventDefault();
+    }
+    function onUp(){
+      if(dragging && moved){
+        var blocker = function(ev){ ev.stopPropagation(); };
+        document.addEventListener('click', blocker, {capture:true, once:true});
+      }
+      dragging = false;
+    }
+    scene.addEventListener('pointerdown', onDown);
+    scene.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', onUp);
+  }
+  function afterDetailRender(){
+    var toggle = document.getElementById('pinToggle');
+    if(toggle) toggle.onchange = function(){ pinsVisible = toggle.checked; renderView(); };
+    wireCube();
+    Array.prototype.forEach.call(document.querySelectorAll('.photo-stage[data-readonly]'), function(stage){
+      var pins = [], rels = [];
+      try{ pins = JSON.parse(stage.getAttribute('data-pins')); }catch(e){}
+      try{ rels = JSON.parse(stage.getAttribute('data-relations')); }catch(e){}
+      Array.prototype.forEach.call(stage.querySelectorAll('.pin-marker'), function(btn){
+        btn.onclick = function(){
+          var pin = pins.filter(function(p){ return p.id===btn.getAttribute('data-pin-id'); })[0];
+          if(pin) openFormDialog({title:pin.name, readonly:true, fields:[{key:'meaning', label:'意味するもの', type:'textarea', value:pin.meaning}]});
+        };
+      });
+      Array.prototype.forEach.call(stage.querySelectorAll('.rel-line'), function(line){
+        line.onclick = function(){
+          var rel = rels.filter(function(r){ return r.id===line.getAttribute('data-rel-id'); })[0];
+          if(rel) openFormDialog({title:'関係', readonly:true, fields:[{key:'meaning', label:'その矢印が意味するもの', type:'textarea', value:rel.meaning}]});
+        };
+      });
+    });
+  }
+
+  /* ---------- rendering: checks dashboard ---------- */
+  function viewChecksHtml(){
+    var due = [];
+    actionsList.forEach(function(a){ dueChecksFor(a).forEach(function(d){ due.push({action:a, key:d.key, due:d.due}); }); });
+    due.sort(function(x,y){ return x.due < y.due ? -1 : 1; });
+
+    var upcoming = [];
+    actionsList.forEach(function(a){
+      if(a.stopped) return;
+      var next = CHECK_ORDER.filter(function(k){ return !a.checks[k].done; })[0];
+      if(next && a.checks[next].due > todayStr()) upcoming.push({action:a, key:next, due:a.checks[next].due});
+    });
+    upcoming.sort(function(x,y){ return x.due < y.due ? -1 : 1; });
+    upcoming = upcoming.slice(0,8);
+
+    var html = '<div class="stack">';
+    html += '<div class="card panel stack"><h2 class="section-title">今すぐチェックが必要なアクション（'+due.length+'）</h2>';
+    if(due.length===0){ html += '<p class="section-hint">現在、期限を迎えているアクションチェックはありません。</p>'; }
+    due.forEach(function(d){
+      html += '<div class="due-item"><div class="info"><b>'+escapeHtml(d.action.modelTitle)+'</b>'+escapeHtml(d.action.text)+' ・ '+CHECK_LABELS[d.key]+'（期日 '+d.due+'）</div>'+
+        '<button class="btn btn-primary" data-action="open-check" data-action-id="'+d.action.id+'" data-key="'+d.key+'">記録する</button>'+
+      '</div>';
+    });
+    html += '</div>';
+
+    html += '<div class="card panel stack"><h2 class="section-title">今後の予定</h2>';
+    if(upcoming.length===0){ html += '<p class="section-hint">予定されているチェックはありません。</p>'; }
+    upcoming.forEach(function(u){
+      html += '<div class="upcoming-item"><span>'+escapeHtml(u.action.modelTitle)+' ・ '+escapeHtml(u.action.text)+'</span><span>'+CHECK_LABELS[u.key]+'（'+u.due+'）</span></div>';
+    });
+    html += '</div></div>';
+    return html;
+  }
+
+  /* ---------- view dispatch ---------- */
+  function renderView(){
+    var el = document.getElementById('view');
+    if(!session || authMode==='reset'){
+      document.getElementById('tabs').innerHTML = '';
+      document.getElementById('syncNote').textContent = '';
+      document.getElementById('globalNotice').innerHTML = API_URL ? '' : '<div class="notice">API_URLが未設定です。「セットアップ手順.md」に沿ってApps ScriptウェブアプリのURLをこのページ(index.html)先頭のAPI_URLに設定してください。</div>';
+      el.innerHTML = authHtml();
+      afterAuthRender();
+      updateUserBar();
       return;
     }
-    listEl.innerHTML = messages.map(m => `
-      <div class="board-message">
-        <div class="board-message-head">
-          <b>${escapeHtml_(m.name)}</b>${m.messengerName ? `<span class="board-messenger">Messenger: ${escapeHtml_(m.messengerName)}</span>` : ""}
-        </div>
-        <p>${escapeHtml_(m.message)}</p>
-      </div>
-    `).join("");
+    if(currentView==='month'){ el.innerHTML = viewMonthHtml(); }
+    else if(currentView==='list'){ el.innerHTML = viewListHtml(); }
+    else if(currentView==='new'){ el.innerHTML = viewNewHtml(); afterNewRender(); }
+    else if(currentView==='theme'){ el.innerHTML = viewThemeHtml(); }
+    else if(currentView==='detail'){ el.innerHTML = viewDetailHtml(); afterDetailRender(); }
+    else if(currentView==='checks'){ el.innerHTML = viewChecksHtml(); }
+    renderNav();
+    updateUserBar();
   }
-  function showApplySuccess(s){
-    const body = document.getElementById("detailModalBody");
-    body.innerHTML = `
-      <div class="success-box">
-        <div class="connect-row">${connectDotsSvg(["var(--brick)","var(--amber)","var(--blue)","var(--green)"],7)}</div>
-        <h3>申し込みが完了しました!</h3>
-        <p>「${s.title}」への参加登録を受け付けました。主催チームにも通知が届いています。${s.date ? "下のボタンからGoogleカレンダーに追加できます。" : ""}</p>
-        <p class="field-hint">※キャンセルをご希望の場合は、お手数ですが主催者に直接ご連絡ください。</p>
-        ${s.date ? `<a class="gcal-btn" href="${googleCalUrl(s)}" target="_blank" rel="noopener">📅 Googleカレンダーに追加する</a>` : ""}
-      </div>
-    `;
-    toast("申し込みが完了しました");
-  }
-  function detailImageHtml(s){
-    if(!s.imageUrl) return "";
-    return `<div class="detail-image">
-      <img src="${s.imageUrl}" alt="${escapeHtml_(s.title)}のイメージ画像" onerror="this.closest('.detail-image').style.display='none'; this.closest('div').parentElement.querySelector('.detail-image-view-btn').style.display='none';">
-    </div>
-    <button type="button" class="btn-ghost detail-image-view-btn" data-open-lightbox="${s.imageUrl}" data-lightbox-alt="${escapeHtml_(s.title)}のイメージ画像">📎 添付画像を見る</button>`;
-  }
-  function escapeHtml_(text){
-    if(!text) return "";
-    const div = document.createElement("div");
-    div.textContent = text;
-    return div.innerHTML;
-  }
-  function ticketLinkHtml(s){
-    if(s.fee > 0 && s.ticketUrl){
-      return `<a class="ticket-link" href="${s.ticketUrl}" target="_blank" rel="noopener">🎫 チケット購入・お支払いはこちら</a>`;
+  function renderApp(){ if(session) renderNav(); renderView(); }
+
+  /* ---------- delegated click handling ---------- */
+  document.getElementById('shell').addEventListener('click', function(e){
+    var el = e.target.closest('[data-action]');
+    if(!el) return;
+    var action = el.getAttribute('data-action');
+    if(action==='auth-mode'){ authMode = el.getAttribute('data-mode'); authError=''; authSuccess=''; renderApp(); }
+    else if(action==='do-login'){ doLogin(); }
+    else if(action==='do-register'){ doRegister(); }
+    else if(action==='do-request-reset'){ doRequestPasswordReset(); }
+    else if(action==='do-reset-password'){ doResetPassword(); }
+    else if(action==='logout'){ doLogout(); }
+    else if(action==='nav'){ currentView = el.getAttribute('data-view'); formError=''; renderApp(); }
+    else if(action==='open-detail'){ currentView='detail'; currentDetailId = el.getAttribute('data-id'); renderApp(); }
+    else if(action==='open-month'){ monthYear=Number(el.getAttribute('data-year')); monthMonth=Number(el.getAttribute('data-month')); currentView='month'; renderApp(); }
+    else if(action==='month-prev'){ monthMonth--; if(monthMonth<0){monthMonth=11; monthYear--;} renderView(); }
+    else if(action==='month-next'){ monthMonth++; if(monthMonth>11){monthMonth=0; monthYear++;} renderView(); }
+    else if(action==='delete-model'){ deleteConfirmId = el.getAttribute('data-id'); renderView(); }
+    else if(action==='delete-model-cancel'){ deleteConfirmId = null; renderView(); }
+    else if(action==='delete-model-confirm'){ doDeleteModel(el.getAttribute('data-id')); }
+    else if(action==='photo-upload-slot'){ var inp=document.getElementById('file-'+el.getAttribute('data-slot')); if(inp) inp.click(); }
+    else if(action==='photo-remove'){ draft.photos[el.getAttribute('data-slot')] = null; renderView(); }
+    else if(action==='annotate-open'){ openAnnotateForSlot(el.getAttribute('data-slot'), el.getAttribute('data-mode'), el.getAttribute('data-model-id')); }
+    else if(action==='action-add-row'){ draft.actions.push(''); renderView(); }
+    else if(action==='action-remove-row'){ var idx=Number(el.getAttribute('data-idx')); draft.actions.splice(idx,1); if(draft.actions.length===0) draft.actions.push(''); renderView(); }
+    else if(action==='save-new-model'){ doSaveNewModel(); }
+    else if(action==='theme-draw'){
+      var pool = themesList.length ? themesList.map(function(t){ return t.text; }) : THEME_FALLBACK;
+      currentTheme = pool[Math.floor(Math.random()*pool.length)];
+      renderView();
     }
-    return "";
+    else if(action==='theme-start-record'){ draft = freshDraft(); draft.theme = currentTheme; draft.title = currentTheme; currentView='new'; renderApp(); }
+    else if(action==='theme-edit-start'){ editingThemeId = el.getAttribute('data-id'); themeAdminError=''; renderView(); }
+    else if(action==='theme-cancel-edit'){ editingThemeId = null; themeAdminError=''; renderView(); }
+    else if(action==='theme-save-edit'){ doSaveThemeEdit(el.getAttribute('data-id')); }
+    else if(action==='theme-delete'){ doDeleteTheme(el.getAttribute('data-id')); }
+    else if(action==='theme-add'){ doAddTheme(); }
+    else if(action==='open-check'){ openCheckForm(el.getAttribute('data-action-id'), el.getAttribute('data-key')); }
+  });
+
+  /* ---------- init ---------- */
+  renderApp();
+  if(session){
+    refreshData(false);
+    setInterval(function(){ if(session) refreshData(true); }, POLL_INTERVAL_MS);
   }
-  function relatedLinkHtml(s){
-    if(s.relatedUrl){
-      return `<a class="ticket-link" style="background:var(--blue);color:#fff;margin-left:8px;" href="${s.relatedUrl}" target="_blank" rel="noopener">🔗 関連ページを見る</a>`;
-    }
-    return "";
-  }
-  function googleCalUrl(s){
-    const startUtc = jstToUtcCompact(s.date, s.startTime);
-    const endUtc = jstToUtcCompact(s.date, s.endTime);
-    const params = new URLSearchParams({
-      action:"TEMPLATE",
-      text: s.title,
-      dates: `${startUtc}/${endUtc}`,
-      details: s.description + "(LSPラーニング・ガーデン)",
-      location: s.location
-    });
-    return `https://calendar.google.com/calendar/render?${params.toString()}`;
-  }
-  function jstToUtcCompact(dateIso, time){
-    const [h,min] = time.split(":").map(Number);
-    const d = new Date(`${dateIso}T${String(h).padStart(2,"0")}:${String(min).padStart(2,"0")}:00+09:00`);
-    return d.toISOString().replace(/[-:]/g,"").split(".")[0]+"Z";
-  }
-  function closeModal(idOrEl){
-    const el = typeof idOrEl==="string" ? document.getElementById(idOrEl) : idOrEl;
-    el.classList.remove("open");
-  }
-
-  /* ---------- 会員登録 ---------- */
-  let pendingOpenSessionId = null;
-  function openMemberModal(afterSessionId){
-    pendingOpenSessionId = afterSessionId || null;
-    document.getElementById("memberModalOverlay").classList.add("open");
-  }
-  async function completeRegistration(name, email, password, passwordConfirm, trainingDate, trainer, messengerName, notifyNewSessions, recaptchaWidgetId){
-    if(!name || !email || !password){ toast("お名前・メールアドレス・パスワードを入力してください"); return false; }
-    if(password.length < 6){ toast("パスワードは6文字以上にしてください"); return false; }
-    if(password !== passwordConfirm){ toast("パスワード(確認)が一致しません"); return false; }
-    if(!trainingDate || !trainer){
-      toast("トレーニング時期とトレーナー名の入力は必須です");
-      return false;
-    }
-    // reCAPTCHAが有効な場合、チェックが済んでいるか確認する(サイトキー未設定時はスキップ)
-    let recaptchaToken = "";
-    const recaptchaConfigured = RECAPTCHA_SITE_KEY !== "YOUR_RECAPTCHA_SITE_KEY_HERE" && window.grecaptcha;
-    if(recaptchaConfigured){
-      recaptchaToken = grecaptcha.getResponse(recaptchaWidgetId);
-      if(!recaptchaToken){
-        toast("「私はロボットではありません」にチェックを入れてください");
-        return false;
-      }
-    }
-    try{
-      const res = await apiPost("register", {
-        name, email, password,
-        trainingDate, trainer,
-        messengerName: messengerName || "",
-        notifyNewSessions: !!notifyNewSessions,
-        recaptchaToken
-      });
-      if(recaptchaConfigured) grecaptcha.reset(recaptchaWidgetId); // トークンは1回限りのため、成否に関わらずリセットする
-      if(!res.ok){
-        toast(res.error || "会員登録に失敗しました。しばらくしてから再度お試しください");
-        return false;
-      }
-    }catch(err){
-      console.error(err);
-      if(recaptchaConfigured) grecaptcha.reset(recaptchaWidgetId);
-      toast("通信エラーのため会員登録に失敗しました");
-      return false;
-    }
-    applyLoginState_({ name, email, trainingDate, trainer, messengerName });
-    toast("会員登録が完了しました。ようこそ!");
-    return true;
-  }
-  async function loginMember_(email, password, onSlow){
-    if(!email || !password){ toast("メールアドレスとパスワードを入力してください"); return false; }
-    // Apps Script側の起動(コールドスタート)やモバイル回線の状況によっては、
-    // 応答までに数秒〜十数秒かかることがある。フリーズしたと誤解されないよう、
-    // 一定時間経っても終わらない場合はボタンの表示を切り替える。
-    const slowTimer = setTimeout(()=>{ if(onSlow) onSlow(); }, 4000);
-    try{
-      const res = await apiPost("login", { email, password });
-      clearTimeout(slowTimer);
-      if(!res.ok){
-        toast(res.error || "ログインに失敗しました");
-        return false;
-      }
-      applyLoginState_(res);
-      toast(`おかえりなさい、${res.name}さん!`);
-      return true;
-    }catch(err){
-      clearTimeout(slowTimer);
-      console.error(err);
-      toast("通信エラーのためログインに失敗しました");
-      return false;
-    }
-  }
-  /* 登録・ログイン成功時に共通して行う状態更新。会員は全員、勉強会を主催できます */
-  /* ---------- ログイン状態の保持(ページ間・再読み込みをまたいで維持する) ----------
-     このサイトはGoogle Apps Script側でパスワードによるセッション管理を行っていないため、
-     ページ遷移のたびにログインが外れてしまう。これを防ぐため、ログイン中のメールアドレス等
-     (パスワードは含まない)をブラウザのlocalStorageに保存し、他のページ(過去のイベント等)や
-     再読み込み時にも自動的にログイン状態を復元できるようにしている。 */
-  const MEMBER_SESSION_KEY = "lspMemberSession";
-  function saveMemberSession_(profile){
-    try{
-      localStorage.setItem(MEMBER_SESSION_KEY, JSON.stringify({
-        email: profile.email, name: profile.name,
-        trainingDate: profile.trainingDate || "", trainer: profile.trainer || "",
-        messengerName: profile.messengerName || ""
-      }));
-    }catch(err){ console.warn("ログイン情報の保存に失敗しました", err); }
-  }
-  function loadMemberSession_(){
-    try{
-      const raw = localStorage.getItem(MEMBER_SESSION_KEY);
-      return raw ? JSON.parse(raw) : null;
-    }catch(err){ return null; }
-  }
-  function clearMemberSession_(){
-    try{ localStorage.removeItem(MEMBER_SESSION_KEY); }catch(err){}
-  }
-
-  function applyLoginState_(profile, isRestore){
-    state.isMember = true;
-    state.memberName = profile.name;
-    state.memberEmail = profile.email;
-    state.trainingDate = profile.trainingDate || "";
-    state.trainer = profile.trainer || "";
-    state.messengerName = profile.messengerName || "";
-    saveMemberSession_(profile);
-    updateOrganizerUiVisibility_();
-    loadMySessions_();
-    if(!isRestore){
-      // ログイン・会員登録の場所に留まらず、ページの先頭に画面表示を戻す(スマートフォン対応)
-      document.getElementById("mainNav").classList.remove("open");
-      window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
-      // 【一時的な診断機能】横にはみ出している要素があれば、赤枠と一覧パネルで表示する
-      setTimeout(debugHorizontalOverflow_, 600);
-    }
-  }
-  /* 【一時的な診断用】画面幅を超えて右にはみ出している要素を洗い出し、
-     赤枠で囲んで、画面下部に一覧パネルとして表示する(スクリーンショットで共有してもらうため) */
-  function debugHorizontalOverflow_(){
-    const docEl = document.documentElement;
-    const clientW = docEl.clientWidth;
-    const scrollW = docEl.scrollWidth;
-    const oldPanel = document.getElementById("debugOverflowPanel");
-    if(oldPanel) oldPanel.remove();
-    document.querySelectorAll(".debug-overflow-outline").forEach(el=> el.classList.remove("debug-overflow-outline"));
-
-    // ページ全体(html要素)の実際の横幅が、表示画面の幅より広い場合のみ「本当の問題」とみなす。
-    // これに満たない場合は、意図した横スクロール領域(お知らせカルーセルなど)があっても正常。
-    if(scrollW <= clientW + 2) return;
-
-    // 独自の横スクロール領域(overflow-x:auto/scroll)を持つ要素の内側は、原因調査の対象から除外する
-    function isInsideOwnScrollArea(el){
-      let p = el.parentElement;
-      while(p && p !== document.body){
-        const s = getComputedStyle(p);
-        if(s.overflowX === "auto" || s.overflowX === "scroll") return true;
-        p = p.parentElement;
-      }
-      return false;
-    }
-    const offenders = [];
-    document.querySelectorAll("body *").forEach(el=>{
-      const style = getComputedStyle(el);
-      if(style.display === "none" || style.visibility === "hidden") return;
-      if(isInsideOwnScrollArea(el)) return;
-      const rect = el.getBoundingClientRect();
-      if(rect.width > 0 && (rect.right > clientW + 2 || rect.left < -2)){
-        offenders.push({el, rect});
-      }
-    });
-    if(offenders.length === 0) return;
-    offenders.forEach(({el})=> el.classList.add("debug-overflow-outline"));
-    const panel = document.createElement("div");
-    panel.id = "debugOverflowPanel";
-    panel.style.cssText = "position:fixed;bottom:0;left:0;right:0;background:#E8483C;color:#fff;font-size:11px;line-height:1.6;padding:10px 12px;z-index:999999;max-height:45vh;overflow:auto;font-family:monospace;white-space:pre-wrap;";
-    const lines = [`【ページ全体が実際に横へはみ出しています】画面幅:${clientW}px / ページ全体の幅:${scrollW}px / 原因候補:${offenders.length}件`];
-    offenders.slice(0, 15).forEach(({el, rect})=>{
-      const idStr = el.id ? `#${el.id}` : "";
-      const clsStr = el.className && typeof el.className === "string" ? "." + el.className.split(" ").join(".") : "";
-      lines.push(`<${el.tagName.toLowerCase()}${idStr}${clsStr}> 幅:${Math.round(rect.width)}px right:${Math.round(rect.right)}px`);
-    });
-    panel.textContent = lines.join("\n");
-    document.body.appendChild(panel);
-  }
-  function updateOrganizerUiVisibility_(){
-    document.querySelectorAll(".organizer-only").forEach(el=>{
-      el.style.display = state.isMember ? "" : "none";
-    });
-    // ログイン中は「会員登録」欄(まだ会員でない人向けの案内)を表示しない
-    document.querySelectorAll(".guest-only").forEach(el=>{
-      el.style.display = state.isMember ? "none" : "";
-    });
-  }
-  /* 会員が自分の意思でログアウトする */
-  function logoutMember_(){
-    if(!confirm("ログアウトします。よろしいですか?")) return;
-    state.isMember = false;
-    state.memberName = "";
-    state.memberEmail = "";
-    state.trainingDate = "";
-    state.trainer = "";
-    state.messengerName = "";
-    state.mySessions = [];
-    clearMemberSession_();
-    updateOrganizerUiVisibility_();
-    renderSessions();
-    renderCalendar();
-    toast("ログアウトしました");
-  }
-  /* 「新規登録」「ログイン」タブの切り替え */
-  function bindAuthTabs_(tabRegisterId, tabLoginId, registerBlockId, loginBlockId){
-    const tabRegister = document.getElementById(tabRegisterId);
-    const tabLogin = document.getElementById(tabLoginId);
-    const registerBlock = document.getElementById(registerBlockId);
-    const loginBlock = document.getElementById(loginBlockId);
-    if(!tabRegister || !tabLogin) return;
-    tabRegister.addEventListener("click", ()=>{
-      tabRegister.classList.add("active"); tabLogin.classList.remove("active");
-      registerBlock.style.display = ""; loginBlock.style.display = "none";
-    });
-    tabLogin.addEventListener("click", ()=>{
-      tabLogin.classList.add("active"); tabRegister.classList.remove("active");
-      loginBlock.style.display = ""; registerBlock.style.display = "none";
-    });
-  }
-  /* パスワードをお忘れの方向け:入力欄の開閉と再発行リクエストの送信 */
-  function bindForgotPassword_(toggleId, blockId, emailInputId, submitBtnId){
-    const toggle = document.getElementById(toggleId);
-    const block = document.getElementById(blockId);
-    const submitBtn = document.getElementById(submitBtnId);
-    if(!toggle || !block || !submitBtn) return;
-    toggle.addEventListener("click", ()=>{
-      block.style.display = block.style.display === "none" ? "" : "none";
-    });
-    submitBtn.addEventListener("click", async ()=>{
-      const email = document.getElementById(emailInputId).value.trim();
-      if(!email){ toast("メールアドレスを入力してください"); return; }
-      submitBtn.disabled = true; submitBtn.textContent = "送信しています...";
-      try{
-        const res = await apiPost("resetPassword", { email });
-        if(!res.ok){
-          toast(res.error || "パスワードの再発行に失敗しました");
-        } else {
-          toast("新しいパスワードをメールで送信しました");
-          document.getElementById(emailInputId).value = "";
-          block.style.display = "none";
-        }
-      }catch(err){
-        console.error(err);
-        toast("通信エラーのため再発行に失敗しました");
-      }finally{
-        submitBtn.disabled = false; submitBtn.textContent = "新しいパスワードを送信する";
-      }
-    });
-  }
-
-  /* パスワード変更(ログイン中の会員向け) */
-  function bindChangePassword_(){
-    const navBtn = document.getElementById("changePasswordNavBtn");
-    const overlay = document.getElementById("changePasswordModalOverlay");
-    const closeBtn = document.getElementById("changePasswordModalClose");
-    const submitBtn = document.getElementById("changePasswordSubmitBtn");
-    if(!navBtn || !overlay || !closeBtn || !submitBtn) return;
-
-    navBtn.addEventListener("click", ()=>{
-      document.getElementById("cpOldPassword").value = "";
-      document.getElementById("cpNewPassword").value = "";
-      document.getElementById("cpNewPasswordConfirm").value = "";
-      overlay.classList.add("open");
-    });
-    closeBtn.addEventListener("click", ()=> closeModal("changePasswordModalOverlay"));
-    overlay.addEventListener("click", (e)=>{
-      if(e.target.id === "changePasswordModalOverlay") closeModal("changePasswordModalOverlay");
-    });
-    submitBtn.addEventListener("click", async ()=>{
-      const oldPassword = document.getElementById("cpOldPassword").value;
-      const newPassword = document.getElementById("cpNewPassword").value;
-      const newPasswordConfirm = document.getElementById("cpNewPasswordConfirm").value;
-      if(!oldPassword || !newPassword){ toast("現在のパスワードと新しいパスワードを入力してください"); return; }
-      if(newPassword.length < 6){ toast("新しいパスワードは6文字以上にしてください"); return; }
-      if(newPassword !== newPasswordConfirm){ toast("新しいパスワード(確認)が一致しません"); return; }
-      // reCAPTCHAが有効な場合、チェックが済んでいるか確認する(サイトキー未設定時はスキップ)
-      let recaptchaToken = "";
-      const recaptchaConfigured = RECAPTCHA_SITE_KEY !== "YOUR_RECAPTCHA_SITE_KEY_HERE" && window.grecaptcha;
-      if(recaptchaConfigured){
-        recaptchaToken = grecaptcha.getResponse(window.recaptchaWidgetChangePassword);
-        if(!recaptchaToken){
-          toast("「私はロボットではありません」にチェックを入れてください");
-          return;
-        }
-      }
-      submitBtn.disabled = true; submitBtn.textContent = "変更しています...";
-      try{
-        const res = await apiPost("changePassword", {
-          email: state.memberEmail, oldPassword, newPassword, recaptchaToken
-        });
-        if(recaptchaConfigured) grecaptcha.reset(window.recaptchaWidgetChangePassword); // トークンは1回限りのためリセット
-        if(!res.ok){
-          toast(res.error || "パスワードの変更に失敗しました");
-        } else {
-          toast("パスワードを変更しました");
-          closeModal("changePasswordModalOverlay");
-        }
-      }catch(err){
-        console.error(err);
-        if(recaptchaConfigured) grecaptcha.reset(window.recaptchaWidgetChangePassword);
-        toast("通信エラーのためパスワードの変更に失敗しました");
-      }finally{
-        submitBtn.disabled = false; submitBtn.textContent = "パスワードを変更する";
-      }
-    });
-  }
-
-  /* ---------- イベント初期化 ---------- */
-  async function init(){
-    renderAnnouncements();
-    renderTagFilters();
-    renderSessions();
-    renderCalendar();
-
-    // 検索
-    document.getElementById("searchInput").addEventListener("input", (e)=>{
-      state.query = e.target.value;
-      renderSessions();
-      renderCalendar();
-    });
-
-    // フィルターパネル開閉
-    document.getElementById("filterToggleBtn").addEventListener("click", ()=>{
-      state.filterOpen = !state.filterOpen;
-      document.getElementById("filterPanel").classList.toggle("open", state.filterOpen);
-    });
-    document.getElementById("clearFiltersBtn").addEventListener("click", ()=>{
-      state.activeTags.clear();
-      renderTagFilters();
-      renderSessions();
-      renderCalendar();
-    });
-
-    // ビュー切り替え
-    document.getElementById("listViewBtn").addEventListener("click", ()=>{
-      state.view = "list";
-      document.getElementById("listViewBtn").classList.add("active");
-      document.getElementById("calViewBtn").classList.remove("active");
-      document.getElementById("listView").style.display = "block";
-      document.getElementById("calView").style.display = "none";
-    });
-    document.getElementById("calViewBtn").addEventListener("click", ()=>{
-      state.view = "calendar";
-      document.getElementById("calViewBtn").classList.add("active");
-      document.getElementById("listViewBtn").classList.remove("active");
-      document.getElementById("listView").style.display = "none";
-      document.getElementById("calView").style.display = "block";
-      renderCalendar();
-    });
-    document.getElementById("calPrevBtn").addEventListener("click", ()=>{
-      state.calMonth--; if(state.calMonth<1){state.calMonth=12; state.calYear--;}
-      state.selectedDay = null;
-      renderCalendar();
-    });
-    document.getElementById("calNextBtn").addEventListener("click", ()=>{
-      state.calMonth++; if(state.calMonth>12){state.calMonth=1; state.calYear++;}
-      state.selectedDay = null;
-      renderCalendar();
-    });
-
-    // ナビ・スクロール
-    document.querySelectorAll("[data-scroll]").forEach(btn=>{
-      btn.addEventListener("click", ()=>{
-        document.querySelector(btn.dataset.scroll).scrollIntoView({behavior:"smooth"});
-        document.getElementById("mainNav").classList.remove("open");
-      });
-    });
-    document.getElementById("hamburgerBtn").addEventListener("click", ()=>{
-      document.getElementById("mainNav").classList.toggle("open");
-    });
-
-    // モバイル表示では<nav>を<header>の外側(bodyの直下)に物理的に移動する。
-    // position:sticky の祖先の中に position:fixed の子要素を入れ子にすると、
-    // Safari(iOS)でその子要素の背景が正しく描画されない(透けて見える)既知の不具合があるため、
-    // CSSでの上書きではなく、DOM構造そのものを変えることで根本的に回避する。
-    relocateNavForViewport_();
-    window.addEventListener("resize", relocateNavForViewport_);
-
-    // 会員登録・ログイン(セクション内フォーム)
-    bindAuthTabs_("tabRegister","tabLogin","registerFormBlock","loginFormBlock");
-    document.getElementById("registerBtn").addEventListener("click", async ()=>{
-      const name = document.getElementById("regName").value.trim();
-      const email = document.getElementById("regEmail").value.trim();
-      const password = document.getElementById("regPassword").value;
-      const passwordConfirm = document.getElementById("regPasswordConfirm").value;
-      const trainingDate = document.getElementById("regTrainingDate").value.trim();
-      const trainer = document.getElementById("regTrainer").value.trim();
-      const messengerName = document.getElementById("regMessenger").value.trim();
-      const notify = document.getElementById("regNotify").checked;
-      const btn = document.getElementById("registerBtn");
-      btn.disabled = true; btn.textContent = "登録しています...";
-      const ok = await completeRegistration(name, email, password, passwordConfirm, trainingDate, trainer, messengerName, notify, window.recaptchaWidgetSection);
-      btn.disabled = false; btn.textContent = "会員登録する";
-      if(ok){
-        document.getElementById("regName").value = "";
-        document.getElementById("regEmail").value = "";
-        document.getElementById("regPassword").value = "";
-        document.getElementById("regPasswordConfirm").value = "";
-        document.getElementById("regTrainingDate").value = "";
-        document.getElementById("regTrainer").value = "";
-        document.getElementById("regMessenger").value = "";
-      }
-    });
-    document.getElementById("loginBtn").addEventListener("click", async ()=>{
-      const email = document.getElementById("loginEmail").value.trim();
-      const password = document.getElementById("loginPassword").value;
-      const btn = document.getElementById("loginBtn");
-      btn.disabled = true; btn.textContent = "ログインしています...";
-      const ok = await loginMember_(email, password, ()=>{
-        btn.textContent = "通信中です(回線状況により時間がかかる場合があります)...";
-      });
-      btn.disabled = false; btn.textContent = "ログインする";
-      if(ok){
-        document.getElementById("loginEmail").value = "";
-        document.getElementById("loginPassword").value = "";
-      }
-    });
-    bindForgotPassword_("forgotPasswordToggle","forgotPasswordBlock","forgotEmail","forgotSubmitBtn");
-
-    // 会員登録・ログインモーダル
-    bindAuthTabs_("mmTabRegister","mmTabLogin","mmRegisterFormBlock","mmLoginFormBlock");
-    document.getElementById("mmRegisterBtn").addEventListener("click", async ()=>{
-      const name = document.getElementById("mmName").value.trim();
-      const email = document.getElementById("mmEmail").value.trim();
-      const password = document.getElementById("mmPassword").value;
-      const passwordConfirm = document.getElementById("mmPasswordConfirm").value;
-      const trainingDate = document.getElementById("mmTrainingDate").value.trim();
-      const trainer = document.getElementById("mmTrainer").value.trim();
-      const messengerName = document.getElementById("mmMessenger").value.trim();
-      const notify = document.getElementById("mmNotify").checked;
-      const btn = document.getElementById("mmRegisterBtn");
-      btn.disabled = true; btn.textContent = "登録しています...";
-      const ok = await completeRegistration(name, email, password, passwordConfirm, trainingDate, trainer, messengerName, notify, window.recaptchaWidgetModal);
-      btn.disabled = false; btn.textContent = "登録して続ける";
-      if(ok){
-        closeModal("memberModalOverlay");
-        if(pendingOpenSessionId){
-          openDetailModal(pendingOpenSessionId);
-          pendingOpenSessionId = null;
-        }
-      }
-    });
-    document.getElementById("mmLoginBtn").addEventListener("click", async ()=>{
-      const email = document.getElementById("mmLoginEmail").value.trim();
-      const password = document.getElementById("mmLoginPassword").value;
-      const btn = document.getElementById("mmLoginBtn");
-      btn.disabled = true; btn.textContent = "ログインしています...";
-      const ok = await loginMember_(email, password, ()=>{
-        btn.textContent = "通信中です(回線状況により時間がかかる場合があります)...";
-      });
-      btn.disabled = false; btn.textContent = "ログインする";
-      if(ok){
-        document.getElementById("mmLoginEmail").value = "";
-        document.getElementById("mmLoginPassword").value = "";
-        closeModal("memberModalOverlay");
-        if(pendingOpenSessionId){
-          openDetailModal(pendingOpenSessionId);
-          pendingOpenSessionId = null;
-        }
-      }
-    });
-    bindForgotPassword_("mmForgotPasswordToggle","mmForgotPasswordBlock","mmForgotEmail","mmForgotSubmitBtn");
-    document.getElementById("memberModalClose").addEventListener("click", ()=>closeModal("memberModalOverlay"));
-    document.getElementById("memberModalOverlay").addEventListener("click", (e)=>{
-      if(e.target.id==="memberModalOverlay") closeModal("memberModalOverlay");
-    });
-
-    // 詳細モーダル
-    document.getElementById("detailModalClose").addEventListener("click", ()=>closeModal("detailModalOverlay"));
-    document.getElementById("detailModalOverlay").addEventListener("click", (e)=>{
-      if(e.target.id==="detailModalOverlay") closeModal("detailModalOverlay");
-    });
-
-    // 画像の拡大表示(ライトボックス)
-    document.getElementById("imageLightboxClose").addEventListener("click", closeImageLightbox_);
-    document.getElementById("imageLightboxOverlay").addEventListener("click", (e)=>{
-      if(e.target.id === "imageLightboxOverlay") closeImageLightbox_();
-    });
-    document.addEventListener("keydown", (e)=>{
-      if(e.key === "Escape") closeImageLightbox_();
-    });
-
-    // 主催者MENU
-    bindOrganizerDashboardEvents_();
-    bindChangePassword_();
-    bindBulkEmailModal_();
-    document.getElementById("logoutNavBtn").addEventListener("click", logoutMember_);
-    updateOrganizerUiVisibility_();
-
-    // 保存済みのログイン情報があれば、再入力なしで自動的に復元する
-    // (過去のイベントページなど、他のページから戻ってきた場合や再読み込み時のため)
-    const savedSession = loadMemberSession_();
-    if(savedSession && savedSession.email){
-      applyLoginState_(savedSession, true);
-    }
-
-    // ここまでで画面上の操作(ログイン・申込みボタンなど)は全て有効になっている。
-    // データ取得(スプレッドシートとの通信)は、操作性を損なわないようこの後に行う。
-    // 通信が遅い・失敗した場合でも、ボタン操作自体は問題なく行える。
-    try{
-      const loaded = await loadSessionsFromApi();
-      if(loaded){
-        renderSessions();
-        renderCalendar();
-      }
-    }catch(err){
-      console.error("初期データ(勉強会)の取得中にエラーが発生しました", err);
-    }
-    try{
-      const announcementsLoaded = await loadAnnouncementsFromApi();
-      if(announcementsLoaded){
-        renderAnnouncements();
-      }
-    }catch(err){
-      console.error("初期データ(お知らせ)の取得中にエラーが発生しました", err);
-    }
-  }
-
-  document.addEventListener("DOMContentLoaded", init);
 })();
 </script>
 </body>
