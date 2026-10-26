@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>実施報告 | LSPラーニング・ガーデン</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#FFFDF7;
+    --ink:#232B3A;
+    --ink-soft:#5B6472;
+    --brick:#E8483C;
+    --brick-dark:#C63A2F;
+    --yellow:#FFC72C;
+    --amber:#F2924A;
+    --amber-dark:#DC7A30;
+    --blue:#2E9CE0;
+    --blue-dark:#1F7CB8;
+    --green:#4CAF6D;
+    --green-dark:#3B9257;
+    --line:#EEE7D6;
+    --card:#FFFFFF;
+    --shadow: 0 6px 0 rgba(35,43,58,0.08);
+    --radius: 18px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;overflow-x:hidden;width:100%;position:relative;}
+  body{
+    margin:0;overflow-x:hidden;position:relative;width:100%;
+    background:var(--cream);color:var(--ink);
+    font-family:'Noto Sans JP', sans-serif;line-height:1.7;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{font-family:'Zen Maru Gothic', sans-serif;font-weight:900;color:var(--ink);margin:0;}
+  a{color:inherit;}
+  button{font-family:inherit;cursor:pointer;}
+
+  header{
+    position:sticky;top:0;z-index:50;
+    background:rgba(255,253,247,0.92);backdrop-filter:blur(6px);
+    border-bottom:2px solid var(--line);
+  }
+  .header-inner{
+    max-width:1180px;margin:0 auto;padding:14px 24px;
+    display:flex;align-items:center;justify-content:space-between;gap:16px;
+  }
+  .back-link{
+    display:inline-flex;align-items:center;gap:6px;font-size:13.5px;font-weight:700;
+    color:var(--ink-soft);text-decoration:none;
+  }
+  .back-link:hover{color:var(--ink);}
+  .logo-text{font-size:15px;line-height:1.25;font-family:'Zen Maru Gothic';font-weight:900;}
+  .logo-text small{display:block;font-family:'Noto Sans JP';font-weight:500;font-size:10.5px;color:var(--ink-soft);}
+
+  .page-head{max-width:1180px;margin:0 auto;padding:36px 24px 8px;}
+  .page-head h1{font-size:clamp(24px,3.4vw,32px);}
+  .page-head p{color:var(--ink-soft);font-size:14px;margin-top:8px;}
+  section{max-width:1180px;margin:0 auto;padding:16px 24px 60px;}
+  .top-actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:22px;}
+  .btn-primary{background:var(--brick);color:#fff;border:none;padding:11px 22px;border-radius:999px;font-weight:700;font-size:14px;}
+  .btn-primary:hover{background:var(--brick-dark);}
+  .btn-primary:disabled{opacity:.6;cursor:default;}
+  .btn-ghost{background:#fff;color:var(--ink);border:2px solid var(--line);padding:9px 18px;border-radius:999px;font-weight:700;font-size:13.5px;}
+  .search-box{flex:1;min-width:220px;display:flex;align-items:center;gap:10px;background:var(--card);border:2px solid var(--line);border-radius:999px;padding:10px 16px;}
+  .search-box input{border:none;background:none;outline:none;font-size:14px;width:100%;font-family:inherit;color:var(--ink);}
+  .report-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+  .report-card{background:var(--card);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column;}
+  .report-thumb{width:100%;aspect-ratio:16/9;overflow:hidden;background:var(--cream);}
+  .report-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+  .report-body{padding:14px 18px 18px;flex:1;display:flex;flex-direction:column;}
+  .report-card h3{font-size:16.5px;margin:6px 0;overflow-wrap:anywhere;}
+  .report-meta{font-size:13px;color:var(--ink-soft);display:flex;flex-direction:column;gap:3px;margin-bottom:10px;}
+  .report-excerpt{font-size:13px;color:var(--ink-soft);margin:0 0 14px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere;}
+  .report-footer{margin-top:auto;display:flex;align-items:center;justify-content:space-between;gap:10px;}
+  .vis-badge{display:inline-block;font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;}
+  .vis-badge.public{background:#E4F5EA;color:var(--green-dark);}
+  .cat-badge{display:inline-block;font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;background:#E4F3FC;color:var(--blue-dark);margin-left:6px;}
+  .cat-pills{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;}
+  .cat-pills button{border:2px solid var(--line);background:#fff;padding:6px 14px;border-radius:999px;font-size:12.5px;font-weight:700;color:var(--ink-soft);}
+  .cat-pills button.active{background:var(--blue);border-color:var(--blue);color:#fff;}
+  .vis-badge.members{background:#FCE9DC;color:var(--amber-dark);}
+  .btn-detail{background:var(--ink);color:#fff;border:none;padding:9px 16px;border-radius:999px;font-weight:700;font-size:13px;white-space:nowrap;}
+  .btn-detail:hover{background:var(--brick);}
+  .empty-state{grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--ink-soft);}
+  .modal-overlay{position:fixed;inset:0;background:rgba(35,43,58,0.55);z-index:100;display:none;align-items:center;justify-content:center;padding:20px;}
+  .modal-overlay.open{display:flex;}
+  .modal{background:#fff;border-radius:22px;max-width:560px;width:100%;max-height:90vh;overflow-y:auto;padding:26px;position:relative;box-shadow:0 20px 0 rgba(35,43,58,0.08);}
+  .modal-close{position:absolute;top:16px;right:16px;border:none;background:var(--cream);width:32px;height:32px;border-radius:50%;font-size:16px;font-weight:900;color:var(--ink-soft);}
+  .modal h3{font-size:19px;margin-bottom:4px;padding-right:36px;overflow-wrap:anywhere;}
+  .modal .modal-sub{font-size:13px;color:var(--ink-soft);margin-bottom:16px;}
+  .modal-summary{background:var(--cream);border-radius:14px;padding:12px 16px;margin-bottom:16px;font-size:13.5px;}
+  .modal-summary div{display:flex;justify-content:space-between;gap:16px;padding:4px 0;color:var(--ink-soft);}
+  .modal-summary div b{color:var(--ink);font-weight:700;text-align:right;overflow-wrap:anywhere;}
+  .detail-h{font-size:14px;font-weight:900;margin:16px 0 4px;font-family:'Zen Maru Gothic';}
+  .detail-text{font-size:13.5px;color:var(--ink);white-space:pre-wrap;overflow-wrap:anywhere;margin:0;}
+  .photo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px;}
+  .photo-grid img{width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:10px;display:block;cursor:zoom-in;background:var(--cream);}
+  .author-actions{display:flex;gap:8px;margin-top:20px;padding-top:16px;border-top:2px dashed var(--line);}
+  .author-actions .del:hover{border-color:var(--brick);color:var(--brick-dark);}
+  .form-row{margin-bottom:14px;}
+  .form-row label{display:block;font-size:12.5px;font-weight:700;color:var(--ink-soft);margin-bottom:6px;}
+  .form-row input[type=text],.form-row input[type=date],.form-row input[type=number],.form-row input[type=email],.form-row input[type=password],.form-row textarea,.form-row select{
+    width:100%;border:2px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px;font-family:inherit;background:var(--cream);color:var(--ink);}
+  .form-row textarea{min-height:110px;resize:vertical;}
+  .form-two{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .req{color:var(--brick);}
+  .field-hint{font-size:11.5px;color:var(--ink-soft);}
+  .radio-row{display:flex;gap:10px;flex-wrap:wrap;}
+  .radio-row label{display:flex;align-items:flex-start;gap:8px;border:2px solid var(--line);border-radius:12px;padding:10px 12px;font-size:13px;color:var(--ink);font-weight:500;margin:0;flex:1;min-width:200px;cursor:pointer;}
+  .thumbs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px;}
+  .thumb{position:relative;}
+  .thumb img{width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:10px;display:block;background:var(--cream);}
+  .thumb button{position:absolute;top:4px;right:4px;width:24px;height:24px;border-radius:50%;border:none;background:rgba(35,43,58,.8);color:#fff;font-weight:900;font-size:12px;}
+  .lightbox{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:200;display:none;align-items:center;justify-content:center;padding:16px;}
+  .lightbox.open{display:flex;}
+  .lightbox img{max-width:100%;max-height:100%;border-radius:8px;}
+  footer{background:var(--ink);color:#EDEFF3;padding:32px 24px;text-align:center;}
+  footer a{color:#FFC72C;text-decoration:none;font-weight:700;}
+  footer p{font-size:12px;color:#9BA3B4;margin-top:12px;line-height:1.8;}
+  @media (max-width:900px){ .report-grid{grid-template-columns:1fr;} .form-two{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <div class="logo-text">LSPラーニング・ガーデン<small>ワークショップ実施報告</small></div>
+    <div style="display:flex;align-items:center;gap:14px;">
+      <button class="back-link" id="loginPillBtn" style="border:none;background:none;font-family:inherit;cursor:pointer;">会員ログイン</button>
+      <a class="back-link" href="index.html">← トップページに戻る</a>
+    </div>
+  </div>
+</header>
+
+<div class="page-head">
+  <h1>ワークショップ実施報告</h1>
+  <p>LEGO® SERIOUS PLAY®メソッドのワークショップを実施した会員からの報告です。「会員限定」の報告はログインすると読めます。投稿・編集・削除は会員本人(投稿者)のみ行えます。</p>
+</div>
+
+<section>
+  <div class="top-actions">
+    <div class="search-box">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="#5B6472" stroke-width="2"/><path d="M21 21l-4.3-4.3" stroke="#5B6472" stroke-width="2" stroke-linecap="round"/></svg>
+      <input type="text" id="searchInput" placeholder="タイトル・場所・内容で検索">
+    </div>
+    <label style="font-size:13px;font-weight:700;color:var(--ink-soft);display:none;" id="mineOnlyWrap"><input type="checkbox" id="mineOnly"> 自分の投稿のみ</label>
+    <button class="btn-primary" id="newReportBtn">＋ 実施報告を投稿する</button>
+  </div>
+  <div class="cat-pills" id="catPills"></div>
+  <div class="report-grid" id="reportGrid"><div class="empty-state"><p>読み込み中...</p></div></div>
+</section>
+
+<footer>
+  <a href="index.html">LSPラーニング・ガーデン トップページへ</a>
+  <p>LEGO® SERIOUS PLAY®はThe LEGO Groupの商標であり、本サイトはLEGO Groupと提携するものではありません。</p>
+</footer>
+
+<!-- ログイン -->
+<div class="modal-overlay" id="loginModalOverlay">
+  <div class="modal" style="max-width:380px;">
+    <button class="modal-close" id="loginModalClose">✕</button>
+    <h3>会員ログイン</h3>
+    <p class="modal-sub">実施報告の投稿や、会員限定の報告の閲覧にはログインが必要です。新規登録はトップページから行えます。</p>
+    <div class="form-row"><label>メールアドレス</label><input type="email" id="loginEmail" placeholder="you@example.com"></div>
+    <div class="form-row"><label>パスワード</label><input type="password" id="loginPassword" placeholder="••••••••"></div>
+    <button class="btn-primary" id="loginSubmitBtn" style="width:100%;">ログインする</button>
+  </div>
+</div>
+
+<!-- 詳細 -->
+<div class="modal-overlay" id="detailOverlay">
+  <div class="modal"><button class="modal-close" id="detailClose">✕</button><div id="detailBody"></div></div>
+</div>
+
+<!-- 投稿・編集 -->
+<div class="modal-overlay" id="editorOverlay">
+  <div class="modal">
+    <button class="modal-close" id="editorClose">✕</button>
+    <h3 id="editorTitle">実施報告を投稿する</h3>
+    <p class="modal-sub"><span class="req">*</span> は必須項目です。</p>
+    <div class="form-row"><label>タイトル <span class="req">*</span></label><input type="text" id="fTitle" maxlength="200" placeholder="例:チームビルディングWS(企業研修)"></div>
+    <div class="form-row"><label>SNS・ブログ投稿へのリンク(任意)</label><input type="text" id="fLink" maxlength="1000" placeholder="https://..."><div class="field-hint">他のSNSやブログに書いた報告のURLを貼れます。リンクだけで投稿する場合は、タイトルとリンクのみ入力すれば投稿できます(実施日・振り返りは空欄でも可)。</div></div>
+    <div class="form-row"><label>種類(任意)</label><select id="fCategory"><option value="">選択しない</option></select></div>
+    <div class="form-two">
+      <div class="form-row"><label>実施日 <span class="req">*</span><span class="field-hint">(リンクのみなら省略可)</span></label><input type="date" id="fDate"></div>
+      <div class="form-row"><label>場所 / オンライン</label><input type="text" id="fPlace" maxlength="200" placeholder="例:東京・会議室 / オンライン(Zoom)"></div>
+    </div>
+    <div class="form-two">
+      <div class="form-row"><label>参加人数</label><input type="number" id="fCount" min="0" placeholder="例:8"></div>
+      <div class="form-row"><label>所要時間</label><input type="text" id="fDuration" maxlength="100" placeholder="例:3時間"></div>
+    </div>
+    <div class="form-row"><label>参加者属性</label><input type="text" id="fAttributes" maxlength="500" placeholder="例:企業の管理職、大学生 など(個人が特定されない範囲で)"></div>
+    <div class="form-row"><label>プログラムの流れ(任意)</label><textarea id="fProgram" maxlength="5000" placeholder="例:スキルビルディング → 個人モデル → 共有モデル → 振り返り"></textarea></div>
+    <div class="form-row"><label>振り返り・学び・次回への改善点 <span class="req">*</span><span class="field-hint">(リンクがあれば省略可)</span></label><textarea id="fReflection" maxlength="10000" style="min-height:150px;" placeholder="うまくいったこと、気づき、次回改善したいことなど"></textarea></div>
+    <div class="form-row">
+      <label>写真(最大6枚)</label>
+      <input type="file" id="fPhotos" accept="image/png,image/jpeg,image/webp,image/gif" multiple>
+      <div class="field-hint">参加者が写っている写真は、本人の了承を得たうえで掲載してください。大きな画像は自動で縮小されます。</div>
+      <div class="thumbs" id="thumbs"></div>
+    </div>
+    <div class="form-row">
+      <label>公開範囲 <span class="req">*</span></label>
+      <div class="radio-row">
+        <label><input type="radio" name="fVis" value="members" checked><span><b>会員限定</b><br><span class="field-hint">ログインした会員だけが読めます</span></span></label>
+        <label><input type="radio" name="fVis" value="public"><span><b>一般公開</b><br><span class="field-hint">ログインしていない人にも表示されます</span></span></label>
+      </div>
+    </div>
+    <button class="btn-primary" id="saveBtn" style="width:100%;">投稿する</button>
+  </div>
+</div>
+
+<div class="lightbox" id="lightbox"><img id="lightboxImg" alt=""></div>
+
+<script>
+(function(){
+  "use strict";
+  const API_BASE_URL = "https://script.google.com/macros/s/AKfycbyBCQyOW8kKA5n568uBAlw-K3plg_E7Ch0YBjn1nm3nyA1NfVLD1Ex68Ci8ZzLxmmXgZw/exec";
+  const MAX_PHOTOS = 6;
+  const CATEGORIES = ["錬成会","体験会","一般参加企画","研修","授業","その他"];
+
+  async function apiGet(action, params){
+    const qs = new URLSearchParams({ action, ...(params||{}), _: Date.now() }).toString();
+    const res = await fetch(`${API_BASE_URL}?${qs}`, { cache: "no-store" });
+    return res.json();
+  }
+  async function apiPost(action, payload){
+    const res = await fetch(API_BASE_URL, {
+      method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({ action, ...payload }), cache: "no-store"
+    });
+    return res.json();
+  }
+  function esc_(t){ if(t===null||t===undefined||t==="") return ""; const d=document.createElement("div"); d.textContent=String(t); return d.innerHTML; }
+  function fmtDate_(iso){
+    if(!iso) return "";
+    const d = new Date(iso+"T00:00:00"); if(isNaN(d.getTime())) return iso;
+    return `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`;
+  }
+  function $(id){ return document.getElementById(id); }
+
+  const state = { isMember:false, email:"", name:"", reports:[], query:"", cat:"", editingId:null, photos:[] /* {url} or {file,preview} */ };
+
+  /* ---------- ログイン状態(他ページと共通) ---------- */
+  const KEY = "lspMemberSession";
+  function saveSession_(p){ try{ localStorage.setItem(KEY, JSON.stringify({ email:p.email, name:p.name, trainingDate:p.trainingDate||"", trainer:p.trainer||"", messengerName:p.messengerName||"" })); }catch(e){} }
+  function loadSession_(){ try{ const r=localStorage.getItem(KEY); return r?JSON.parse(r):null; }catch(e){ return null; } }
+  function clearSession_(){ try{ localStorage.removeItem(KEY); }catch(e){} }
+
+  function applyLogin_(p){
+    state.isMember = true; state.email = p.email; state.name = p.name;
+    saveSession_(p);
+    $("loginPillBtn").textContent = `${p.name} さん`;
+    $("mineOnlyWrap").style.display = "";
+    loadReports_();
+  }
+  function logout_(){
+    if(!confirm("ログアウトします。よろしいですか?")) return;
+    state.isMember = false; state.email = ""; state.name = "";
+    clearSession_();
+    $("loginPillBtn").textContent = "会員ログイン";
+    $("mineOnlyWrap").style.display = "none"; $("mineOnly").checked = false;
+    loadReports_();
+  }
+  async function login_(email, password){
+    if(!email || !password){ alert("メールアドレスとパスワードを入力してください"); return false; }
+    try{
+      const res = await apiPost("login", { email, password });
+      if(!res.ok){ alert(res.error || "ログインに失敗しました"); return false; }
+      applyLogin_({ ...res, email });
+      return true;
+    }catch(err){ console.error(err); alert("通信エラーのためログインに失敗しました"); return false; }
+  }
+
+  /* ---------- 一覧 ---------- */
+  async function loadReports_(){
+    try{
+      const res = await apiGet("listReports", state.isMember ? { email: state.email } : {});
+      if(!res.ok){ $("reportGrid").innerHTML = `<div class="empty-state"><p>${esc_(res.error||"取得に失敗しました")}</p></div>`; return; }
+      state.reports = res.reports || [];
+      renderList_();
+    }catch(err){
+      console.error(err);
+      $("reportGrid").innerHTML = `<div class="empty-state"><p>通信エラーのため取得に失敗しました</p></div>`;
+    }
+  }
+  function visBadge_(r){
+    const v = r.visibility==="public" ? `<span class="vis-badge public">一般公開</span>` : `<span class="vis-badge members">会員限定</span>`;
+    return v + (r.category ? `<span class="cat-badge">${esc_(r.category)}</span>` : "");
+  }
+  function renderCatPills_(){
+    $("catPills").innerHTML = ["", ...CATEGORIES].map(c=>`<button type="button" data-cat="${c}" class="${state.cat===c?"active":""}">${c||"すべて"}</button>`).join("");
+    $("catPills").querySelectorAll("button").forEach(b=> b.addEventListener("click", ()=>{ state.cat = b.dataset.cat; renderCatPills_(); renderList_(); }));
+  }
+  function renderList_(){
+    const q = state.query.trim().toLowerCase();
+    const mine = $("mineOnly").checked;
+    const list = state.reports.filter(r=>{
+      if(mine && !r.isMine) return false;
+      if(state.cat && r.category !== state.cat) return false;
+      if(!q) return true;
+      return [r.title,r.place,r.reflection,r.program,r.participantAttributes,r.authorName].join(" ").toLowerCase().includes(q);
+    });
+    const grid = $("reportGrid");
+    if(list.length===0){
+      grid.innerHTML = `<div class="empty-state"><p>${state.reports.length===0 ? "まだ実施報告がありません。最初の報告を投稿してみませんか?" : "該当する実施報告がありません。"}${state.isMember?"":"<br><span class=\"field-hint\">ログインすると会員限定の報告も表示されます。</span>"}</p></div>`;
+      return;
+    }
+    grid.innerHTML = list.map(r=>`
+      <div class="report-card">
+        ${r.imageUrls[0] ? `<div class="report-thumb"><img src="${esc_(r.imageUrls[0])}" alt="" loading="lazy" onerror="this.closest('.report-thumb').style.display='none'"></div>` : ""}
+        <div class="report-body">
+          <div>${visBadge_(r)}</div>
+          <h3>${esc_(r.title)}</h3>
+          <div class="report-meta">
+            <span>📅 ${fmtDate_(r.date)}${r.place?`　📍 ${esc_(r.place)}`:""}</span>
+            <span>✍️ ${esc_(r.authorName)}${r.participantCount!==""?`　👥 ${esc_(r.participantCount)}名`:""}</span>
+          </div>
+          <p class="report-excerpt">${r.reflection ? esc_(r.reflection) : (r.linkUrl ? "🔗 外部サイトの投稿リンクがあります" : "")}</p>
+          <div class="report-footer"><span></span><button class="btn-detail" data-id="${esc_(r.reportId)}">詳しく読む</button></div>
+        </div>
+      </div>`).join("");
+    grid.querySelectorAll(".btn-detail").forEach(b=> b.addEventListener("click", ()=> openDetail_(b.dataset.id)));
+  }
+
+  /* ---------- 詳細 ---------- */
+  function section_(title, text){ return text ? `<div class="detail-h">${title}</div><p class="detail-text">${esc_(text)}</p>` : ""; }
+  function openDetail_(id){
+    const r = state.reports.find(x=>x.reportId===id); if(!r) return;
+    $("detailBody").innerHTML = `
+      <div style="margin-bottom:8px;">${visBadge_(r)}</div>
+      <h3>${esc_(r.title)}</h3>
+      <p class="modal-sub">投稿者:${esc_(r.authorName)}</p>
+      <div class="modal-summary">
+        <div><span>実施日</span><b>${fmtDate_(r.date)}</b></div>
+        ${r.place?`<div><span>場所</span><b>${esc_(r.place)}</b></div>`:""}
+        ${r.participantCount!==""?`<div><span>参加人数</span><b>${esc_(r.participantCount)}名</b></div>`:""}
+        ${r.participantAttributes?`<div><span>参加者属性</span><b>${esc_(r.participantAttributes)}</b></div>`:""}
+        ${r.duration?`<div><span>所要時間</span><b>${esc_(r.duration)}</b></div>`:""}
+      </div>
+      ${r.linkUrl && /^https?:\/\//.test(r.linkUrl) ? `<a class="btn-primary" style="display:inline-block;text-decoration:none;background:var(--blue);margin-bottom:6px;" href="${esc_(r.linkUrl)}" target="_blank" rel="noopener noreferrer">🔗 SNS・ブログの投稿を見る</a>` : ""}
+      ${section_("プログラムの流れ", r.program)}
+      ${section_("振り返り・学び・次回への改善点", r.reflection)}
+      ${r.imageUrls.length ? `<div class="detail-h">写真</div><div class="photo-grid">${r.imageUrls.map(u=>`<img src="${esc_(u)}" alt="実施の様子" loading="lazy" data-zoom="${esc_(u)}">`).join("")}</div>` : ""}
+      ${r.isMine ? `<div class="author-actions"><button class="btn-ghost" id="editBtn">編集する</button><button class="btn-ghost del" id="delBtn">削除する</button></div>` : ""}
+    `;
+    $("detailBody").querySelectorAll("[data-zoom]").forEach(img=> img.addEventListener("click", ()=>{ $("lightboxImg").src = img.dataset.zoom.replace(/sz=w\d+/,"sz=w1600"); $("lightbox").classList.add("open"); }));
+    if(r.isMine){
+      $("editBtn").addEventListener("click", ()=>{ $("detailOverlay").classList.remove("open"); openEditor_(r); });
+      $("delBtn").addEventListener("click", async ()=>{
+        if(!confirm("この実施報告を削除します。元に戻せません。よろしいですか?")) return;
+        const res = await apiPost("deleteReport", { email: state.email, reportId: r.reportId });
+        if(!res.ok){ alert(res.error || "削除に失敗しました"); return; }
+        $("detailOverlay").classList.remove("open");
+        loadReports_();
+      });
+    }
+    $("detailOverlay").classList.add("open");
+  }
+
+  /* ---------- 投稿・編集 ---------- */
+  function openEditor_(r){
+    if(!state.isMember){ alert("実施報告の投稿にはログインが必要です。"); $("loginModalOverlay").classList.add("open"); return; }
+    state.editingId = r ? r.reportId : null;
+    $("editorTitle").textContent = r ? "実施報告を編集する" : "実施報告を投稿する";
+    $("saveBtn").textContent = r ? "変更を保存する" : "投稿する";
+    $("fTitle").value = r ? r.title : "";
+    $("fLink").value = r ? (r.linkUrl || "") : "";
+    $("fCategory").value = r ? (r.category || "") : "";
+    $("fDate").value = r ? r.date : "";
+    $("fPlace").value = r ? r.place : "";
+    $("fCount").value = r ? r.participantCount : "";
+    $("fDuration").value = r ? r.duration : "";
+    $("fAttributes").value = r ? r.participantAttributes : "";
+    $("fProgram").value = r ? r.program : "";
+    $("fReflection").value = r ? r.reflection : "";
+    document.querySelector(`input[name=fVis][value=${r && r.visibility==="public" ? "public":"members"}]`).checked = true;
+    state.photos = r ? r.imageUrls.map(u=>({ url:u })) : [];
+    $("fPhotos").value = "";
+    renderThumbs_();
+    $("editorOverlay").classList.add("open");
+  }
+  function renderThumbs_(){
+    $("thumbs").innerHTML = state.photos.map((p,i)=>`<div class="thumb"><img src="${esc_(p.url || p.preview)}" alt=""><button type="button" data-rm="${i}" aria-label="削除">✕</button></div>`).join("");
+    $("thumbs").querySelectorAll("[data-rm]").forEach(b=> b.addEventListener("click", ()=>{ state.photos.splice(Number(b.dataset.rm),1); renderThumbs_(); }));
+  }
+  function onPhotosChosen_(files){
+    for(const f of files){
+      if(state.photos.length >= MAX_PHOTOS){ alert(`写真は${MAX_PHOTOS}枚までです`); break; }
+      if(!/^image\/(png|jpeg|webp|gif)$/.test(f.type)){ alert(`${f.name} は対応していない形式です(PNG/JPEG/WEBP/GIF)`); continue; }
+      state.photos.push({ file:f, preview:URL.createObjectURL(f) });
+    }
+    $("fPhotos").value = "";
+    renderThumbs_();
+  }
+  /* 長辺1600pxに縮小したJPEGにして base64 を返す(アップロードを速く、5MB制限内に収めるため) */
+  function fileToBase64_(file){
+    return new Promise((resolve, reject)=>{
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+      img.onload = ()=>{
+        const max = 1600, scale = Math.min(1, max/Math.max(img.width, img.height));
+        const c = document.createElement("canvas");
+        c.width = Math.round(img.width*scale); c.height = Math.round(img.height*scale);
+        const ctx = c.getContext("2d"); ctx.fillStyle = "#fff"; ctx.fillRect(0,0,c.width,c.height); ctx.drawImage(img,0,0,c.width,c.height);
+        URL.revokeObjectURL(url);
+        resolve(c.toDataURL("image/jpeg", 0.85).split(",")[1]);
+      };
+      img.onerror = ()=>{ URL.revokeObjectURL(url); reject(new Error("画像を読み込めませんでした")); };
+      img.src = url;
+    });
+  }
+  async function save_(){
+    const title = $("fTitle").value.trim(), date = $("fDate").value, reflection = $("fReflection").value.trim();
+    const linkUrl = $("fLink").value.trim();
+    if(!title){ alert("タイトルは必須です"); return; }
+    if(linkUrl && !/^https?:\/\/\S+$/.test(linkUrl)){ alert("リンクは http:// または https:// で始まるURLを入力してください"); return; }
+    if(!linkUrl && !date){ alert("実施日は必須です"); return; }
+    if(!linkUrl && !reflection){ alert("振り返り・学びを入力してください(リンクだけで投稿する場合はリンクを入力してください)"); return; }
+    const btn = $("saveBtn"); const label = btn.textContent;
+    btn.disabled = true;
+    try{
+      const urls = [];
+      let n = 0; const total = state.photos.filter(p=>p.file).length;
+      for(const p of state.photos){
+        if(p.url){ urls.push(p.url); continue; }
+        n++; btn.textContent = `写真をアップロード中... (${n}/${total})`;
+        const dataBase64 = await fileToBase64_(p.file);
+        const up = await apiPost("uploadImage", { email: state.email, filename: (p.file.name||"report").replace(/\.[^.]+$/,"")+".jpg", mimeType:"image/jpeg", dataBase64 });
+        if(!up.ok) throw new Error(up.error || "写真のアップロードに失敗しました");
+        urls.push(up.url);
+      }
+      btn.textContent = "保存しています...";
+      const payload = {
+        email: state.email, title, date, reflection, category: $("fCategory").value, linkUrl,
+        place: $("fPlace").value.trim(), participantCount: $("fCount").value,
+        duration: $("fDuration").value.trim(), participantAttributes: $("fAttributes").value.trim(),
+        program: $("fProgram").value.trim(), imageUrls: urls,
+        visibility: document.querySelector("input[name=fVis]:checked").value
+      };
+      if(state.editingId) payload.reportId = state.editingId;
+      const res = await apiPost(state.editingId ? "updateReport" : "createReport", payload);
+      if(!res.ok) throw new Error(res.error || "保存に失敗しました");
+      $("editorOverlay").classList.remove("open");
+      await loadReports_();
+    }catch(err){
+      console.error(err); alert(err.message || "通信エラーのため保存に失敗しました");
+    }finally{
+      btn.disabled = false; btn.textContent = label;
+    }
+  }
+
+  function bindOverlay_(overlayId, closeId){
+    const o = $(overlayId);
+    if(closeId) $(closeId).addEventListener("click", ()=> o.classList.remove("open"));
+    o.addEventListener("click", e=>{ if(e.target===o) o.classList.remove("open"); });
+  }
+
+  function init(){
+    $("fCategory").innerHTML += CATEGORIES.map(c=>`<option value="${c}">${c}</option>`).join("");
+    renderCatPills_();
+    bindOverlay_("loginModalOverlay","loginModalClose");
+    bindOverlay_("detailOverlay","detailClose");
+    bindOverlay_("editorOverlay","editorClose");
+    $("lightbox").addEventListener("click", ()=> $("lightbox").classList.remove("open"));
+    $("searchInput").addEventListener("input", e=>{ state.query = e.target.value; renderList_(); });
+    $("mineOnly").addEventListener("change", renderList_);
+    $("newReportBtn").addEventListener("click", ()=> openEditor_(null));
+    $("fPhotos").addEventListener("change", e=> onPhotosChosen_([...e.target.files]));
+    $("saveBtn").addEventListener("click", save_);
+    $("loginPillBtn").addEventListener("click", ()=>{ if(state.isMember) logout_(); else $("loginModalOverlay").classList.add("open"); });
+    $("loginSubmitBtn").addEventListener("click", async ()=>{
+      const btn = $("loginSubmitBtn"); btn.disabled = true; btn.textContent = "ログインしています...";
+      const ok = await login_($("loginEmail").value.trim(), $("loginPassword").value);
+      btn.disabled = false; btn.textContent = "ログインする";
+      if(ok){ $("loginEmail").value = ""; $("loginPassword").value = ""; $("loginModalOverlay").classList.remove("open"); }
+    });
+
+    const saved = loadSession_();
+    if(saved && saved.email) applyLogin_(saved); else loadReports_();
+  }
+  document.addEventListener("DOMContentLoaded", init);
+})();
+</script>
+</body>
+</html>
