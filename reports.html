@@ -87,6 +87,16 @@
   .draft-notice{background:#FFF6DD;border:2px solid var(--yellow);border-radius:12px;padding:12px 14px;margin-bottom:14px;font-size:12.5px;color:var(--ink);line-height:1.7;}
   .draft-notice b{font-family:'Zen Maru Gothic';}
   .draft-notice ul{margin:6px 0 0;padding-left:18px;}
+  .fb-help{background:#EEF4FF;border:2px solid #CFE0FF;border-radius:12px;padding:10px 12px;margin-top:8px;font-size:12.5px;line-height:1.7;}
+  .fb-help label{display:flex;align-items:flex-start;gap:8px;font-weight:700;color:var(--ink);margin:0;}
+  .fb-help ul{margin:6px 0 0;padding-left:18px;color:var(--ink-soft);}
+  .fb-help button{margin-top:8px;}
+  details.fb-guide{margin-top:8px;font-size:12.5px;color:var(--ink-soft);}
+  details.fb-guide summary{cursor:pointer;font-weight:700;color:var(--blue-dark);}
+  details.fb-guide ol{margin:6px 0 0;padding-left:20px;line-height:1.8;}
+  .fb-embed{margin:12px 0 4px;text-align:center;}
+  .fb-embed iframe{border:none;overflow:hidden;width:100%;max-width:500px;height:560px;background:var(--cream);border-radius:12px;}
+  .fb-embed .field-hint{text-align:left;margin-top:6px;}
   .export-row{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 4px;}
   .export-row .btn-ghost{padding:6px 14px;font-size:12.5px;}
   .export-hint{font-size:11.5px;color:var(--ink-soft);margin:0 0 4px;}
@@ -220,7 +230,26 @@
     <h3 id="editorTitle">実施報告を投稿する</h3>
     <p class="modal-sub"><span class="req">*</span> は必須項目です。</p>
     <div class="form-row"><label>タイトル <span class="req">*</span></label><input type="text" id="fTitle" maxlength="200" placeholder="例:チームビルディングWS(企業研修)"></div>
-    <div class="form-row"><label>SNS・ブログ投稿へのリンク(任意)</label><input type="text" id="fLink" maxlength="1000" placeholder="https://..."><div class="field-hint">他のSNSやブログに書いた報告のURLを貼れます。リンクだけで投稿する場合は、タイトルとリンクのみ入力すれば投稿できます(実施日は空欄でも可)。</div></div>
+    <div class="form-row"><label>SNS・ブログ投稿へのリンク(任意)</label><input type="text" id="fLink" maxlength="1000" placeholder="https://...(Facebookの埋め込みコードをそのまま貼ってもOK)"><div class="field-hint">他のSNSやブログに書いた報告のURLを貼れます。リンクだけで投稿する場合は、タイトルとリンクのみ入力すれば投稿できます(実施日は空欄でも可)。</div>
+      <div class="fb-help" id="fbHelp" style="display:none;">
+        <label><input type="checkbox" id="fEmbed" checked> Facebookの投稿を、詳細画面にそのまま埋め込んで表示する</label>
+        <ul>
+          <li>表示されるのは、Facebookで投稿の公開範囲が<b>「公開」</b>のものだけです(友達限定などは表示されません)。</li>
+          <li>表示されなかった場合でも、「元の投稿を開く」ボタンは残ります。</li>
+          <li>PDF・画像で保存したときは、埋め込み部分は含まれず、リンクの文字だけが入ります。</li>
+        </ul>
+        <button type="button" class="btn-ghost" id="fbPreviewBtn">埋め込みをプレビューで確認する</button>
+        <div id="fbPreview" class="fb-embed"></div>
+      </div>
+      <details class="fb-guide"><summary>Facebookの投稿をリンクや埋め込みにする手順</summary>
+        <ol>
+          <li>Facebookで自分の投稿の公開範囲を「公開」にします(投稿右上の地球儀や人のマークから変更)。</li>
+          <li>投稿の右上「…」を開き、「埋め込み」(パソコンのブラウザで表示される場合)を選んで、出てきたコードをコピーします。<br>「埋め込み」が見つからない場合は、投稿の<b>日時の部分をクリック</b>して投稿単体のページを開き、ブラウザのアドレス欄のURLをコピーします。</li>
+          <li>このリンク欄に貼り付けます。コードを貼っても、中のURLを自動で取り出します。</li>
+          <li>「埋め込みをプレビューで確認する」で表示を確かめてから投稿してください。</li>
+        </ol>
+      </details>
+    </div>
     <div class="form-row"><label>種類(任意)</label><select id="fCategory"><option value="">選択しない</option></select></div>
     <div class="form-two">
       <div class="form-row"><label>実施日 <span class="req">*</span><span class="field-hint">(リンクのみなら省略可)</span></label><input type="date" id="fDate"></div>
@@ -415,13 +444,45 @@
         ${r.participantAttributes?`<div><span>参加者属性</span><b>${esc_(r.participantAttributes)}</b></div>`:""}
         ${r.duration?`<div><span>所要時間</span><b>${esc_(r.duration)}</b></div>`:""}
       </div>
-      ${r.linkUrl && /^https?:\/\//.test(r.linkUrl) ? (forExport ? `<p class="detail-text">🔗 ${esc_(r.linkUrl)}</p>` : `<a class="btn-primary" style="display:inline-block;text-decoration:none;background:var(--blue);margin-bottom:6px;" href="${esc_(r.linkUrl)}" target="_blank" rel="noopener noreferrer">🔗 SNS・ブログの投稿を見る</a>`) : ""}
+      ${r.linkUrl && /^https?:\/\//.test(r.linkUrl) ? (forExport ? `<p class="detail-text">🔗 ${esc_(r.linkUrl)}</p>` : `<a class="btn-primary" style="display:inline-block;text-decoration:none;background:var(--blue);margin-bottom:6px;" href="${esc_(r.linkUrl)}" target="_blank" rel="noopener noreferrer">${isFacebookUrl_(r.linkUrl) ? "🔗 元の投稿を開く" : "🔗 SNS・ブログの投稿を見る"}</a>`) : ""}
+      ${!forExport && r.embedLink && isFacebookUrl_(r.linkUrl) ? fbEmbedHtml_(r.linkUrl) : ""}
       ${section_("概要", r.summary)}
       ${section_("プログラムの流れ", r.program)}
       ${section_("振り返り・学び・次回への改善点", r.reflection)}
       ${imgs.filter(Boolean).length ? `<div class="detail-h">写真</div><div class="photo-grid">${imgs.filter(Boolean).map((u,i)=>`<img src="${esc_(u)}" alt="実施の様子"${forExport?"":` loading="lazy" data-zoom="${esc_(r.imageUrls[i]||u)}"`}>`).join("")}</div>` : ""}
     `;
   }
+  /* ---------- Facebook投稿の埋め込み ---------- */
+  const FB_RE = /^https?:\/\/(www\.|m\.|web\.|business\.)?(facebook\.com|fb\.com|fb\.watch)\//i;
+  function isFacebookUrl_(u){ return FB_RE.test(String(u||"").trim()); }
+  function fbEmbedSrc_(u){
+    const isVideo = /fb\.watch\/|\/videos\/|\/watch\/?\?|\/reel\//i.test(u);
+    const kind = isVideo ? "video" : "post";
+    return `https://www.facebook.com/plugins/${kind}.php?href=${encodeURIComponent(u)}&show_text=true&width=500`;
+  }
+  function fbEmbedHtml_(u){
+    return `<div class="fb-embed"><iframe src="${esc_(fbEmbedSrc_(u))}" title="Facebookの投稿" loading="lazy" scrolling="no" allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe>
+      <div class="field-hint">表示されない場合は、投稿が「公開」になっていないか、ブラウザの設定で読み込みが止められている可能性があります。下の「元の投稿を開く」からご覧ください。</div></div>`;
+  }
+  /* 貼り付けられた埋め込みコード(iframeやdata-href付きのHTML)からURLを取り出す */
+  function extractUrlFromPaste_(v){
+    if(!/[<>]/.test(v)) return v;
+    let m = v.match(/data-href=["']([^"']+)["']/i);
+    if(m) return m[1].replace(/&amp;/g,"&");
+    m = v.match(/src=["'][^"']*[?&]href=([^&"']+)/i);
+    if(m){ try{ return decodeURIComponent(m[1]); }catch(e){ return m[1]; } }
+    m = v.match(/https?:\/\/[^\s"'<>]+/);
+    return m ? m[0].replace(/&amp;/g,"&") : v;
+  }
+  function updateFbHelp_(){
+    const input = $("fLink");
+    const fixed = extractUrlFromPaste_(input.value.trim());
+    if(fixed !== input.value.trim()) input.value = fixed;
+    const show = isFacebookUrl_(input.value);
+    $("fbHelp").style.display = show ? "" : "none";
+    if(!show) $("fbPreview").innerHTML = "";
+  }
+
   /* ---------- 共通:公開前リンクのトークン ---------- */
   function tokenFor_(r){
     if(r.shareToken) return r.shareToken;
@@ -637,6 +698,9 @@
     $("fSummary").value = r ? (r.summary || "") : "";
     $("fNotify").checked = r ? !!r.notifyOnComment : true;
     $("fLink").value = r ? (r.linkUrl || "") : "";
+    $("fEmbed").checked = r ? !!r.embedLink : true;
+    $("fbPreview").innerHTML = "";
+    updateFbHelp_();
     $("fCategory").value = r ? (r.category || "") : "";
     $("fDate").value = r ? r.date : "";
     $("fPlace").value = r ? r.place : "";
@@ -703,7 +767,7 @@
       }
       btn.textContent = "保存しています...";
       const payload = {
-        email: state.email, title, date, reflection, summary: $("fSummary").value.trim(), notifyOnComment: $("fNotify").checked, category: $("fCategory").value, linkUrl,
+        email: state.email, title, date, reflection, summary: $("fSummary").value.trim(), notifyOnComment: $("fNotify").checked, category: $("fCategory").value, linkUrl, embedLink: isFacebookUrl_(linkUrl) && $("fEmbed").checked,
         place: $("fPlace").value.trim(), participantCount: $("fCount").value,
         duration: $("fDuration").value.trim(), participantAttributes: $("fAttributes").value.trim(),
         program: $("fProgram").value.trim(), imageUrls: urls,
@@ -752,6 +816,12 @@
     $("newReportBtn").addEventListener("click", ()=> openEditor_(null));
     $("fPhotos").addEventListener("change", e=> onPhotosChosen_([...e.target.files]));
     $("saveBtn").addEventListener("click", save_);
+    $("fLink").addEventListener("input", updateFbHelp_);
+    $("fLink").addEventListener("paste", ()=> setTimeout(updateFbHelp_, 0));
+    $("fbPreviewBtn").addEventListener("click", ()=>{
+      const u = $("fLink").value.trim();
+      $("fbPreview").innerHTML = isFacebookUrl_(u) ? fbEmbedHtml_(u) : "";
+    });
     const updateDraftHint_ = ()=>{ $("draftHint").style.display = document.querySelector("input[name=fVis]:checked").value==="draft" ? "" : "none"; };
     document.querySelectorAll("input[name=fVis]").forEach(r=> r.addEventListener("change", updateDraftHint_));
     window.__updateDraftHint = updateDraftHint_;
