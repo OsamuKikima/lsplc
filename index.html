@@ -121,6 +121,40 @@
     padding:10px 20px;border-radius:999px;font-weight:700;font-size:14px;
   }
 
+  /* 収穫マルシェ(実施報告)バナー */
+  .harvest-wrap{max-width:1180px;margin:0 auto;padding:6px 24px 14px;}
+  .harvest-banner{
+    display:block;text-decoration:none;color:var(--ink);position:relative;overflow:hidden;
+    background:linear-gradient(160deg,#FFF9E8 0%,#EAF7ED 100%);
+    border:2px solid #F3D9A4;border-radius:22px;
+    box-shadow:0 7px 0 rgba(220,122,48,0.2);
+    transition:transform .15s, box-shadow .15s;
+  }
+  .harvest-banner:hover{transform:translateY(-2px);box-shadow:0 9px 0 rgba(220,122,48,0.24);}
+  .harvest-banner:active{transform:translateY(5px);box-shadow:0 0 0 rgba(220,122,48,0.2);}
+  .harvest-awning{
+    height:34px;
+    background:repeating-linear-gradient(90deg,var(--brick) 0 36px,#FFFDF7 36px 72px);
+    -webkit-mask:radial-gradient(circle 18px at 18px 100%,transparent 17px,#000 18px) 0 0/36px 100% repeat-x;
+    mask:radial-gradient(circle 18px at 18px 100%,transparent 17px,#000 18px) 0 0/36px 100% repeat-x;
+  }
+  .harvest-inner{display:flex;align-items:center;gap:26px;padding:22px 30px 26px;}
+  .harvest-text{flex:1;min-width:0;}
+  .harvest-label{
+    display:inline-block;background:var(--green);color:#fff;font-weight:700;font-size:13px;
+    padding:5px 14px;border-radius:999px;margin-bottom:8px;letter-spacing:.04em;
+  }
+  .harvest-title{font-family:'Zen Maru Gothic',sans-serif;font-weight:900;font-size:clamp(30px,5vw,46px);line-height:1.2;color:var(--brick-dark);}
+  .harvest-desc{font-size:13.5px;color:var(--ink-soft);margin-top:8px;max-width:42ch;}
+  .harvest-produce{flex:none;font-size:38px;line-height:1.25;text-align:center;letter-spacing:6px;}
+  .harvest-go{display:inline-block;margin-top:14px;background:var(--brick);color:#fff;font-weight:700;font-size:14.5px;padding:11px 24px;border-radius:999px;box-shadow:0 4px 0 var(--brick-dark);white-space:nowrap;}
+  @media (max-width:700px){
+    .harvest-wrap{padding:4px 16px 10px;}
+    .harvest-inner{flex-direction:column-reverse;align-items:flex-start;gap:12px;padding:16px 18px 20px;}
+    .harvest-produce{font-size:30px;letter-spacing:4px;}
+    .harvest-go{display:block;text-align:center;}
+  }
+
   section{max-width:1180px;margin:0 auto;padding:36px 24px;}
   .section-head{display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin-bottom:22px;flex-wrap:wrap;}
   .section-head h2{font-size:26px;}
@@ -490,7 +524,7 @@
     <nav id="mainNav">
       <button class="nav-link" data-scroll="#sessions">勉強会・交流会</button>
       <a class="nav-link" href="past-events.html" style="text-decoration:none;display:inline-flex;align-items:center;">過去のイベント</a>
-      <a class="nav-link" href="reports.html" style="text-decoration:none;display:inline-flex;align-items:center;">実施報告</a>
+      <a class="nav-link" href="reports.html" style="text-decoration:none;display:inline-flex;align-items:center;">🧺 収穫マルシェ</a>
       <button class="nav-link guest-only" data-scroll="#members">会員登録</button>
       <button class="nav-link organizer-only" style="display:none;" id="changePasswordNavBtn">パスワード変更</button>
       <button class="nav-link organizer-only" style="display:none;" data-scroll="#organizer">主催者MENU</button>
@@ -510,6 +544,21 @@
     </div>
   </div>
 </section>
+
+<div class="harvest-wrap">
+  <a class="harvest-banner" href="reports.html">
+    <div class="harvest-awning" aria-hidden="true"></div>
+    <div class="harvest-inner">
+      <div class="harvest-text">
+        <div class="harvest-label">ワークショップ実施報告</div>
+        <div class="harvest-title">収穫マルシェ</div>
+        <div class="harvest-desc">みんながワークショップで育てた「収穫」が並ぶ市場です。のぞいて学びをもらって、あなたの収穫も並べてみませんか。</div>
+        <span class="harvest-go">マルシェをのぞく →</span>
+      </div>
+      <div class="harvest-produce" aria-hidden="true">🧺🍅<br>🥕🌽🍎</div>
+    </div>
+  </a>
+</div>
 
 <section id="members" class="guest-only">
   <div class="members-cta">

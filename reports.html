@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>実施報告 | LSPラーニング・ガーデン</title>
+<title>収穫マルシェ | LSPラーニング・ガーデン</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
 <style>
@@ -55,6 +55,9 @@
   .logo-text small{display:block;font-family:'Noto Sans JP';font-weight:500;font-size:10.5px;color:var(--ink-soft);}
 
   .page-head{max-width:1180px;margin:0 auto;padding:36px 24px 8px;}
+  .nb-eyebrow{display:inline-flex;align-items:center;gap:6px;background:var(--green);color:#fff;font-weight:700;font-size:13px;padding:5px 14px;border-radius:999px;margin-bottom:10px;letter-spacing:.04em;}
+  .market-awning{height:30px;background:repeating-linear-gradient(90deg,var(--brick) 0 36px,#FFFDF7 36px 72px);-webkit-mask:radial-gradient(circle 18px at 18px 100%,transparent 17px,#000 18px) 0 0/36px 100% repeat-x;mask:radial-gradient(circle 18px at 18px 100%,transparent 17px,#000 18px) 0 0/36px 100% repeat-x;}
+  .page-head{background:linear-gradient(160deg,#FFF9E8 0%,#EAF7ED 100%);max-width:none;padding:34px max(24px,calc((100% - 1180px)/2 + 24px)) 14px;border-bottom:2px solid #DDF0E2;margin-bottom:18px;}
   .page-head h1{font-size:clamp(24px,3.4vw,32px);}
   .page-head p{color:var(--ink-soft);font-size:14px;margin-top:8px;}
   section{max-width:1180px;margin:0 auto;padding:16px 24px 60px;}
@@ -131,7 +134,7 @@
 <body>
 <header>
   <div class="header-inner">
-    <div class="logo-text">LSPラーニング・ガーデン<small>ワークショップ実施報告</small></div>
+    <div class="logo-text">LSPラーニング・ガーデン<small>🧺 収穫マルシェ</small></div>
     <div style="display:flex;align-items:center;gap:14px;">
       <button class="back-link" id="loginPillBtn" style="border:none;background:none;font-family:inherit;cursor:pointer;">会員ログイン</button>
       <a class="back-link" href="index.html">← トップページに戻る</a>
@@ -139,9 +142,11 @@
   </div>
 </header>
 
+<div class="market-awning" aria-hidden="true"></div>
 <div class="page-head">
-  <h1>ワークショップ実施報告</h1>
-  <p>LEGO® SERIOUS PLAY®メソッドのワークショップを実施した会員からの報告です。「会員限定」の報告はログインすると読めます。投稿・編集・削除は会員本人(投稿者)のみ行えます。</p>
+  <div class="nb-eyebrow">ワークショップ実施報告</div>
+  <h1>🧺 収穫マルシェ</h1>
+  <p>ワークショップという「種まき」で得た気づきや学びを、「収穫」として持ち寄って並べる市場です。LEGO® SERIOUS PLAY®メソッドを実施した会員からの報告を読めます。「会員限定」の報告はログインすると読めます。投稿・編集・削除は会員本人(投稿者)のみ行えます。</p>
 </div>
 
 <section>
@@ -151,7 +156,7 @@
       <input type="text" id="searchInput" placeholder="タイトル・場所・内容で検索">
     </div>
     <label style="font-size:13px;font-weight:700;color:var(--ink-soft);display:none;" id="mineOnlyWrap"><input type="checkbox" id="mineOnly"> 自分の投稿のみ</label>
-    <button class="btn-primary" id="newReportBtn">＋ 実施報告を投稿する</button>
+    <button class="btn-primary" id="newReportBtn">＋ 収穫を並べる(実施報告を投稿)</button>
   </div>
   <div class="cat-pills" id="catPills"></div>
   <div class="report-grid" id="reportGrid"><div class="empty-state"><p>読み込み中...</p></div></div>
@@ -317,7 +322,7 @@
     });
     const grid = $("reportGrid");
     if(list.length===0){
-      grid.innerHTML = `<div class="empty-state"><p>${state.reports.length===0 ? "まだ実施報告がありません。最初の報告を投稿してみませんか?" : "該当する実施報告がありません。"}${state.isMember?"":"<br><span class=\"field-hint\">ログインすると会員限定の報告も表示されます。</span>"}</p></div>`;
+      grid.innerHTML = `<div class="empty-state"><p>${state.reports.length===0 ? "まだ実施報告がありません。最初の収穫を並べてみませんか?" : "該当する実施報告がありません。"}${state.isMember?"":"<br><span class=\"field-hint\">ログインすると会員限定の報告も表示されます。</span>"}</p></div>`;
       return;
     }
     grid.innerHTML = list.map(r=>`
