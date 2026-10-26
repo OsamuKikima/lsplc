@@ -80,6 +80,12 @@
   .cat-pills{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;}
   .cat-pills button{border:2px solid var(--line);background:#fff;padding:6px 14px;border-radius:999px;font-size:12.5px;font-weight:700;color:var(--ink-soft);}
   .cat-pills button.active{background:var(--blue);border-color:var(--blue);color:#fff;}
+  .vis-badge.draft{background:#EDEFF3;color:var(--ink-soft);}
+  .draft-notice{background:#FFF6DD;border:2px solid var(--yellow);border-radius:12px;padding:12px 14px;margin-bottom:14px;font-size:12.5px;color:var(--ink);line-height:1.7;}
+  .draft-notice b{font-family:'Zen Maru Gothic';}
+  .draft-notice ul{margin:6px 0 0;padding-left:18px;}
+  .share-box{background:var(--cream);border:2px dashed var(--line);border-radius:12px;padding:12px;margin-top:16px;}
+  .share-box input{width:100%;border:2px solid var(--line);border-radius:8px;padding:8px 10px;font-size:12.5px;font-family:inherit;background:#fff;color:var(--ink);margin:6px 0;}
   .vis-badge.members{background:#FCE9DC;color:var(--amber-dark);}
   .btn-detail{background:var(--ink);color:#fff;border:none;padding:9px 16px;border-radius:999px;font-weight:700;font-size:13px;white-space:nowrap;}
   .btn-detail:hover{background:var(--brick);}
@@ -180,19 +186,20 @@
     <h3 id="editorTitle">実施報告を投稿する</h3>
     <p class="modal-sub"><span class="req">*</span> は必須項目です。</p>
     <div class="form-row"><label>タイトル <span class="req">*</span></label><input type="text" id="fTitle" maxlength="200" placeholder="例:チームビルディングWS(企業研修)"></div>
-    <div class="form-row"><label>SNS・ブログ投稿へのリンク(任意)</label><input type="text" id="fLink" maxlength="1000" placeholder="https://..."><div class="field-hint">他のSNSやブログに書いた報告のURLを貼れます。リンクだけで投稿する場合は、タイトルとリンクのみ入力すれば投稿できます(実施日・振り返りは空欄でも可)。</div></div>
+    <div class="form-row"><label>SNS・ブログ投稿へのリンク(任意)</label><input type="text" id="fLink" maxlength="1000" placeholder="https://..."><div class="field-hint">他のSNSやブログに書いた報告のURLを貼れます。リンクだけで投稿する場合は、タイトルとリンクのみ入力すれば投稿できます(実施日は空欄でも可)。</div></div>
     <div class="form-row"><label>種類(任意)</label><select id="fCategory"><option value="">選択しない</option></select></div>
     <div class="form-two">
       <div class="form-row"><label>実施日 <span class="req">*</span><span class="field-hint">(リンクのみなら省略可)</span></label><input type="date" id="fDate"></div>
       <div class="form-row"><label>場所 / オンライン</label><input type="text" id="fPlace" maxlength="200" placeholder="例:東京・会議室 / オンライン(Zoom)"></div>
     </div>
     <div class="form-two">
-      <div class="form-row"><label>参加人数</label><input type="number" id="fCount" min="0" placeholder="例:8"></div>
+      <div class="form-row"><label>参加人数(およその人数でも可)</label><input type="number" id="fCount" min="0" placeholder="例:8"></div>
       <div class="form-row"><label>所要時間</label><input type="text" id="fDuration" maxlength="100" placeholder="例:3時間"></div>
     </div>
+    <div class="form-row"><label>概要(任意)</label><textarea id="fSummary" maxlength="2000" style="min-height:90px;" placeholder="どんなワークショップだったか、ひとことで"></textarea></div>
     <div class="form-row"><label>参加者属性</label><input type="text" id="fAttributes" maxlength="500" placeholder="例:企業の管理職、大学生 など(個人が特定されない範囲で)"></div>
     <div class="form-row"><label>プログラムの流れ(任意)</label><textarea id="fProgram" maxlength="5000" placeholder="例:スキルビルディング → 個人モデル → 共有モデル → 振り返り"></textarea></div>
-    <div class="form-row"><label>振り返り・学び・次回への改善点 <span class="req">*</span><span class="field-hint">(リンクがあれば省略可)</span></label><textarea id="fReflection" maxlength="10000" style="min-height:150px;" placeholder="うまくいったこと、気づき、次回改善したいことなど"></textarea></div>
+    <div class="form-row"><label>振り返り・学び・次回への改善点(任意)</label><textarea id="fReflection" maxlength="10000" style="min-height:150px;" placeholder="うまくいったこと、気づき、次回改善したいことなど"></textarea></div>
     <div class="form-row">
       <label>写真(最大6枚)</label>
       <input type="file" id="fPhotos" accept="image/png,image/jpeg,image/webp,image/gif" multiple>
@@ -203,9 +210,16 @@
       <label>公開範囲 <span class="req">*</span></label>
       <div class="radio-row">
         <label><input type="radio" name="fVis" value="members" checked><span><b>会員限定</b><br><span class="field-hint">ログインした会員だけが読めます</span></span></label>
+        <label><input type="radio" name="fVis" value="draft"><span><b>公開前</b><br><span class="field-hint">本人と「公開前リンク」を知っている人だけが読めます(投稿後にリンクが表示されます)</span></span></label>
         <label><input type="radio" name="fVis" value="public"><span><b>一般公開</b><br><span class="field-hint">ログインしていない人にも表示されます</span></span></label>
       </div>
     </div>
+    <div class="draft-notice" id="draftHint" style="display:none;"><b>「公開前」を選んだ場合のご注意</b>
+      <ul>
+        <li>一覧に表示されるのは投稿者だけです。投稿後、詳細画面に「公開前リンク」が表示されます。</li>
+        <li>リンクを知っている人は、ログインなしで誰でも読めます。共有したい相手にだけ送ってください。</li>
+        <li>参加者の写真や個人情報が含まれる場合は、本人の了承を得たうえで共有してください。</li>
+      </ul></div>
     <button class="btn-primary" id="saveBtn" style="width:100%;">投稿する</button>
   </div>
 </div>
@@ -285,7 +299,7 @@
     }
   }
   function visBadge_(r){
-    const v = r.visibility==="public" ? `<span class="vis-badge public">一般公開</span>` : `<span class="vis-badge members">会員限定</span>`;
+    const v = r.visibility==="draft" ? `<span class="vis-badge draft">公開前</span>` : r.visibility==="public" ? `<span class="vis-badge public">一般公開</span>` : `<span class="vis-badge members">会員限定</span>`;
     return v + (r.category ? `<span class="cat-badge">${esc_(r.category)}</span>` : "");
   }
   function renderCatPills_(){
@@ -299,7 +313,7 @@
       if(mine && !r.isMine) return false;
       if(state.cat && r.category !== state.cat) return false;
       if(!q) return true;
-      return [r.title,r.place,r.reflection,r.program,r.participantAttributes,r.authorName].join(" ").toLowerCase().includes(q);
+      return [r.title,r.place,r.summary,r.reflection,r.program,r.participantAttributes,r.authorName].join(" ").toLowerCase().includes(q);
     });
     const grid = $("reportGrid");
     if(list.length===0){
@@ -316,7 +330,7 @@
             <span>📅 ${fmtDate_(r.date)}${r.place?`　📍 ${esc_(r.place)}`:""}</span>
             <span>✍️ ${esc_(r.authorName)}${r.participantCount!==""?`　👥 ${esc_(r.participantCount)}名`:""}</span>
           </div>
-          <p class="report-excerpt">${r.reflection ? esc_(r.reflection) : (r.linkUrl ? "🔗 外部サイトの投稿リンクがあります" : "")}</p>
+          <p class="report-excerpt">${(r.summary || r.reflection) ? esc_(r.summary || r.reflection) : (r.linkUrl ? "🔗 外部サイトの投稿リンクがあります" : "")}</p>
           <div class="report-footer"><span></span><button class="btn-detail" data-id="${esc_(r.reportId)}">詳しく読む</button></div>
         </div>
       </div>`).join("");
@@ -324,10 +338,28 @@
   }
 
   /* ---------- 詳細 ---------- */
+  function shareUrl_(r){ return location.origin + location.pathname + "?r=" + encodeURIComponent(r.reportId) + "&k=" + encodeURIComponent(r.shareToken); }
+  function draftNoticeHtml_(r){
+    if(r.isMine){
+      return `<div class="draft-notice"><b>⚠ この報告は「公開前」です</b>
+        <ul>
+          <li>一覧に表示されるのは、投稿者(あなた)だけです。</li>
+          <li>下の「公開前リンク」を知っている人は、ログインしなくても誰でも読めます。共有したい相手にだけ送ってください。</li>
+          <li>リンクはSNSや掲示板などに貼らないでください。転送された先でも読めてしまいます。</li>
+          <li>公開してよい状態になったら、「編集する」から公開範囲を「会員限定」または「一般公開」に変更してください。</li>
+        </ul></div>`;
+    }
+    return `<div class="draft-notice"><b>⚠ この報告は「公開前」です</b>
+      <ul>
+        <li>投稿者が、リンクを知っている人にだけ共有しているものです。内容は変更・削除される場合があります。</li>
+        <li>このページのリンクを、投稿者の許可なく他の人へ転送したり、SNSなどに投稿したりしないでください。</li>
+      </ul></div>`;
+  }
   function section_(title, text){ return text ? `<div class="detail-h">${title}</div><p class="detail-text">${esc_(text)}</p>` : ""; }
   function openDetail_(id){
     const r = state.reports.find(x=>x.reportId===id); if(!r) return;
     $("detailBody").innerHTML = `
+      ${r.visibility==="draft" ? draftNoticeHtml_(r) : ""}
       <div style="margin-bottom:8px;">${visBadge_(r)}</div>
       <h3>${esc_(r.title)}</h3>
       <p class="modal-sub">投稿者:${esc_(r.authorName)}</p>
@@ -339,12 +371,21 @@
         ${r.duration?`<div><span>所要時間</span><b>${esc_(r.duration)}</b></div>`:""}
       </div>
       ${r.linkUrl && /^https?:\/\//.test(r.linkUrl) ? `<a class="btn-primary" style="display:inline-block;text-decoration:none;background:var(--blue);margin-bottom:6px;" href="${esc_(r.linkUrl)}" target="_blank" rel="noopener noreferrer">🔗 SNS・ブログの投稿を見る</a>` : ""}
+      ${section_("概要", r.summary)}
       ${section_("プログラムの流れ", r.program)}
       ${section_("振り返り・学び・次回への改善点", r.reflection)}
       ${r.imageUrls.length ? `<div class="detail-h">写真</div><div class="photo-grid">${r.imageUrls.map(u=>`<img src="${esc_(u)}" alt="実施の様子" loading="lazy" data-zoom="${esc_(u)}">`).join("")}</div>` : ""}
+      ${r.isMine && r.visibility==="draft" && r.shareToken ? `<div class="share-box"><b style="font-size:13px;">公開前リンク</b><div class="field-hint">このリンクを知っている人は、ログインなしでこの報告を読めます。共有したい相手にだけ送ってください。公開範囲を「会員限定」「一般公開」に変更するか、削除すると、このリンクでは読めなくなります。</div><input type="text" id="shareLink" readonly value="${esc_(shareUrl_(r))}"><button class="btn-ghost" id="copyShare" type="button">リンクをコピー</button></div>` : ""}
       ${r.isMine ? `<div class="author-actions"><button class="btn-ghost" id="editBtn">編集する</button><button class="btn-ghost del" id="delBtn">削除する</button></div>` : ""}
     `;
     $("detailBody").querySelectorAll("[data-zoom]").forEach(img=> img.addEventListener("click", ()=>{ $("lightboxImg").src = img.dataset.zoom.replace(/sz=w\d+/,"sz=w1600"); $("lightbox").classList.add("open"); }));
+    if($("copyShare")){
+      $("copyShare").addEventListener("click", async ()=>{
+        const v = $("shareLink").value;
+        try{ await navigator.clipboard.writeText(v); alert("公開前リンクをコピーしました"); }
+        catch(e){ $("shareLink").select(); alert("コピーできませんでした。表示されているリンクを選択してコピーしてください"); }
+      });
+    }
     if(r.isMine){
       $("editBtn").addEventListener("click", ()=>{ $("detailOverlay").classList.remove("open"); openEditor_(r); });
       $("delBtn").addEventListener("click", async ()=>{
@@ -365,6 +406,7 @@
     $("editorTitle").textContent = r ? "実施報告を編集する" : "実施報告を投稿する";
     $("saveBtn").textContent = r ? "変更を保存する" : "投稿する";
     $("fTitle").value = r ? r.title : "";
+    $("fSummary").value = r ? (r.summary || "") : "";
     $("fLink").value = r ? (r.linkUrl || "") : "";
     $("fCategory").value = r ? (r.category || "") : "";
     $("fDate").value = r ? r.date : "";
@@ -374,7 +416,8 @@
     $("fAttributes").value = r ? r.participantAttributes : "";
     $("fProgram").value = r ? r.program : "";
     $("fReflection").value = r ? r.reflection : "";
-    document.querySelector(`input[name=fVis][value=${r && r.visibility==="public" ? "public":"members"}]`).checked = true;
+    document.querySelector(`input[name=fVis][value=${r ? r.visibility : "members"}]`).checked = true;
+    if(window.__updateDraftHint) window.__updateDraftHint();
     state.photos = r ? r.imageUrls.map(u=>({ url:u })) : [];
     $("fPhotos").value = "";
     renderThumbs_();
@@ -416,7 +459,6 @@
     if(!title){ alert("タイトルは必須です"); return; }
     if(linkUrl && !/^https?:\/\/\S+$/.test(linkUrl)){ alert("リンクは http:// または https:// で始まるURLを入力してください"); return; }
     if(!linkUrl && !date){ alert("実施日は必須です"); return; }
-    if(!linkUrl && !reflection){ alert("振り返り・学びを入力してください(リンクだけで投稿する場合はリンクを入力してください)"); return; }
     const btn = $("saveBtn"); const label = btn.textContent;
     btn.disabled = true;
     try{
@@ -432,7 +474,7 @@
       }
       btn.textContent = "保存しています...";
       const payload = {
-        email: state.email, title, date, reflection, category: $("fCategory").value, linkUrl,
+        email: state.email, title, date, reflection, summary: $("fSummary").value.trim(), category: $("fCategory").value, linkUrl,
         place: $("fPlace").value.trim(), participantCount: $("fCount").value,
         duration: $("fDuration").value.trim(), participantAttributes: $("fAttributes").value.trim(),
         program: $("fProgram").value.trim(), imageUrls: urls,
@@ -456,6 +498,18 @@
     o.addEventListener("click", e=>{ if(e.target===o) o.classList.remove("open"); });
   }
 
+  /* 公開前リンク(?r=ID&k=トークン)で開かれたとき、その1件を表示する */
+  async function openSharedFromUrl_(){
+    const q = new URLSearchParams(location.search);
+    const id = q.get("r"); if(!id) return;
+    try{
+      const res = await apiGet("getReport", { reportId:id, token:q.get("k")||"", ...(state.isMember?{email:state.email}:{}) });
+      if(!res.ok){ alert(res.error || "この報告を表示できませんでした"); return; }
+      if(!state.reports.some(x=>x.reportId===res.report.reportId)) state.reports.push(res.report); else state.reports = state.reports.map(x=>x.reportId===res.report.reportId?res.report:x);
+      openDetail_(res.report.reportId);
+    }catch(err){ console.error(err); alert("通信エラーのため報告を表示できませんでした"); }
+  }
+
   function init(){
     $("fCategory").innerHTML += CATEGORIES.map(c=>`<option value="${c}">${c}</option>`).join("");
     renderCatPills_();
@@ -468,6 +522,9 @@
     $("newReportBtn").addEventListener("click", ()=> openEditor_(null));
     $("fPhotos").addEventListener("change", e=> onPhotosChosen_([...e.target.files]));
     $("saveBtn").addEventListener("click", save_);
+    const updateDraftHint_ = ()=>{ $("draftHint").style.display = document.querySelector("input[name=fVis]:checked").value==="draft" ? "" : "none"; };
+    document.querySelectorAll("input[name=fVis]").forEach(r=> r.addEventListener("change", updateDraftHint_));
+    window.__updateDraftHint = updateDraftHint_;
     $("loginPillBtn").addEventListener("click", ()=>{ if(state.isMember) logout_(); else $("loginModalOverlay").classList.add("open"); });
     $("loginSubmitBtn").addEventListener("click", async ()=>{
       const btn = $("loginSubmitBtn"); btn.disabled = true; btn.textContent = "ログインしています...";
@@ -478,6 +535,7 @@
 
     const saved = loadSession_();
     if(saved && saved.email) applyLogin_(saved); else loadReports_();
+    openSharedFromUrl_();
   }
   document.addEventListener("DOMContentLoaded", init);
 })();
