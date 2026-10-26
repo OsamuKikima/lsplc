@@ -175,6 +175,7 @@
   .ann-card.type-full{border-top-color:var(--amber);}
   .ann-card.type-cancelled{border-top-color:var(--brick);}
   .ann-card.type-admin{border-top-color:var(--ink);}
+  .ann-card.type-report{border-top-color:var(--brick);}
   .ann-date{font-size:12px;color:var(--ink-soft);font-weight:700;}
   .ann-card h3{font-size:16px;margin-top:6px;}
   .ann-card p{font-size:13.5px;color:var(--ink-soft);margin-top:8px;}
@@ -189,6 +190,7 @@
   .ann-card.type-confirmed .ann-badge{background:#E4F3FC;color:var(--blue-dark);}
   .ann-card.type-full .ann-badge{background:#FCE9DC;color:var(--amber-dark);}
   .ann-card.type-cancelled .ann-badge{background:#FBE4E2;color:var(--brick-dark);}
+  .ann-card.type-report .ann-badge{background:#FBE4E2;color:var(--brick-dark);}
   .ann-card.type-admin .ann-badge{background:#E9E7E0;color:var(--ink);}
 
   /* Toolbar */
@@ -1466,6 +1468,17 @@
         body: raw.detail || ""
       };
     }
+    // 収穫マルシェ(実施報告)の新着。投稿者が入力したタイトルなので、HTMLとして解釈されないよう無害化する
+    if(raw.type === "report"){
+      const isMembersOnly = title === "(会員限定)";
+      const who = raw.detail ? `${escapeHtml_(raw.detail)}さんの` : "";
+      return {
+        type: "report",
+        date: formatAnnouncementDate_(raw.timestamp),
+        title: isMembersOnly ? "会員限定の報告が届きました" : `「${escapeHtml_(title)}」の報告が届きました`,
+        body: `${who}ワークショップの収穫が並びました。<a href="reports.html" style="color:var(--brick-dark);font-weight:700;">収穫マルシェを見る →</a>`
+      };
+    }
     const textByType = {
       created:  { title: `「${title}」を公開しました`, body: "新しい勉強会が登録されました。詳細をチェックしてみましょう。" },
       confirmed:{ title: `「${title}」の開催が決定しました`, body: "最低遂行人数に達したため、開催が確定しました。" },
@@ -1543,7 +1556,7 @@
     const labels = {
       info:"お知らせ", alert:"重要", event:"新支部",
       created:"新着", confirmed:"開催決定", full:"満席", cancelled:"中止",
-      admin:"運営より"
+      admin:"運営より", report:"収穫マルシェ"
     };
     wrap.innerHTML = announcements.map(a => `
       <div class="ann-card type-${a.type}">
