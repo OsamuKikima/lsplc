@@ -182,7 +182,7 @@
   <div class="top-actions">
     <div class="search-box">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="#5B6472" stroke-width="2"/><path d="M21 21l-4.3-4.3" stroke="#5B6472" stroke-width="2" stroke-linecap="round"/></svg>
-      <input type="text" id="searchInput" placeholder="タイトル・場所・内容で検索">
+      <input type="text" id="searchInput" placeholder="タイトル・場所・内容・コメントで検索">
     </div>
     <label style="font-size:13px;font-weight:700;color:var(--ink-soft);display:none;" id="mineOnlyWrap"><input type="checkbox" id="mineOnly"> 自分の投稿のみ</label>
     <button class="btn-primary" id="newReportBtn">＋ 収穫を並べる(実施報告を投稿)</button>
@@ -361,7 +361,7 @@
       if(mine && !r.isMine) return false;
       if(state.cat && r.category !== state.cat) return false;
       if(!q) return true;
-      return [r.title,r.place,r.summary,r.reflection,r.program,r.participantAttributes,r.authorName].join(" ").toLowerCase().includes(q);
+      return [r.title,r.place,r.summary,r.reflection,r.program,r.participantAttributes,r.authorName,r.commentText||""].join(" ").toLowerCase().includes(q);
     });
     const grid = $("reportGrid");
     if(list.length===0){
@@ -379,7 +379,7 @@
             <span>✍️ ${esc_(r.authorName)}${r.participantCount!==""?`　👥 ${esc_(r.participantCount)}名`:""}</span>
           </div>
           <p class="report-excerpt">${(r.summary || r.reflection) ? esc_(r.summary || r.reflection) : (r.linkUrl ? "🔗 外部サイトの投稿リンクがあります" : "")}</p>
-          <div class="report-footer"><span class="cc-badge">${r.commentCount ? `💬 ${r.commentCount}件` : ""}</span><button class="btn-detail" data-id="${esc_(r.reportId)}">詳しく読む</button></div>
+          <div class="report-footer"><span class="cc-badge">${r.commentCount ? `💬 ${r.commentCount}件` : ""}${q && r.commentText && r.commentText.toLowerCase().includes(q) ? "(コメントに一致)" : ""}</span><button class="btn-detail" data-id="${esc_(r.reportId)}">詳しく読む</button></div>
         </div>
       </div>`).join("");
     grid.querySelectorAll(".btn-detail").forEach(b=> b.addEventListener("click", ()=> openDetail_(b.dataset.id)));
@@ -535,13 +535,44 @@
         const { jsPDF } = window.jspdf;
         const pdf = new jsPDF({ orientation:"portrait", unit:"mm", format:"a4" });
         const pageW = 190, pageH = 277;                           // 余白10mmを除いた用紙サイズ
-        const slicePx = Math.floor(canvas.width * pageH / pageW); // 1ページに入る高さ(px)
-        for(let y=0, page=0; y < canvas.height; y += slicePx, page++){
-          const h = Math.min(slicePx, canvas.height - y);
+        const scale = canvas.width / stage.offsetWidth;           // 画面上のpx → 画像のpx
+        const pageCss = stage.offsetWidth * pageH / pageW;        // 1ページに入る高さ(画面上のpx)
+        const totalCss = stage.offsetHeight;
+        // 途中で切りたくないブロック(写真・表・段落・見出しとその直後)の範囲を集める
+        const top0 = stage.getBoundingClientRect().top;
+        const rangeOf = (el)=>{ const rc = el.getBoundingClientRect(); return [rc.top - top0, rc.bottom - top0]; };
+        const blocks = [];
+        stage.querySelectorAll(".modal-summary, .detail-text, .photo-grid img, .ex-foot, .ex-brand, h3").forEach(el=> blocks.push(rangeOf(el)));
+        stage.querySelectorAll(".detail-h").forEach(h=>{
+          let nx = h.nextElementSibling;
+          if(nx && nx.classList.contains("photo-grid")) nx = nx.querySelector("img");
+          const r1 = rangeOf(h), r2 = nx ? rangeOf(nx) : r1;
+          blocks.push([r1[0], Math.max(r1[1], r2[1])]);
+        });
+        // ページの切れ目を決める:区切り位置をまたぐブロックがあれば、そのブロックの手前で切る
+        const cuts = [0];
+        let start = 0;
+        while(totalCss - start > pageCss + 1){
+          let end = start + pageCss;
+          let moved = true, guard = 0;
+          while(moved && guard++ < 50){
+            moved = false;
+            for(const [t, btm] of blocks){
+              if(t > start + 1 && t < end - 0.5 && btm > end + 0.5){ end = t; moved = true; }
+            }
+          }
+          if(end - start < pageCss * 0.2) end = start + pageCss; // ブロックが大きすぎる場合は仕方なく通常位置で切る
+          cuts.push(end); start = end;
+        }
+        cuts.push(totalCss);
+        for(let i=0; i<cuts.length-1; i++){
+          const y = Math.round(cuts[i] * scale);
+          const h = Math.min(canvas.height - y, Math.round((cuts[i+1] - cuts[i]) * scale));
+          if(h <= 0) continue;
           const part = document.createElement("canvas");
           part.width = canvas.width; part.height = h;
           part.getContext("2d").drawImage(canvas, 0, y, canvas.width, h, 0, 0, canvas.width, h);
-          if(page>0) pdf.addPage();
+          if(i>0) pdf.addPage();
           pdf.addImage(part.toDataURL("image/jpeg", 0.92), "JPEG", 10, 10, pageW, h * pageW / canvas.width);
         }
         pdf.save(base + ".pdf");
