@@ -119,6 +119,10 @@
   .modal-summary div b{color:var(--ink);font-weight:700;}
   .ticket-link{display:inline-flex;align-items:center;gap:6px;background:var(--amber);color:var(--ink);padding:8px 16px;border-radius:999px;font-weight:700;font-size:13px;text-decoration:none;margin-top:10px;}
 
+  .link-copy-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:-8px 0 14px;}
+  .link-copy-btn{background:#fff;border:2px solid var(--line);color:var(--ink);padding:6px 14px;border-radius:999px;font-weight:700;font-size:12.5px;font-family:inherit;cursor:pointer;}
+  .link-copy-btn:hover{border-color:var(--blue);color:var(--blue-dark);}
+  .link-copy-note{font-size:12px;color:var(--green-dark);font-weight:700;}
   .my-session-card{
     background:var(--card);border-radius:16px;padding:16px 18px;box-shadow:var(--shadow);
     display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;
@@ -403,6 +407,43 @@
     return `<div class="detail-image"><img src="${s.imageUrl}" alt="${escapeHtml_(s.title)}のイメージ画像" onerror="this.closest('.detail-image').style.display='none'"></div>`;
   }
 
+  /* ---------- イベント詳細へのリンクをコピー ---------- */
+  function eventLinkUrl_(id, past){
+    const dir = location.pathname.replace(/[^/]*$/, "");
+    const path = (past ? location.pathname : dir);
+    return location.origin + path + "?event=" + encodeURIComponent(id);
+  }
+  async function copyText_(text){
+    try{
+      await navigator.clipboard.writeText(text);
+      return true;
+    }catch(e){
+      try{
+        const ta = document.createElement("textarea");
+        ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
+        document.body.appendChild(ta); ta.select();
+        const ok = document.execCommand("copy");
+        ta.remove();
+        return ok;
+      }catch(e2){ return false; }
+    }
+  }
+  function addCopyLinkButton_(body, s, past){
+    const sub = body.querySelector(".modal-sub");
+    if(!sub) return;
+    const wrap = document.createElement("div");
+    wrap.className = "link-copy-row";
+    wrap.innerHTML = '<button type="button" class="link-copy-btn">🔗 このイベントのリンクをコピー</button><span class="link-copy-note"></span>';
+    sub.insertAdjacentElement("afterend", wrap);
+    const btn = wrap.querySelector("button"), note = wrap.querySelector(".link-copy-note");
+    btn.addEventListener("click", async ()=>{
+      const url = eventLinkUrl_(s.id, past);
+      const ok = await copyText_(url);
+      if(ok){ note.textContent = "コピーしました!SNSやメールに貼り付けられます"; }
+      else{ note.textContent = ""; window.prompt("下のリンクをコピーしてください", url); }
+      clearTimeout(btn._t); if(ok) btn._t = setTimeout(()=>{ note.textContent = ""; }, 3000);
+    });
+  }
   function openDetailModal(id){
     const s = sessions.find(x=>x.id===id);
     if(!s) return;
@@ -422,6 +463,7 @@
       ${ticketLinkHtml(s)}${relatedLinkHtml(s)}
       <p style="font-size:12.5px;color:var(--ink-soft);margin-top:16px;">このイベントは開催日を過ぎているため、新規のお申し込みはできません。</p>
     `;
+    addCopyLinkButton_(body, s, true);
     document.getElementById("detailModalOverlay").classList.add("open");
   }
   function closeModal(){
@@ -732,6 +774,15 @@
 
     await loadSessionsFromApi();
     renderPastSessions();
+
+    // 「このイベントのリンク」(?event=ID)で開かれたときは、そのイベントの詳細を自動で開く
+    const evId = new URLSearchParams(location.search).get("event");
+    if(evId){
+      const target = sessions.find(x=>x.id===evId);
+      if(!target){ alert("このイベントは見つかりませんでした(削除されたか、リンクが正しくない可能性があります)"); }
+      else if(!isPast_(target)){ location.replace("index.html?event=" + encodeURIComponent(evId)); return; }
+      else{ openDetailModal(evId); }
+    }
   }
 
   document.addEventListener("DOMContentLoaded", init);

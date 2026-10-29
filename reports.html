@@ -99,6 +99,10 @@
   .fb-embed .field-hint{text-align:left;margin-top:6px;}
   .export-row{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 4px;}
   .export-row .btn-ghost{padding:6px 14px;font-size:12.5px;}
+  .link-copy-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:-6px 0 12px;}
+  .link-copy-btn{background:#fff;border:2px solid var(--line);color:var(--ink);padding:6px 14px;border-radius:999px;font-weight:700;font-size:12.5px;font-family:inherit;cursor:pointer;}
+  .link-copy-btn:hover{border-color:var(--blue);color:var(--blue-dark);}
+  .link-copy-note{font-size:12px;color:var(--green-dark);font-weight:700;}
   .export-hint{font-size:11.5px;color:var(--ink-soft);margin:0 0 4px;}
   .progress-overlay{position:fixed;inset:0;background:rgba(35,43,58,.6);z-index:300;display:none;align-items:center;justify-content:center;padding:20px;}
   .progress-overlay.open{display:flex;}
@@ -657,6 +661,7 @@
       <div style="margin-bottom:8px;">${visBadge_(r)}</div>
       <h3>${esc_(r.title)}</h3>
       <p class="modal-sub">投稿者:${esc_(r.authorName)}</p>
+      <div class="link-copy-row"><button type="button" class="link-copy-btn" id="copyReportLink">🔗 この報告のリンクをコピー</button><span class="link-copy-note" id="copyReportNote"></span></div>
       ${reportBodyHtml_(r)}
       ${r.isMine && r.visibility==="draft" && r.shareToken ? `<div class="share-box"><b style="font-size:13px;">公開前リンク</b><div class="field-hint">このリンクを知っている人は、ログインなしでこの報告を読めます。共有したい相手にだけ送ってください。公開範囲を「会員限定」「一般公開」に変更するか、削除すると、このリンクでは読めなくなります。</div><input type="text" id="shareLink" readonly value="${esc_(shareUrl_(r))}"><button class="btn-ghost" id="copyShare" type="button">リンクをコピー</button></div>` : ""}
       <div class="export-row"><button class="btn-ghost" id="exportPng" type="button">🖼 画像で保存</button><button class="btn-ghost" id="exportPdf" type="button">📄 PDFで保存</button></div>
@@ -665,6 +670,18 @@
       ${r.isMine ? `<div class="author-actions"><button class="btn-ghost" id="editBtn">編集する</button><button class="btn-ghost del" id="delBtn">削除する</button></div>` : ""}
     `;
     $("detailBody").querySelectorAll("[data-zoom]").forEach(img=> img.addEventListener("click", ()=>{ $("lightboxImg").src = img.dataset.zoom.replace(/sz=w\d+/,"sz=w1600"); $("lightbox").classList.add("open"); }));
+    $("copyReportLink").addEventListener("click", async ()=>{
+      const tk = r.visibility==="draft" ? tokenFor_(r) : "";
+      const url = location.origin + location.pathname + "?r=" + encodeURIComponent(r.reportId) + (tk ? "&k=" + encodeURIComponent(tk) : "");
+      let ok = false;
+      try{ await navigator.clipboard.writeText(url); ok = true; }
+      catch(e){ try{ const ta = document.createElement("textarea"); ta.value = url; ta.style.cssText="position:fixed;opacity:0"; document.body.appendChild(ta); ta.select(); ok = document.execCommand("copy"); ta.remove(); }catch(e2){} }
+      const note = $("copyReportNote");
+      if(ok){
+        note.textContent = r.visibility==="draft" ? "公開前リンクをコピーしました。共有する相手を選んでください" : r.visibility==="members" ? "コピーしました(会員限定:ログインした会員だけが開けます)" : "コピーしました!SNSやメールに貼り付けられます";
+        setTimeout(()=>{ if($("copyReportNote")) $("copyReportNote").textContent = ""; }, 4000);
+      }else{ window.prompt("下のリンクをコピーしてください", url); }
+    });
     $("exportPng").addEventListener("click", ()=> exportReport_(r, "png"));
     $("exportPdf").addEventListener("click", ()=> exportReport_(r, "pdf"));
     loadComments_(r);
