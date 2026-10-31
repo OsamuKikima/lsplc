@@ -550,13 +550,18 @@
   }
 
   /* ---------- PDF・画像として保存 ---------- */
+  const scriptPromises_ = {};
   function loadScript_(src){
-    return new Promise((resolve, reject)=>{
-      if(document.querySelector(`script[data-lib="${src}"]`)) return resolve();
-      const el = document.createElement("script");
-      el.src = src; el.dataset.lib = src; el.onload = resolve; el.onerror = ()=> reject(new Error("出力用ライブラリを読み込めませんでした"));
-      document.head.appendChild(el);
-    });
+    // 読み込み中でも同じ Promise を返し、完了前に先へ進まないようにする
+    if(!scriptPromises_[src]){
+      scriptPromises_[src] = new Promise((resolve, reject)=>{
+        const el = document.createElement("script");
+        el.src = src; el.onload = resolve;
+        el.onerror = ()=>{ delete scriptPromises_[src]; el.remove(); reject(new Error("出力用ライブラリを読み込めませんでした")); };
+        document.head.appendChild(el);
+      });
+    }
+    return scriptPromises_[src];
   }
   function waitImages_(root){
     return Promise.all([...root.querySelectorAll("img")].map(img => img.complete ? Promise.resolve() : new Promise(res=>{ img.onload = img.onerror = res; })));
@@ -568,6 +573,22 @@
   }
   // 画面を描き直す時間を渡して、メッセージとバーが確実に表示されてから重い処理に進む
   function paint_(){ return new Promise(res=> requestAnimationFrame(()=> setTimeout(res, 30))); }
+  /* 写真と出力用ライブラリを、詳細画面を開いた時点で裏で準備しておく(ボタンを押したときの待ち時間を減らす) */
+  const imageCache_ = {};
+  function prefetchImages_(r){
+    if(!r.imageUrls.length) return Promise.resolve([]);
+    const key = r.reportId + "|" + r.imageUrls.join(",");
+    if(!imageCache_[key]){
+      imageCache_[key] = apiGet("getReportImages", { reportId:r.reportId, token:tokenFor_(r), ...(state.isMember?{email:state.email}:{}) })
+        .then(res => res.ok ? res.images : (delete imageCache_[key], []))
+        .catch(() => { delete imageCache_[key]; return []; });
+    }
+    return imageCache_[key];
+  }
+  function prefetchExportLibs_(){
+    loadScript_("https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js").catch(()=>{});
+    loadScript_("https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js").catch(()=>{});
+  }
   async function exportReport_(r, kind){
     const btns = [$("exportPng"), $("exportPdf")].filter(Boolean);
     btns.forEach(b=> b.disabled = true);
@@ -583,11 +604,7 @@
       if(kind==="pdf") await loadScript_("https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js");
       progress_(20, r.imageUrls.length ? "写真を取り込んでいます..." : "内容を整えています..."); await paint_();
       // 写真は外部サイトの画像のままだと出力できないため、サーバー経由でブラウザに埋め込める形で取得する
-      let images = [];
-      if(r.imageUrls.length){
-        const res = await apiGet("getReportImages", { reportId:r.reportId, token:tokenFor_(r), ...(state.isMember?{email:state.email}:{}) });
-        if(res.ok) images = res.images;
-      }
+      const images = await prefetchImages_(r);
       progress_(50, "レイアウトを作っています..."); await paint_();
       const today = new Date();
       stage.innerHTML = `
@@ -600,7 +617,7 @@
       await waitImages_(stage);
       if(document.fonts && document.fonts.ready) await document.fonts.ready;
       progress_(65, kind==="png" ? "画像に変換しています(ここが一番時間がかかります)..." : "ページに変換しています(ここが一番時間がかかります)..."); await paint_();
-      const canvas = await window.html2canvas(stage, { scale:2, backgroundColor:"#ffffff", useCORS:true, logging:false });
+      const canvas = await window.html2canvas(stage, { scale:1.5, backgroundColor:"#ffffff", useCORS:true, logging:false });
       progress_(90, kind==="png" ? "ファイルを書き出しています..." : "PDFにまとめています..."); await paint_();
       const base = `収穫マルシェ_${safeName_(r.title)}`;
       if(kind==="png"){
@@ -676,7 +693,7 @@
       ${reportBodyHtml_(r)}
       ${r.isMine && r.visibility==="draft" && r.shareToken ? `<div class="share-box"><b style="font-size:13px;">公開前リンク</b><div class="field-hint">このリンクを知っている人は、ログインなしでこの報告を読めます。共有したい相手にだけ送ってください。公開範囲を「会員限定」「一般公開」に変更するか、削除すると、このリンクでは読めなくなります。</div><input type="text" id="shareLink" readonly value="${esc_(shareUrl_(r))}"><button class="btn-ghost" id="copyShare" type="button">リンクをコピー</button></div>` : ""}
       <div class="export-row"><button class="btn-ghost" id="exportPng" type="button">🖼 画像で保存</button><button class="btn-ghost" id="exportPdf" type="button">📄 PDFで保存</button></div>
-      <p class="export-hint">※ 作成に数秒〜数十秒かかります(写真が多いほど長くなります)。ボタンを押したあと、画面が止まって見えても作業は進んでいます。</p>
+      <p class="export-hint">※ 作成に数秒〜数十秒かかります(写真が多いほど長くなります)。詳細画面を開いた時点で裏で準備を始めるため、少し待ってから押すと速くなります。画面が止まって見えても作業は進んでいます。</p>
       <div class="comments" id="commentsBox"><h4>💬 コメント</h4><div id="commentList"><p class="field-hint">読み込み中...</p></div><div id="commentFormWrap"></div></div>
       ${r.isMine ? `<div class="author-actions"><button class="btn-ghost" id="editBtn">編集する</button><button class="btn-ghost del" id="delBtn">削除する</button></div>` : ""}
     `;
@@ -697,6 +714,7 @@
     $("exportPng").addEventListener("click", ()=> exportReport_(r, "png"));
     $("exportPdf").addEventListener("click", ()=> exportReport_(r, "pdf"));
     loadComments_(r);
+    prefetchImages_(r); setTimeout(prefetchExportLibs_, 800);
     if($("copyShare")){
       $("copyShare").addEventListener("click", async ()=>{
         const v = $("shareLink").value;
